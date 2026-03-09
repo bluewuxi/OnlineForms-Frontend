@@ -30,14 +30,16 @@ The frontend integrates with the OnlineForms backend API:
 
 ## Suggested Next Steps
 
-1. Initialize frontend framework (recommended: Next.js + TypeScript)
-2. Add typed API client generated from backend OpenAPI contract
+1. Initialize frontend framework (recommended: React + Vite + TypeScript)
+2. Add typed API client aligned to the current backend contract
 3. Implement Phase 1 public pages and enrollment flow
 4. Implement Phase 2 org submission review screens
-5. Configure deployment (CloudFront/S3 or Vercel)
+5. Configure static deployment to S3 + CloudFront
 
 ## Status
 
 - Repository scaffold created
 - README initialized
+- MVP spec and implementation checklist committed
+- Target stack: React + Vite on S3/CloudFront
 - Implementation pending

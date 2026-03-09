@@ -1,6 +1,6 @@
 # OnlineForms Frontend MVP Spec
 
-Version: 0.1 (Draft)
+Version: 0.2 (Draft)
 Date: 2026-03-10
 Repository: bluewuxi/OnlineForms-Frontend
 Backend API: https://y36enrj145.execute-api.ap-southeast-2.amazonaws.com/v1
@@ -131,13 +131,14 @@ APIs:
 
 ## 9. Technical Requirements
 
-1. Framework: Next.js + TypeScript (recommended).
-2. Data fetching: server + client strategy where appropriate.
+1. Framework: React + Vite + TypeScript (recommended).
+2. Data fetching: client-side fetching with reusable request/state patterns.
 3. API client: typed wrappers for backend endpoints.
 4. Environment config:
-   - `NEXT_PUBLIC_API_BASE_URL`
+   - `VITE_API_BASE_URL`
 5. Idempotency key generation on enrollment submit.
 6. Request correlation support where useful in debug tooling.
+7. Build output must be deployable as static assets to S3 behind CloudFront.
 
 ## 10. Auth Strategy (MVP)
 
@@ -178,12 +179,12 @@ Later replacement path:
 2. Working org submission review routes.
 3. Asset/branding utility UI screen.
 4. Frontend smoke test checklist.
-5. Deployment-ready build configuration.
+5. Deployment-ready static build configuration for S3/CloudFront.
 
 ## 15. Suggested Build Sequence
 
 ### Phase F1
-- App scaffold
+- React + Vite app scaffold
 - Routing and layout shell
 - API client foundation
 
@@ -196,7 +197,7 @@ Later replacement path:
 
 ### Phase F4
 - Asset upload and branding utility
-- Polish, tests, smoke checklist
+- Polish, tests, smoke checklist, and S3/CloudFront deployment setup
 
 ## 16. Open Questions
 

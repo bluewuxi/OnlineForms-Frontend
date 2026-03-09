@@ -4,7 +4,7 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 
 ## Phase F1 - Foundation
 
-- [ ] F1-01 Initialize Next.js + TypeScript app scaffold and baseline tooling (#1)
+- [ ] F1-01 Initialize React + Vite + TypeScript app scaffold and baseline tooling (#1)
 - [ ] F1-02 Build shared app shell, routing structure, and global UX states (#2)
 - [ ] F1-03 Implement typed API client, environment config, and request helpers (#3)
 - [ ] F1-04 Add MVP org auth shell and header-based session handling (#4)
@@ -25,4 +25,4 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 
 - [ ] F4-01 Build asset upload and branding utility screen (#11)
 - [ ] F4-02 Add accessibility pass, critical frontend tests, and smoke checklist (#12)
-- [ ] F4-03 Prepare deployment-ready build configuration and delivery notes (#13)
+- [ ] F4-03 Prepare S3/CloudFront deployment-ready build configuration and delivery notes (#13)
