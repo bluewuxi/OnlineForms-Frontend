@@ -17,6 +17,12 @@ The frontend integrates with the OnlineForms backend API:
 - API base URL (deployed): `https://y36enrj145.execute-api.ap-southeast-2.amazonaws.com/v1`
 - Backend repository: `bluewuxi/OnlineForms`
 
+## Project Docs
+
+- MVP spec: `docs/specs/FRONTEND_MVP_SPEC.md`
+- UI spec: `docs/specs/FRONTEND_UI_SPEC.md`
+- Implementation checklist: `docs/specs/FRONTEND_IMPLEMENTATION_CHECKLIST.md`
+
 ## MVP Scope (Initial)
 
 1. Public pages:
