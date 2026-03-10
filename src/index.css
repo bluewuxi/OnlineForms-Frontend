@@ -734,6 +734,34 @@ textarea:focus-visible {
   width: auto;
 }
 
+.designer-subpanel {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(19, 34, 56, 0.08);
+}
+
+.designer-option-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.designer-option-row {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.designer-option-row input {
+  width: 100%;
+  border: 1px solid rgba(19, 34, 56, 0.14);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.85rem 1rem;
+}
+
 .state-card--error {
   border-color: rgba(168, 64, 64, 0.12);
 }
@@ -771,6 +799,10 @@ textarea:focus-visible {
   }
 
   .branding-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .designer-option-row {
     grid-template-columns: 1fr;
   }
 

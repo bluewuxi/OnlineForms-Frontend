@@ -36,6 +36,13 @@ function createDraftField(position: number): FormField {
   }
 }
 
+function withDisplayOrder(fields: FormField[]) {
+  return fields.map((field, index) => ({
+    ...field,
+    displayOrder: index + 1,
+  }))
+}
+
 type FormDesignerEditorProps = {
   courseId: string
   formId?: string
@@ -69,8 +76,66 @@ function FormDesignerEditor({
   function addField() {
     const nextField = createDraftField(editableFields.length)
 
-    setEditableFields((currentFields) => [...currentFields, nextField])
+    setEditableFields((currentFields) =>
+      withDisplayOrder([...currentFields, nextField]),
+    )
     setSelectedFieldId(nextField.fieldId)
+  }
+
+  function moveSelectedField(direction: 'up' | 'down') {
+    if (!selectedFieldId) {
+      return
+    }
+
+    setEditableFields((currentFields) => {
+      const index = currentFields.findIndex((field) => field.fieldId === selectedFieldId)
+      if (index < 0) {
+        return currentFields
+      }
+
+      const targetIndex = direction === 'up' ? index - 1 : index + 1
+      if (targetIndex < 0 || targetIndex >= currentFields.length) {
+        return currentFields
+      }
+
+      const nextFields = [...currentFields]
+      const [selected] = nextFields.splice(index, 1)
+      nextFields.splice(targetIndex, 0, selected)
+      return withDisplayOrder(nextFields)
+    })
+  }
+
+  function addOption() {
+    updateSelectedField((field) => ({
+      ...field,
+      options: [
+        ...(field.options ?? []),
+        {
+          value: `option_${(field.options?.length ?? 0) + 1}`,
+          label: `Option ${(field.options?.length ?? 0) + 1}`,
+        },
+      ],
+    }))
+  }
+
+  function updateOption(
+    optionIndex: number,
+    key: 'label' | 'value',
+    value: string,
+  ) {
+    updateSelectedField((field) => ({
+      ...field,
+      options: (field.options ?? []).map((option, index) =>
+        index === optionIndex ? { ...option, [key]: value } : option,
+      ),
+    }))
+  }
+
+  function removeOption(optionIndex: number) {
+    updateSelectedField((field) => ({
+      ...field,
+      options: (field.options ?? []).filter((_, index) => index !== optionIndex),
+    }))
   }
 
   return (
@@ -105,6 +170,22 @@ function FormDesignerEditor({
           <div className="button-row">
             <button className="button button--primary" onClick={addField} type="button">
               Add field
+            </button>
+            <button
+              className="button button--ghost"
+              disabled={!selectedField}
+              onClick={() => moveSelectedField('up')}
+              type="button"
+            >
+              Move up
+            </button>
+            <button
+              className="button button--ghost"
+              disabled={!selectedField}
+              onClick={() => moveSelectedField('down')}
+              type="button"
+            >
+              Move down
             </button>
           </div>
           {editableFields.length ? (
@@ -228,6 +309,158 @@ function FormDesignerEditor({
                 />
                 <span>Required field</span>
               </label>
+              <section className="designer-subpanel">
+                <div className="section-heading">
+                  <p className="section-heading__eyebrow">Validation</p>
+                  <h2>Field rules</h2>
+                </div>
+                <div className="designer-editor-grid">
+                  <label className="session-form__field">
+                    <span>Min length</span>
+                    <input
+                      onChange={(event) =>
+                        updateSelectedField((field) => ({
+                          ...field,
+                          validation: {
+                            ...field.validation,
+                            minLength: event.target.value
+                              ? Number(event.target.value)
+                              : undefined,
+                          },
+                        }))
+                      }
+                      type="number"
+                      value={selectedField.validation?.minLength ?? ''}
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Max length</span>
+                    <input
+                      onChange={(event) =>
+                        updateSelectedField((field) => ({
+                          ...field,
+                          validation: {
+                            ...field.validation,
+                            maxLength: event.target.value
+                              ? Number(event.target.value)
+                              : undefined,
+                          },
+                        }))
+                      }
+                      type="number"
+                      value={selectedField.validation?.maxLength ?? ''}
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Min value</span>
+                    <input
+                      onChange={(event) =>
+                        updateSelectedField((field) => ({
+                          ...field,
+                          validation: {
+                            ...field.validation,
+                            min: event.target.value
+                              ? Number(event.target.value)
+                              : undefined,
+                          },
+                        }))
+                      }
+                      type="number"
+                      value={selectedField.validation?.min ?? ''}
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Max value</span>
+                    <input
+                      onChange={(event) =>
+                        updateSelectedField((field) => ({
+                          ...field,
+                          validation: {
+                            ...field.validation,
+                            max: event.target.value
+                              ? Number(event.target.value)
+                              : undefined,
+                          },
+                        }))
+                      }
+                      type="number"
+                      value={selectedField.validation?.max ?? ''}
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Pattern</span>
+                    <input
+                      onChange={(event) =>
+                        updateSelectedField((field) => ({
+                          ...field,
+                          validation: {
+                            ...field.validation,
+                            pattern: event.target.value || undefined,
+                          },
+                        }))
+                      }
+                      placeholder="^[A-Za-z]+$"
+                      type="text"
+                      value={selectedField.validation?.pattern ?? ''}
+                    />
+                  </label>
+                </div>
+              </section>
+
+              {selectedField.type === 'single_select' ||
+              selectedField.type === 'multi_select' ? (
+                <section className="designer-subpanel">
+                  <div className="section-heading">
+                    <p className="section-heading__eyebrow">Options</p>
+                    <h2>Select field choices</h2>
+                  </div>
+                  <div className="button-row">
+                    <button
+                      className="button button--secondary"
+                      onClick={addOption}
+                      type="button"
+                    >
+                      Add option
+                    </button>
+                  </div>
+                  {(selectedField.options ?? []).length ? (
+                    <div className="designer-option-list">
+                      {(selectedField.options ?? []).map((option, optionIndex) => (
+                        <div key={`${option.value}-${optionIndex}`} className="designer-option-row">
+                          <input
+                            onChange={(event) =>
+                              updateOption(optionIndex, 'label', event.target.value)
+                            }
+                            placeholder="Label"
+                            type="text"
+                            value={option.label}
+                          />
+                          <input
+                            onChange={(event) =>
+                              updateOption(optionIndex, 'value', event.target.value)
+                            }
+                            placeholder="Value"
+                            type="text"
+                            value={option.value}
+                          />
+                          <button
+                            className="button button--ghost"
+                            onClick={() => removeOption(optionIndex)}
+                            type="button"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="designer-empty-panel">
+                      <h3>No options configured</h3>
+                      <p>Add the selectable values for this field.</p>
+                    </div>
+                  )}
+                </section>
+              ) : null}
             </div>
           ) : (
             <div className="designer-empty-panel">
