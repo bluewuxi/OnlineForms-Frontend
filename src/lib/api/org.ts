@@ -3,12 +3,17 @@ import type {
   AuditEvent,
   BrandingUpdatePayload,
   BrandingUpdateResponse,
+  CourseStatus,
   CursorPage,
+  DeliveryMode,
   FormField,
   FormSchemaUpsertPayload,
   FormSchemaUpsertResponse,
   OrgAsset,
+  OrgCourse,
+  OrgCourseSummary,
   OrgSessionHeaders,
+  PricingMode,
   Submission,
   SubmissionStatus,
   SubmissionStatusUpdatePayload,
@@ -67,6 +72,29 @@ type BackendFormSchema = {
   fields: FormField[]
 }
 
+type BackendOrgCourse = {
+  id: string
+  title: string
+  shortDescription: string
+  fullDescription: string
+  startDate: string
+  endDate: string
+  enrollmentOpenAt: string
+  enrollmentCloseAt: string
+  deliveryMode: DeliveryMode
+  locationText?: string | null
+  capacity?: number | null
+  status: CourseStatus
+  publicVisible: boolean
+  pricingMode: PricingMode
+  paymentEnabledFlag: boolean
+  imageAssetId?: string | null
+  activeFormId?: string | null
+  activeFormVersion?: number | null
+  createdAt: string
+  updatedAt: string
+}
+
 function mapSubmission(submission: BackendSubmission): Submission {
   return {
     id: submission.id,
@@ -108,6 +136,46 @@ function mapFormSchema(schema: BackendFormSchema) {
   }
 }
 
+function mapOrgCourse(course: BackendOrgCourse): OrgCourse {
+  return {
+    id: course.id,
+    title: course.title,
+    shortDescription: course.shortDescription,
+    fullDescription: course.fullDescription,
+    startDate: course.startDate,
+    endDate: course.endDate,
+    enrollmentOpenAt: course.enrollmentOpenAt,
+    enrollmentCloseAt: course.enrollmentCloseAt,
+    deliveryMode: course.deliveryMode,
+    locationText: course.locationText,
+    capacity: course.capacity,
+    status: course.status,
+    publicVisible: course.publicVisible,
+    pricingMode: course.pricingMode,
+    paymentEnabledFlag: course.paymentEnabledFlag,
+    imageAssetId: course.imageAssetId,
+    activeFormId: course.activeFormId,
+    activeFormVersion: course.activeFormVersion,
+    createdAt: course.createdAt,
+    updatedAt: course.updatedAt,
+  }
+}
+
+function mapOrgCourseSummary(course: BackendOrgCourse): OrgCourseSummary {
+  return {
+    id: course.id,
+    title: course.title,
+    shortDescription: course.shortDescription,
+    startDate: course.startDate,
+    endDate: course.endDate,
+    deliveryMode: course.deliveryMode,
+    status: course.status,
+    publicVisible: course.publicVisible,
+    pricingMode: course.pricingMode,
+    activeFormVersion: course.activeFormVersion,
+  }
+}
+
 type SubmissionListParams = {
   cursor?: string
   limit?: number
@@ -123,6 +191,29 @@ type AuditListParams = {
   action?: string
   actorId?: string
   resourceType?: string
+}
+
+export function listCourses(session: OrgSessionHeaders) {
+  return apiRequest<BackendListEnvelope<BackendOrgCourse>>({
+    path: '/org/courses',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: {
+      items: response.data.data.map(mapOrgCourseSummary),
+      nextCursor: response.data.page.nextCursor,
+    } satisfies CursorPage<OrgCourseSummary>,
+  }))
+}
+
+export function getCourse(session: OrgSessionHeaders, courseId: string) {
+  return apiRequest<BackendItemEnvelope<BackendOrgCourse>>({
+    path: `/org/courses/${courseId}`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: mapOrgCourse(response.data.data),
+  }))
 }
 
 export function listSubmissions(

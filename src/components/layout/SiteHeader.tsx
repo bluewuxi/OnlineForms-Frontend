@@ -12,6 +12,7 @@ const publicLinks = [
 ]
 
 const orgLinks = [
+  { to: '/org/courses', label: 'Courses' },
   { to: '/org/submissions', label: 'Submissions' },
   { to: '/org/audit', label: 'Audit' },
   { to: '/org/branding', label: 'Branding' },

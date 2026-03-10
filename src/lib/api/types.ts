@@ -23,6 +23,10 @@ export type OrgSessionHeaders = {
   role: string
 }
 
+export type DeliveryMode = 'online' | 'onsite' | 'hybrid'
+export type PricingMode = 'free' | 'paid_placeholder'
+export type CourseStatus = 'draft' | 'published' | 'archived'
+
 export type ApiRequestOptions = {
   path: string
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
@@ -54,6 +58,43 @@ export type Course = CourseListItem & {
   formVersion?: number | null
   formSchema?: FormSchema | Record<string, unknown>
 }
+
+export type OrgCourse = {
+  id: string
+  title: string
+  shortDescription: string
+  fullDescription: string
+  startDate: string
+  endDate: string
+  enrollmentOpenAt: string
+  enrollmentCloseAt: string
+  deliveryMode: DeliveryMode
+  locationText?: string | null
+  capacity?: number | null
+  status: CourseStatus
+  publicVisible: boolean
+  pricingMode: PricingMode
+  paymentEnabledFlag: boolean
+  imageAssetId?: string | null
+  activeFormId?: string | null
+  activeFormVersion?: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type OrgCourseSummary = Pick<
+  OrgCourse,
+  | 'id'
+  | 'title'
+  | 'shortDescription'
+  | 'startDate'
+  | 'endDate'
+  | 'deliveryMode'
+  | 'status'
+  | 'publicVisible'
+  | 'pricingMode'
+  | 'activeFormVersion'
+>
 
 export type FormFieldType =
   | 'short_text'

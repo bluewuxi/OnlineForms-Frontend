@@ -54,6 +54,23 @@ describe('App routing', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders the org courses route when a session exists', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'org_admin',
+      }),
+    )
+
+    renderRoute('/org/courses')
+
+    expect(
+      await screen.findByRole('heading', { name: /tenant course management/i }),
+    ).toBeInTheDocument()
+  })
+
   it('renders the form designer route when a session exists', async () => {
     window.localStorage.setItem(
       ORG_SESSION_STORAGE_KEY,

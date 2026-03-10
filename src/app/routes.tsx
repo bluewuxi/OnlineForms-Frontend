@@ -3,6 +3,7 @@ import { RootLayout } from '../components/layout/RootLayout'
 import { OrgProtectedRoute } from '../features/org-session/OrgProtectedRoute'
 import { AuditPage } from '../pages/org/AuditPage'
 import { BrandingPage } from '../pages/org/BrandingPage'
+import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
 import { OrgLoginPage } from '../pages/org/OrgLoginPage'
 import { SubmissionDetailPage } from '../pages/org/SubmissionDetailPage'
@@ -39,6 +40,10 @@ export const appRoutes: RouteObject[] = [
         path: 'org',
         element: <OrgProtectedRoute />,
         children: [
+          {
+            path: 'courses',
+            element: <CoursesPage />,
+          },
           {
             path: 'submissions',
             element: <SubmissionsPage />,
