@@ -325,7 +325,7 @@ function CourseEditorForm({
             value={draft.fullDescription}
           />
         </label>
-        <div className="field-grid">
+        <div className="field-grid field-grid--course-dates">
           <label className="session-form__field">
             <span>Start date</span>
             <input
@@ -358,6 +358,9 @@ function CourseEditorForm({
               value={draft.enrollmentCloseAt}
             />
           </label>
+        </div>
+
+        <div className="field-grid field-grid--course-settings">
           <label className="session-form__field">
             <span>Delivery mode</span>
             <select
@@ -383,7 +386,7 @@ function CourseEditorForm({
               <option value="paid_placeholder">Paid placeholder</option>
             </select>
           </label>
-          <label className="session-form__field">
+          <label className="session-form__field session-form__field--wide">
             <span>Location</span>
             <input
               onChange={(event) => updateField('locationText', event.target.value)}

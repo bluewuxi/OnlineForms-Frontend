@@ -333,6 +333,14 @@ textarea:focus-visible {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.field-grid--course-dates {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.field-grid--course-settings {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
 .detail-summary-grid {
   display: grid;
   gap: 1rem;
@@ -383,10 +391,26 @@ textarea:focus-visible {
 .session-form__field input,
 .session-form__field select {
   width: 100%;
+  min-width: 0;
   border: 1px solid rgba(19, 34, 56, 0.14);
   border-radius: 0.9rem;
   background: #fff;
   padding: 0.95rem 1rem;
+}
+
+.session-form__field--wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 720px) {
+  .field-grid--course-dates,
+  .field-grid--course-settings {
+    grid-template-columns: 1fr;
+  }
+
+  .session-form__field--wide {
+    grid-column: auto;
+  }
 }
 
 .session-form__actions {
