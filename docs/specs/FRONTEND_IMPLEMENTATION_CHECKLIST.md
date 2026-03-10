@@ -26,3 +26,10 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [ ] F4-01 Build asset upload and branding utility screen (#11)
 - [ ] F4-02 Add accessibility pass, critical frontend tests, and smoke checklist (#12)
 - [ ] F4-03 Prepare S3/CloudFront deployment-ready build configuration and delivery notes (#13)
+
+## Phase F5 - Form Designer
+
+- [ ] F5-01 Build org form schema loader and editor shell
+- [ ] F5-02 Build field editor for labels, help text, type, and required state
+- [ ] F5-03 Build option, ordering, and validation controls
+- [ ] F5-04 Add form schema save/version workflow and test coverage

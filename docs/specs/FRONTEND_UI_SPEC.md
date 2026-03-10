@@ -219,7 +219,32 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Idle
   - Uploading
   - Upload success
-  - Upload failure with retry guidance
+- Upload failure with retry guidance
+
+## 4.9 Org Form Template Designer
+
+- Route:
+  - Final route to be decided during implementation, likely under `/org/courses/:courseId/form`
+- APIs:
+  - `GET /org/courses/{courseId}/form-schema`
+  - `PUT /org/courses/{courseId}/form-schema`
+- Purpose:
+  - Allow org users to design and revise the enrollment form template for a course.
+- Key sections:
+  - Form schema summary header
+  - Field list with display order
+  - Field editor panel
+  - Validation and options controls
+  - Save/version action area
+- Behavior:
+  - Support adding, editing, removing, and reordering fields
+  - Support field-specific validation and option editing
+  - Keep version/save behavior clear to org users
+- States:
+  - Loading schema
+  - Empty form state before fields exist
+  - Unsaved changes state
+  - Save success and save error feedback
 
 ## 5. Navigation Model
 

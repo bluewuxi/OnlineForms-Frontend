@@ -1,6 +1,6 @@
 # OnlineForms Frontend MVP Spec
 
-Version: 0.2 (Draft)
+Version: 0.3 (Draft)
 Date: 2026-03-10
 Repository: bluewuxi/OnlineForms-Frontend
 Backend API: https://y36enrj145.execute-api.ap-southeast-2.amazonaws.com/v1
@@ -198,6 +198,11 @@ Later replacement path:
 ### Phase F4
 - Asset upload and branding utility
 - Polish, tests, smoke checklist, and S3/CloudFront deployment setup
+
+### Phase F5
+- Org form template designer
+- Form field editing, ordering, validation, and options
+- Form schema save/version workflow
 
 ## 16. Open Questions
 
