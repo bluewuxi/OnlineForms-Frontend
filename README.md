@@ -35,18 +35,28 @@ The frontend integrates with the OnlineForms backend API:
    - Submission list
    - Submission detail and status update
 
-## Suggested Next Steps
+## Local Scripts
 
-1. Initialize frontend framework (recommended: React + Vite + TypeScript)
-2. Add typed API client aligned to the current backend contract
-3. Implement Phase 1 public pages and enrollment flow
-4. Implement Phase 2 org submission review screens
-5. Configure static deployment to S3 + CloudFront
+- `npm install`
+- `npm run dev`
+- `npm run build`
+- `npm run lint`
+- `npm run test`
+- `npm run preview`
+
+## Foundation Stack
+
+- React 19
+- Vite 7
+- TypeScript 5
+- React Router
+- TanStack Query
+- React Hook Form
+- Vitest + Testing Library
 
 ## Status
 
-- Repository scaffold created
-- README initialized
+- React + Vite + TypeScript scaffold created
 - MVP spec and implementation checklist committed
 - Target stack: React + Vite on S3/CloudFront
-- Implementation pending
+- Phase F1 foundation in progress
