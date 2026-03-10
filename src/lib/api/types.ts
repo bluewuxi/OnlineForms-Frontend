@@ -117,8 +117,15 @@ export type Submission = {
   id: string
   courseId: string
   courseTitle?: string
+  formId?: string
+  formVersion?: number
   status: SubmissionStatus
   submittedAt: string
+  reviewedAt?: string | null
+  reviewedBy?: string | null
+  createdAt?: string
+  tenantCode?: string
+  applicant?: Record<string, unknown>
   applicantName?: string
   applicantEmail?: string
   answers?: Record<string, unknown>

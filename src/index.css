@@ -573,6 +573,33 @@ a {
   font-size: 0.9rem;
 }
 
+.answer-list {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1rem 0 0;
+}
+
+.answer-list__item {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(19, 34, 56, 0.04);
+}
+
+.answer-list__item dt {
+  color: #596a80;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.answer-list__item dd {
+  margin: 0;
+  color: #21364f;
+}
+
 .state-card--error {
   border-color: rgba(168, 64, 64, 0.12);
 }
