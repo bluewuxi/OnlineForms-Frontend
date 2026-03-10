@@ -44,6 +44,11 @@ The frontend integrates with the OnlineForms backend API:
 - `npm run test`
 - `npm run preview`
 
+## Environment
+
+- Copy `.env.example` to `.env.local` for local development overrides.
+- `VITE_API_BASE_URL` defaults to the deployed MVP API if not provided.
+
 ## Foundation Stack
 
 - React 19
