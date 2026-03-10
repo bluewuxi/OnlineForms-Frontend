@@ -52,6 +52,7 @@ function withDisplayOrder(fields: FormField[]) {
 type FormDesignerEditorProps = {
   courseId: string
   formId?: string
+  isNewSchema?: boolean
   version?: number
   initialFields: FormField[]
   queryKey: string[]
@@ -61,6 +62,7 @@ type FormDesignerEditorProps = {
 function FormDesignerEditor({
   courseId,
   formId,
+  isNewSchema = false,
   version,
   initialFields,
   queryKey,
@@ -109,7 +111,10 @@ function FormDesignerEditor({
         fields: normalizedFields,
       }
 
-      queryClient.setQueryData<FormSchema>(queryKey, nextSchema)
+      queryClient.setQueryData(queryKey, {
+        schema: nextSchema,
+        isNewSchema: false,
+      })
       setSaveMessage(
         `Schema saved as version ${result.version}. The latest draft is now active for new enrollments.`,
       )
@@ -196,10 +201,16 @@ function FormDesignerEditor({
           <p className="section-heading__eyebrow">Schema summary</p>
           <h2>Version {version ?? 'Draft'}</h2>
         </div>
+        {isNewSchema ? (
+          <div className="designer-banner designer-banner--warning" role="status">
+            <strong>No form template exists yet.</strong>
+            <span>Add fields and save to create the first enrollment form version for this course.</span>
+          </div>
+        ) : null}
         <div className="detail-summary-grid">
           <div className="field-card">
             <span>Form ID</span>
-            <strong>{formId || 'Unavailable'}</strong>
+            <strong>{formId || 'Not created yet'}</strong>
           </div>
           <div className="field-card">
             <span>Course</span>
@@ -554,6 +565,14 @@ function FormDesignerEditor({
   )
 }
 
+function createEmptyFormSchema(courseId: string): FormSchema {
+  return {
+    courseId,
+    version: 0,
+    fields: [],
+  }
+}
+
 export function FormDesignerPage() {
   const { session } = useOrgSession()
   const { courseId = '' } = useParams()
@@ -564,8 +583,22 @@ export function FormDesignerPage() {
         throw new Error('Missing org session.')
       }
 
-      const response = await getLatestFormSchema(session, courseId)
-      return response.data
+      try {
+        const response = await getLatestFormSchema(session, courseId)
+        return {
+          schema: response.data,
+          isNewSchema: false,
+        }
+      } catch (error) {
+        if (error instanceof ApiClientError && error.code === 'NOT_FOUND') {
+          return {
+            schema: createEmptyFormSchema(courseId),
+            isNewSchema: true,
+          }
+        }
+
+        throw error
+      }
     },
     enabled: Boolean(session && courseId),
   })
@@ -597,19 +630,20 @@ export function FormDesignerPage() {
       {schemaQuery.isError ? (
         <ErrorState
           title="We could not load the form schema"
-          message="The selected course may not have an active schema yet, or the org request failed."
+          message="The selected course form could not be loaded. Check the org session or retry the request."
         />
       ) : null}
 
       {!schemaQuery.isLoading && !schemaQuery.isError && session ? (
         <FormDesignerEditor
-          key={`${schemaQuery.data?.id || 'draft'}-${schemaQuery.data?.version || 0}-${courseId}`}
-          courseId={schemaQuery.data?.courseId || courseId}
-          formId={schemaQuery.data?.id}
-          initialFields={schemaQuery.data?.fields ?? []}
+          key={`${schemaQuery.data?.schema.id || 'draft'}-${schemaQuery.data?.schema.version || 0}-${courseId}`}
+          courseId={schemaQuery.data?.schema.courseId || courseId}
+          formId={schemaQuery.data?.schema.id}
+          initialFields={schemaQuery.data?.schema.fields ?? []}
+          isNewSchema={schemaQuery.data?.isNewSchema}
           queryKey={['org-form-schema', session?.tenantId || '', courseId]}
           session={session}
-          version={schemaQuery.data?.version}
+          version={schemaQuery.data?.schema.version}
         />
       ) : null}
 
