@@ -194,6 +194,14 @@ function FormDesignerEditor({
     }))
   }
 
+  function handleFieldIdChange(nextFieldId: string) {
+    updateSelectedField((field) => ({
+      ...field,
+      fieldId: nextFieldId,
+    }))
+    setSelectedFieldId(nextFieldId)
+  }
+
   return (
     <>
       <section className="content-panel">
@@ -329,12 +337,7 @@ function FormDesignerEditor({
               <label className="session-form__field">
                 <span>Field ID</span>
                 <input
-                  onChange={(event) =>
-                    updateSelectedField((field) => ({
-                      ...field,
-                      fieldId: event.target.value,
-                    }))
-                  }
+                  onChange={(event) => handleFieldIdChange(event.target.value)}
                   type="text"
                   value={selectedField.fieldId}
                 />
