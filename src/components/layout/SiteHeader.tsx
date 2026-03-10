@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useOrgSession } from '../../features/org-session/useOrgSession'
 
 type SiteHeaderProps = {
   section: 'public' | 'org'
@@ -18,6 +19,7 @@ const orgLinks = [
 
 export function SiteHeader({ section }: SiteHeaderProps) {
   const links = section === 'org' ? orgLinks : publicLinks
+  const { session, signOut } = useOrgSession()
 
   return (
     <header className="site-header">
@@ -40,6 +42,19 @@ export function SiteHeader({ section }: SiteHeaderProps) {
             </NavLink>
           ))}
         </nav>
+        {section === 'org' && session ? (
+          <div className="site-header__session">
+            <span>{session.tenantId}</span>
+            <span>{session.userId}</span>
+            <button
+              className="button button--ghost"
+              onClick={signOut}
+              type="button"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : null}
       </div>
     </header>
   )

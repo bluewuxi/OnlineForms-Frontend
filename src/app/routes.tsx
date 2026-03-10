@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { RootLayout } from '../components/layout/RootLayout'
+import { OrgProtectedRoute } from '../features/org-session/OrgProtectedRoute'
 import { AuditPage } from '../pages/org/AuditPage'
 import { BrandingPage } from '../pages/org/BrandingPage'
 import { OrgLoginPage } from '../pages/org/OrgLoginPage'
@@ -34,20 +35,26 @@ export const appRoutes: RouteObject[] = [
         element: <OrgLoginPage />,
       },
       {
-        path: 'org/submissions',
-        element: <SubmissionsPage />,
-      },
-      {
-        path: 'org/submissions/:submissionId',
-        element: <SubmissionDetailPage />,
-      },
-      {
-        path: 'org/audit',
-        element: <AuditPage />,
-      },
-      {
-        path: 'org/branding',
-        element: <BrandingPage />,
+        path: 'org',
+        element: <OrgProtectedRoute />,
+        children: [
+          {
+            path: 'submissions',
+            element: <SubmissionsPage />,
+          },
+          {
+            path: 'submissions/:submissionId',
+            element: <SubmissionDetailPage />,
+          },
+          {
+            path: 'audit',
+            element: <AuditPage />,
+          },
+          {
+            path: 'branding',
+            element: <BrandingPage />,
+          },
+        ],
       },
       {
         path: '*',
