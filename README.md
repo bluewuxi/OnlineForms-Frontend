@@ -24,6 +24,7 @@ The frontend integrates with the OnlineForms backend API:
 - Implementation checklist: `docs/specs/FRONTEND_IMPLEMENTATION_CHECKLIST.md`
 - Visual baseline: `docs/design/FRONTEND_VISUAL_BASELINE.md`
 - Smoke checklist: `docs/ops/FRONTEND_SMOKE_CHECKLIST.md`
+- S3/CloudFront deployment notes: `docs/ops/S3_CLOUDFRONT_DEPLOYMENT.md`
 
 ## MVP Scope (Initial)
 
