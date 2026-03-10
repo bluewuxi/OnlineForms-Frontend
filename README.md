@@ -22,6 +22,7 @@ The frontend integrates with the OnlineForms backend API:
 - MVP spec: `docs/specs/FRONTEND_MVP_SPEC.md`
 - UI spec: `docs/specs/FRONTEND_UI_SPEC.md`
 - Implementation checklist: `docs/specs/FRONTEND_IMPLEMENTATION_CHECKLIST.md`
+- Visual baseline: `docs/design/FRONTEND_VISUAL_BASELINE.md`
 
 ## MVP Scope (Initial)
 
