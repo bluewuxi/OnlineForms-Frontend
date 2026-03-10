@@ -600,6 +600,38 @@ a {
   color: #21364f;
 }
 
+.branding-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.branding-grid__actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.branding-preview {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.branding-preview span {
+  color: #617289;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.branding-preview a {
+  color: #244b7f;
+  word-break: break-all;
+}
+
 .state-card--error {
   border-color: rgba(168, 64, 64, 0.12);
 }
@@ -629,6 +661,10 @@ a {
   }
 
   .search-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .branding-grid {
     grid-template-columns: 1fr;
   }
 

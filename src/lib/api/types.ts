@@ -148,29 +148,35 @@ export type AuditEvent = {
 }
 
 export type UploadTicketRequest = {
+  purpose: 'course_image' | 'org_logo'
   fileName: string
   contentType: string
-  contentLength: number
+  sizeBytes: number
 }
 
 export type UploadTicketResponse = {
   assetId: string
   uploadUrl: string
-  uploadMethod?: string
+  method?: string
   headers?: Record<string, string>
+  expiresAt?: string
+  publicUrl?: string
 }
 
 export type OrgAsset = {
   id: string
   fileName?: string
   contentType?: string
+  publicUrl?: string
   url?: string
 }
 
 export type BrandingUpdatePayload = {
-  logoAssetId: string
+  logoAssetId: string | null
 }
 
 export type BrandingUpdateResponse = {
-  logoAssetId: string
+  tenantId?: string
+  logoAssetId: string | null
+  updatedAt?: string
 }
