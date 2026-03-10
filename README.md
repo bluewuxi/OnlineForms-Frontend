@@ -23,6 +23,7 @@ The frontend integrates with the OnlineForms backend API:
 - UI spec: `docs/specs/FRONTEND_UI_SPEC.md`
 - Implementation checklist: `docs/specs/FRONTEND_IMPLEMENTATION_CHECKLIST.md`
 - Visual baseline: `docs/design/FRONTEND_VISUAL_BASELINE.md`
+- Smoke checklist: `docs/ops/FRONTEND_SMOKE_CHECKLIST.md`
 
 ## MVP Scope (Initial)
 
@@ -64,4 +65,5 @@ The frontend integrates with the OnlineForms backend API:
 - React + Vite + TypeScript scaffold created
 - MVP spec and implementation checklist committed
 - Target stack: React + Vite on S3/CloudFront
-- Phase F1 foundation in progress
+- Phases F1-F3 implemented
+- Phase F4 in progress
