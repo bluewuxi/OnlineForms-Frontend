@@ -49,6 +49,72 @@ function withDisplayOrder(fields: FormField[]) {
   }))
 }
 
+function createInitialEnrollmentFields(): FormField[] {
+  return [
+    {
+      fieldId: 'first_name',
+      type: 'short_text',
+      label: 'First Name',
+      helpText: 'Enter the learner first name as it appears on official records.',
+      required: true,
+      displayOrder: 1,
+      options: [],
+      validation: {
+        minLength: 1,
+        maxLength: 100,
+      },
+    },
+    {
+      fieldId: 'last_name',
+      type: 'short_text',
+      label: 'Last Name',
+      helpText: 'Enter the learner family name or surname.',
+      required: true,
+      displayOrder: 2,
+      options: [],
+      validation: {
+        minLength: 1,
+        maxLength: 100,
+      },
+    },
+    {
+      fieldId: 'date_of_birth',
+      type: 'date',
+      label: 'Date of Birth',
+      helpText: 'Provide the learner date of birth.',
+      required: true,
+      displayOrder: 3,
+      options: [],
+      validation: {},
+    },
+    {
+      fieldId: 'mobile',
+      type: 'phone',
+      label: 'Mobile',
+      helpText: 'Use a mobile number that can receive updates about the enrollment.',
+      required: true,
+      displayOrder: 4,
+      options: [],
+      validation: {
+        minLength: 8,
+        maxLength: 20,
+      },
+    },
+    {
+      fieldId: 'email',
+      type: 'email',
+      label: 'Email',
+      helpText: 'Use the primary email address for enrollment confirmations.',
+      required: true,
+      displayOrder: 5,
+      options: [],
+      validation: {
+        maxLength: 255,
+      },
+    },
+  ]
+}
+
 type FormDesignerEditorProps = {
   courseId: string
   formId?: string
@@ -572,7 +638,7 @@ function createEmptyFormSchema(courseId: string): FormSchema {
   return {
     courseId,
     version: 0,
-    fields: [],
+    fields: createInitialEnrollmentFields(),
   }
 }
 
