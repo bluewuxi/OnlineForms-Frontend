@@ -647,6 +647,29 @@ textarea:focus-visible {
   margin-top: 1rem;
 }
 
+.designer-banner {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
+.designer-banner--warning {
+  background: rgba(170, 120, 36, 0.12);
+  color: #855514;
+}
+
+.designer-banner--error {
+  background: rgba(168, 64, 64, 0.08);
+  color: #7c3131;
+}
+
+.designer-banner--success {
+  background: rgba(52, 122, 76, 0.12);
+  color: #275f3a;
+}
+
 .designer-field-card {
   display: grid;
   gap: 1rem;

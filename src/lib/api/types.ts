@@ -97,6 +97,15 @@ export type FormSchema = {
   fields: FormField[]
 }
 
+export type FormSchemaUpsertPayload = {
+  fields: FormField[]
+}
+
+export type FormSchemaUpsertResponse = {
+  formId: string
+  version: number
+}
+
 export type EnrollmentPayload = {
   formVersion: number
   answers: Record<string, unknown>

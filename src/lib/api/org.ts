@@ -5,6 +5,8 @@ import type {
   BrandingUpdateResponse,
   CursorPage,
   FormSchema,
+  FormSchemaUpsertPayload,
+  FormSchemaUpsertResponse,
   OrgAsset,
   OrgSessionHeaders,
   Submission,
@@ -83,6 +85,19 @@ export function getLatestFormSchema(
   return apiRequest<FormSchema>({
     path: `/org/courses/${courseId}/form-schema`,
     session,
+  })
+}
+
+export function upsertFormSchema(
+  session: OrgSessionHeaders,
+  courseId: string,
+  payload: FormSchemaUpsertPayload,
+) {
+  return apiRequest<FormSchemaUpsertResponse>({
+    path: `/org/courses/${courseId}/form-schema`,
+    method: 'PUT',
+    session,
+    body: payload,
   })
 }
 

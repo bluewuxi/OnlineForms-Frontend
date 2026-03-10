@@ -1,14 +1,20 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
+import { buildFormSchemaUpsertPayload } from '../../features/form-designer/schemaPayload'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
+  ApiClientError,
   getLatestFormSchema,
   type FormField,
   type FormFieldType,
+  type FormSchema,
+  type FormSchemaUpsertResponse,
+  type OrgSessionHeaders,
+  upsertFormSchema,
 } from '../../lib/api'
 
 const fieldTypeOptions: Array<{ value: FormFieldType; label: string }> = [
@@ -48,6 +54,8 @@ type FormDesignerEditorProps = {
   formId?: string
   version?: number
   initialFields: FormField[]
+  queryKey: string[]
+  session: OrgSessionHeaders
 }
 
 function FormDesignerEditor({
@@ -55,15 +63,58 @@ function FormDesignerEditor({
   formId,
   version,
   initialFields,
+  queryKey,
+  session,
 }: FormDesignerEditorProps) {
+  const queryClient = useQueryClient()
   const [editableFields, setEditableFields] =
     useState<FormField[]>(initialFields)
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(
     initialFields[0]?.fieldId ?? null,
   )
+  const [saveMessage, setSaveMessage] = useState<string | null>(null)
+
+  const initialPayload = useMemo(
+    () => buildFormSchemaUpsertPayload(initialFields),
+    [initialFields],
+  )
+  const draftPayload = useMemo(
+    () => buildFormSchemaUpsertPayload(editableFields),
+    [editableFields],
+  )
+  const hasUnsavedChanges =
+    JSON.stringify(initialPayload) !== JSON.stringify(draftPayload)
 
   const selectedField =
     editableFields.find((field) => field.fieldId === selectedFieldId) ?? null
+
+  const saveMutation = useMutation<
+    FormSchemaUpsertResponse,
+    ApiClientError | Error,
+    void
+  >({
+    mutationFn: async () => {
+      const response = await upsertFormSchema(session, courseId, draftPayload)
+      return response.data
+    },
+    onMutate: () => {
+      setSaveMessage(null)
+    },
+    onSuccess: (result) => {
+      const normalizedFields = draftPayload.fields
+      const nextSchema: FormSchema = {
+        id: result.formId,
+        courseId,
+        version: result.version,
+        fields: normalizedFields,
+      }
+
+      queryClient.setQueryData<FormSchema>(queryKey, nextSchema)
+      setSaveMessage(
+        `Schema saved as version ${result.version}. The latest draft is now active for new enrollments.`,
+      )
+    },
+  })
 
   function updateSelectedField(updater: (field: FormField) => FormField) {
     setEditableFields((currentFields) =>
@@ -187,7 +238,33 @@ function FormDesignerEditor({
             >
               Move down
             </button>
+            <button
+              className="button button--secondary"
+              disabled={!editableFields.length || !hasUnsavedChanges || saveMutation.isPending}
+              onClick={() => saveMutation.mutate()}
+              type="button"
+            >
+              {saveMutation.isPending ? 'Saving schema...' : 'Save schema'}
+            </button>
           </div>
+          {hasUnsavedChanges ? (
+            <div className="designer-banner designer-banner--warning" role="status">
+              <strong>Draft has unsaved changes.</strong>
+              <span>Save the schema to publish the next form version for this course.</span>
+            </div>
+          ) : null}
+          {saveMutation.isError ? (
+            <div className="designer-banner designer-banner--error" role="alert">
+              <strong>{saveMutation.error.message}</strong>
+              <span>The latest saved schema is still available. Review the draft and try again.</span>
+            </div>
+          ) : null}
+          {saveMessage ? (
+            <div className="designer-banner designer-banner--success" role="status">
+              <strong>Schema saved successfully.</strong>
+              <span>{saveMessage}</span>
+            </div>
+          ) : null}
           {editableFields.length ? (
             <div className="designer-field-list">
               {editableFields.map((field) => (
@@ -524,24 +601,27 @@ export function FormDesignerPage() {
         />
       ) : null}
 
-      {!schemaQuery.isLoading && !schemaQuery.isError ? (
+      {!schemaQuery.isLoading && !schemaQuery.isError && session ? (
         <FormDesignerEditor
           key={`${schemaQuery.data?.id || 'draft'}-${schemaQuery.data?.version || 0}-${courseId}`}
           courseId={schemaQuery.data?.courseId || courseId}
           formId={schemaQuery.data?.id}
           initialFields={schemaQuery.data?.fields ?? []}
+          queryKey={['org-form-schema', session?.tenantId || '', courseId]}
+          session={session}
           version={schemaQuery.data?.version}
         />
       ) : null}
 
       <section className="content-panel content-panel--narrow">
         <div className="section-heading">
-          <p className="section-heading__eyebrow">Next editor steps</p>
-          <h2>Validation, options, and save flow land next</h2>
+          <p className="section-heading__eyebrow">Designer workflow</p>
+          <h2>Schema editing is ready for end-to-end MVP use</h2>
         </div>
         <p>
-          Core field editing now works locally. Next we will add option lists,
-          ordering controls, validation settings, and schema persistence.
+          Load the active template, refine field rules and options, then save to
+          create the next form version for this course. A fuller publishing and
+          version history experience can land in later phases.
         </p>
         <div className="button-row">
           <Link className="button button--secondary" to="/org/submissions">
