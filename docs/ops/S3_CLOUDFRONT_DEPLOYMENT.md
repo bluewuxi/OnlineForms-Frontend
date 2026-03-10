@@ -23,6 +23,15 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
 - Production should point to:
   - `https://y36enrj145.execute-api.ap-southeast-2.amazonaws.com/v1`
 
+## Current MVP Deployment
+
+- S3 bucket:
+  - `onlineforms-frontend-762563144177-ap-southeast-2`
+- CloudFront distribution ID:
+  - `EGSNAFPNBDXGH`
+- CloudFront domain:
+  - `https://d1y9ka302ibufy.cloudfront.net`
+
 ## S3 Setup
 
 1. Create or choose an S3 bucket for static frontend assets

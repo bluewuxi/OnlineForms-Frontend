@@ -14,6 +14,7 @@ This repository contains the customer-facing and organization-facing UI for Onli
 
 The frontend integrates with the OnlineForms backend API:
 
+- Frontend URL (deployed): `https://d1y9ka302ibufy.cloudfront.net`
 - API base URL (deployed): `https://y36enrj145.execute-api.ap-southeast-2.amazonaws.com/v1`
 - Backend repository: `bluewuxi/OnlineForms`
 
@@ -25,6 +26,7 @@ The frontend integrates with the OnlineForms backend API:
 - Visual baseline: `docs/design/FRONTEND_VISUAL_BASELINE.md`
 - Smoke checklist: `docs/ops/FRONTEND_SMOKE_CHECKLIST.md`
 - S3/CloudFront deployment notes: `docs/ops/S3_CLOUDFRONT_DEPLOYMENT.md`
+- Frontend user guide: `MVP_USER_GUIDE.md`
 
 ## MVP Scope (Initial)
 
@@ -63,8 +65,7 @@ The frontend integrates with the OnlineForms backend API:
 
 ## Status
 
-- React + Vite + TypeScript scaffold created
-- MVP spec and implementation checklist committed
+- React + Vite + TypeScript frontend deployed on S3/CloudFront
+- MVP docs and implementation checklist committed
 - Target stack: React + Vite on S3/CloudFront
-- Phases F1-F3 implemented
-- Phase F4 in progress
+- Phases F1-F5 implemented
