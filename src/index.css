@@ -399,6 +399,15 @@ a {
   padding-top: 1.4rem;
 }
 
+.course-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  color: #66778d;
+  font-size: 0.92rem;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -408,6 +417,34 @@ a {
   color: #28613c;
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.status-pill--closing-soon {
+  background: rgba(170, 120, 36, 0.14);
+  color: #8d5b12;
+}
+
+.status-pill--closed {
+  background: rgba(95, 104, 117, 0.14);
+  color: #4f5c6b;
+}
+
+.pagination-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.4rem;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.pagination-panel p,
+.pagination-panel__hint {
+  margin: 0;
+  color: #607086;
 }
 
 .state-card--error {
