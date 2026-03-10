@@ -39,9 +39,11 @@ export function CourseCatalogPage() {
   const { tenantCode = 'acme-training' } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
+  const initialStatusFilter = searchParams.get('status') ?? 'all'
   const [searchInput, setSearchInput] = useState(initialQuery)
+  const [statusInput, setStatusInput] = useState(initialStatusFilter)
   const cursor = searchParams.get('cursor') ?? undefined
-  const statusFilter = searchParams.get('status') ?? 'all'
+  const statusFilter = initialStatusFilter
 
   const courseQuery = useQuery({
     queryKey: ['public-courses', tenantCode, initialQuery, cursor],
@@ -80,6 +82,7 @@ export function CourseCatalogPage() {
     event.preventDefault()
     updateSearch({
       q: searchInput.trim() || undefined,
+      status: statusInput === 'all' ? undefined : statusInput,
       cursor: undefined,
     })
   }
@@ -113,14 +116,8 @@ export function CourseCatalogPage() {
           <select
             id="catalog-status"
             name="catalog-status"
-            value={statusFilter}
-            onChange={(event) =>
-              updateSearch({
-                status:
-                  event.target.value === 'all' ? undefined : event.target.value,
-                cursor: undefined,
-              })
-            }
+            value={statusInput}
+            onChange={(event) => setStatusInput(event.target.value)}
           >
             <option value="all">All</option>
             <option value="open">Open</option>
@@ -156,6 +153,7 @@ export function CourseCatalogPage() {
               actionLabel="Clear filters"
               onAction={() => {
                 setSearchInput('')
+                setStatusInput('all')
                 setSearchParams(new URLSearchParams())
               }}
             />
