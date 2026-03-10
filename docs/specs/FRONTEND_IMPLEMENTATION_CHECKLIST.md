@@ -33,3 +33,10 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F5-02 Build field editor for labels, help text, type, and required state (#15)
 - [x] F5-03 Build option, ordering, and validation controls (#16)
 - [x] F5-04 Add form schema save/version workflow and test coverage (#17)
+
+## Phase F6 - Org Course Management
+
+- [ ] F6-01 Build org course list page with status and visibility indicators (#21)
+- [ ] F6-02 Build org course create/edit form workflow (#19)
+- [ ] F6-03 Add publish/archive actions with feedback states (#18)
+- [ ] F6-04 Link course records to the form designer and org navigation (#20)

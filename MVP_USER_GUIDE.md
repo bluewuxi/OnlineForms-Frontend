@@ -48,6 +48,7 @@ Public users can:
 
 Org users can:
 
+- view tenant courses once course management ships
 - view the submission queue
 - open a submission and mark it `reviewed` or `canceled`
 - browse audit events
@@ -68,4 +69,5 @@ Org users can:
 
 - Deep links are supported through CloudFront SPA fallback handling.
 - The org login is MVP-only and is not real authentication.
+- Full org course management UI is planned next and is not live yet.
 - If demo data has been reset, reseed from the backend repo with `npm run seed:sample`.

@@ -149,7 +149,60 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Empty filtered results state
   - Error state with retry
 
-## 4.6 Org Submission Detail
+## 4.6 Org Course List
+
+- Route: `/org/courses`
+- API:
+  - `GET /org/courses`
+- Purpose:
+  - Let org users browse and manage tenant courses before moving into publishing, submissions, or form design tasks.
+- Key sections:
+  - Page header
+  - Primary action to create a course
+  - Course list or table with status and visibility indicators
+  - Actions to open detail/edit and form designer
+- Each row or card should show:
+  - Course title
+  - Delivery mode
+  - Schedule summary
+  - Status
+  - Public visibility
+- States:
+  - Loading list skeleton
+  - Empty state when no courses exist yet
+  - Error state with retry
+
+## 4.7 Org Course Detail and Edit
+
+- Routes:
+  - `/org/courses/new`
+  - `/org/courses/:courseId`
+- APIs:
+  - `POST /org/courses`
+  - `GET /org/courses/{courseId}`
+  - `PATCH /org/courses/{courseId}`
+  - `POST /org/courses/{courseId}/publish`
+  - `POST /org/courses/{courseId}/archive`
+- Purpose:
+  - Allow org users to create new courses, edit existing ones, and control publish/archive workflow.
+- Key sections:
+  - Course summary header
+  - Editable metadata form
+  - Scheduling and enrollment dates
+  - Delivery and pricing fields
+  - Status action panel
+  - Link to form designer for the selected course
+- Behavior:
+  - Use one form for create and edit with clear draft/save states
+  - Show publish/archive confirmations and backend conflict errors cleanly
+  - Keep navigation back to the course list obvious
+- States:
+  - Loading detail skeleton
+  - Create success and update success feedback
+  - Publish/archive success and error feedback
+  - Validation errors inline on required fields
+
+## 4.8 Org Submission Detail
 
 - Route: `/org/submissions/:submissionId`
 - API:
@@ -173,7 +226,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Action success toast or inline confirmation
   - Action error banner with current backend state if available
 
-## 4.7 Org Audit View
+## 4.9 Org Audit View
 
 - Route: `/org/audit`
 - API:
@@ -196,7 +249,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Empty state for no matching events
   - Error state with retry
 
-## 4.8 Asset Upload and Branding Utility
+## 4.10 Asset Upload and Branding Utility
 
 - Route:
   - Final route to be decided during implementation, under org area
@@ -221,7 +274,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Upload success
 - Upload failure with retry guidance
 
-## 4.9 Org Form Template Designer
+## 4.11 Org Form Template Designer
 
 - Route:
   - Final route to be decided during implementation, likely under `/org/courses/:courseId/form`
@@ -251,7 +304,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - Public area:
   - Simple top bar with brand/title and optional catalog context.
 - Org area:
-  - Compact nav linking to submissions, audit, and branding utility.
+  - Compact nav linking to courses, submissions, audit, branding utility, and form designer where appropriate.
 - Protected org routes:
   - Redirect to `/org/login` when MVP session values are missing.
 

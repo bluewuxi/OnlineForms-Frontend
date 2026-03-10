@@ -42,6 +42,7 @@ The frontend MVP includes two surfaces:
 ### 5.2 Organization User
 
 - Signs in (or uses MVP auth shell)
+- Manages courses
 - Lists submissions
 - Opens submission details
 - Updates submission status
@@ -59,9 +60,14 @@ The frontend MVP includes two surfaces:
 ### 6.2 Org Routes
 
 - `/org/login` (MVP auth shell)
+- `/org/courses`
+- `/org/courses/new`
+- `/org/courses/:courseId`
 - `/org/submissions`
 - `/org/submissions/:submissionId`
 - `/org/audit`
+- `/org/branding`
+- `/org/courses/:courseId/form`
 
 ### 6.3 Shared
 
@@ -101,7 +107,23 @@ APIs:
 - `GET /org/submissions/{submissionId}`
 - `PATCH /org/submissions/{submissionId}`
 
-## 7.4 Org Audit View
+## 7.4 Org Course Management
+
+- List tenant courses with status and visibility context.
+- Create a new course with required scheduling, description, delivery, and pricing fields.
+- Open an existing course to review and edit its core details.
+- Trigger publish and archive actions with clear status feedback.
+- Provide navigation from course detail to the form designer for the selected course.
+
+APIs:
+- `GET /org/courses`
+- `POST /org/courses`
+- `GET /org/courses/{courseId}`
+- `PATCH /org/courses/{courseId}`
+- `POST /org/courses/{courseId}/publish`
+- `POST /org/courses/{courseId}/archive`
+
+## 7.5 Org Audit View
 
 - List tenant audit events with filters and pagination.
 - Display actor, action, resource, time, and trace IDs.
@@ -109,7 +131,7 @@ APIs:
 API:
 - `GET /org/audit`
 
-## 7.5 Asset Upload + Branding (MVP Admin Utility Screen)
+## 7.6 Asset Upload + Branding (MVP Admin Utility Screen)
 
 - Request upload ticket for images.
 - Upload via pre-signed URL.
@@ -176,10 +198,11 @@ Later replacement path:
 ## 14. MVP Deliverables
 
 1. Working public portal routes.
-2. Working org submission review routes.
-3. Asset/branding utility UI screen.
-4. Frontend smoke test checklist.
-5. Deployment-ready static build configuration for S3/CloudFront.
+2. Working org course management routes.
+3. Working org submission review routes.
+4. Asset/branding utility UI screen.
+5. Frontend smoke test checklist.
+6. Deployment-ready static build configuration for S3/CloudFront.
 
 ## 15. Suggested Build Sequence
 
@@ -203,6 +226,12 @@ Later replacement path:
 - Org form template designer
 - Form field editing, ordering, validation, and options
 - Form schema save/version workflow
+
+### Phase F6
+- Org course list page
+- Org course create/edit workflow
+- Publish/archive actions and status UX
+- Link real course records to the form designer
 
 ## 16. Open Questions
 
