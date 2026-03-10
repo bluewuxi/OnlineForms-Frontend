@@ -2,6 +2,10 @@ import type { OrgSessionHeaders } from '../../lib/api'
 
 export const ORG_SESSION_STORAGE_KEY = 'onlineforms.org-session'
 
+function normalizeRole(role: string) {
+  return role.trim().toLowerCase().replace(/-/g, '_')
+}
+
 function isSessionShape(value: unknown): value is OrgSessionHeaders {
   if (!value || typeof value !== 'object') {
     return false
@@ -27,14 +31,25 @@ export function readStoredOrgSession() {
 
   try {
     const parsed = JSON.parse(rawValue)
-    return isSessionShape(parsed) ? parsed : null
+    return isSessionShape(parsed)
+      ? {
+          ...parsed,
+          role: normalizeRole(parsed.role),
+        }
+      : null
   } catch {
     return null
   }
 }
 
 export function writeStoredOrgSession(session: OrgSessionHeaders) {
-  window.localStorage.setItem(ORG_SESSION_STORAGE_KEY, JSON.stringify(session))
+  window.localStorage.setItem(
+    ORG_SESSION_STORAGE_KEY,
+    JSON.stringify({
+      ...session,
+      role: normalizeRole(session.role),
+    }),
+  )
 }
 
 export function clearStoredOrgSession() {

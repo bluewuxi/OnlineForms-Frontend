@@ -22,7 +22,7 @@ export function OrgLoginPage() {
     defaultValues: {
       userId: session?.userId || '',
       tenantId: session?.tenantId || '',
-      role: session?.role || 'org-admin',
+      role: session?.role || 'org_admin',
     },
   })
 
@@ -70,7 +70,7 @@ export function OrgLoginPage() {
             <span>x-role</span>
             <input
               {...register('role', { required: true })}
-              placeholder="org-admin"
+              placeholder="org_admin"
               type="text"
             />
           </label>
