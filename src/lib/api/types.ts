@@ -120,6 +120,12 @@ export type OrgCourseCreateResponse = {
   status: CourseStatus
 }
 
+export type OrgCourseStatusResponse = {
+  id: string
+  status: CourseStatus
+  publicVisible: boolean
+}
+
 export type FormFieldType =
   | 'short_text'
   | 'long_text'

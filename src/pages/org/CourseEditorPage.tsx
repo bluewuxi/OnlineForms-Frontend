@@ -7,12 +7,16 @@ import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
+  archiveCourse,
+  type CourseStatus,
   createCourse,
   getCourse,
+  publishCourse,
   updateCourse,
   type DeliveryMode,
   type OrgCourse,
   type OrgCourseCreateResponse,
+  type OrgCourseStatusResponse,
   type OrgCourseUpdatePayload,
   type OrgCourseUpsertPayload,
   type OrgSessionHeaders,
@@ -37,6 +41,7 @@ type CourseFormState = {
 
 type CourseEditorFormProps = {
   courseId?: string
+  initialCourse?: OrgCourse
   initialDraft: CourseFormState
   isCreateMode: boolean
   session: OrgSessionHeaders
@@ -128,6 +133,7 @@ function isDraftEqual(left: CourseFormState, right: CourseFormState) {
 
 function CourseEditorForm({
   courseId,
+  initialCourse,
   initialDraft,
   isCreateMode,
   session,
@@ -135,6 +141,13 @@ function CourseEditorForm({
   const navigate = useNavigate()
   const [draft, setDraft] = useState<CourseFormState>(initialDraft)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [workflowState, setWorkflowState] = useState<{
+    status: CourseStatus
+    publicVisible: boolean
+  }>({
+    status: initialCourse?.status ?? 'draft',
+    publicVisible: initialCourse?.publicVisible ?? false,
+  })
   const hasUnsavedChanges = !isDraftEqual(draft, initialDraft)
 
   const createMutation = useMutation<
@@ -169,7 +182,69 @@ function CourseEditorForm({
     },
     onSuccess: (course) => {
       setDraft(toCourseFormState(course))
+      setWorkflowState({
+        status: course.status,
+        publicVisible: course.publicVisible,
+      })
       setSaveMessage(`Course updated. Current status: ${course.status}.`)
+    },
+  })
+
+  const publishMutation = useMutation<
+    OrgCourseStatusResponse,
+    ApiClientError,
+    void
+  >({
+    mutationFn: async () => {
+      if (!courseId) {
+        throw new Error('Missing course context.')
+      }
+
+      const response = await publishCourse(session, courseId)
+      return response.data
+    },
+    onMutate: () => {
+      setSaveMessage(null)
+    },
+    onSuccess: (result) => {
+      setWorkflowState({
+        status: result.status,
+        publicVisible: result.publicVisible,
+      })
+      setDraft((current) => ({
+        ...current,
+        publicVisible: result.publicVisible,
+      }))
+      setSaveMessage('Course published successfully.')
+    },
+  })
+
+  const archiveMutation = useMutation<
+    OrgCourseStatusResponse,
+    ApiClientError,
+    void
+  >({
+    mutationFn: async () => {
+      if (!courseId) {
+        throw new Error('Missing course context.')
+      }
+
+      const response = await archiveCourse(session, courseId)
+      return response.data
+    },
+    onMutate: () => {
+      setSaveMessage(null)
+    },
+    onSuccess: (result) => {
+      setWorkflowState({
+        status: result.status,
+        publicVisible: result.publicVisible,
+      })
+      setDraft((current) => ({
+        ...current,
+        publicVisible: result.publicVisible,
+      }))
+      setSaveMessage('Course archived successfully.')
     },
   })
 
@@ -194,8 +269,16 @@ function CourseEditorForm({
     updateMutation.mutate(toUpdatePayload(draft))
   }
 
-  const mutationError = createMutation.error || updateMutation.error
-  const isSaving = createMutation.isPending || updateMutation.isPending
+  const mutationError =
+    createMutation.error ||
+    updateMutation.error ||
+    publishMutation.error ||
+    archiveMutation.error
+  const isSaving =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    publishMutation.isPending ||
+    archiveMutation.isPending
 
   return (
     <section className="content-panel">
@@ -203,6 +286,18 @@ function CourseEditorForm({
         <p className="section-heading__eyebrow">Course editor</p>
         <h2>Core course settings</h2>
       </div>
+      {!isCreateMode ? (
+        <div className="detail-summary-grid">
+          <div className="field-card">
+            <span>Status</span>
+            <strong>{workflowState.status}</strong>
+          </div>
+          <div className="field-card">
+            <span>Visibility</span>
+            <strong>{workflowState.publicVisible ? 'Public' : 'Internal only'}</strong>
+          </div>
+        </div>
+      ) : null}
       <form className="session-form" onSubmit={handleSubmit}>
         <label className="session-form__field">
           <span>Title</span>
@@ -362,6 +457,26 @@ function CourseEditorForm({
             Back to courses
           </Link>
           {!isCreateMode && courseId ? (
+            <>
+              <button
+                className="button button--secondary"
+                disabled={isSaving || workflowState.status !== 'draft'}
+                onClick={() => publishMutation.mutate()}
+                type="button"
+              >
+                Publish course
+              </button>
+              <button
+                className="button button--ghost"
+                disabled={isSaving || workflowState.status !== 'published'}
+                onClick={() => archiveMutation.mutate()}
+                type="button"
+              >
+                Archive course
+              </button>
+            </>
+          ) : null}
+          {!isCreateMode && courseId ? (
             <Link className="button button--ghost" to={`/org/courses/${courseId}/form`}>
               Open form designer
             </Link>
@@ -439,6 +554,7 @@ export function CourseEditorPage() {
         <CourseEditorForm
           key={`${courseId || 'new'}-${courseQuery.data?.updatedAt || 'draft'}`}
           courseId={courseId}
+          initialCourse={courseQuery.data}
           initialDraft={initialDraft}
           isCreateMode={isCreateMode}
           session={session}

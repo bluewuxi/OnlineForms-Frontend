@@ -11,6 +11,7 @@ import type {
   FormSchemaUpsertResponse,
   OrgAsset,
   OrgCourseCreateResponse,
+  OrgCourseStatusResponse,
   OrgCourse,
   OrgCourseSummary,
   OrgCourseUpdatePayload,
@@ -247,6 +248,28 @@ export function updateCourse(
   }).then((response) => ({
     ...response,
     data: mapOrgCourse(response.data.data),
+  }))
+}
+
+export function publishCourse(session: OrgSessionHeaders, courseId: string) {
+  return apiRequest<BackendItemEnvelope<OrgCourseStatusResponse>>({
+    path: `/org/courses/${courseId}/publish`,
+    method: 'POST',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function archiveCourse(session: OrgSessionHeaders, courseId: string) {
+  return apiRequest<BackendItemEnvelope<OrgCourseStatusResponse>>({
+    path: `/org/courses/${courseId}/archive`,
+    method: 'POST',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
   }))
 }
 
