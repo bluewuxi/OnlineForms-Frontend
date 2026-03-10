@@ -27,6 +27,7 @@ type AuditListParams = {
   limit?: number
   action?: string
   actorId?: string
+  resourceType?: string
 }
 
 export function listSubmissions(

@@ -141,6 +141,7 @@ export type AuditEvent = {
   actorType?: string
   action: string
   resource: string
+  resourceType?: string
   occurredAt: string
   requestId?: string
   correlationId?: string
