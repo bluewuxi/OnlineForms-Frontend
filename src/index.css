@@ -324,6 +324,13 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.detail-summary-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
 .field-card {
   padding: 1rem;
   border-radius: 1rem;
@@ -383,6 +390,50 @@ a {
   color: #8a3d3d;
   font-size: 0.92rem;
   margin: 0;
+}
+
+.enrollment-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.enrollment-form__field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.enrollment-form__field > span {
+  color: #334760;
+  font-weight: 700;
+}
+
+.enrollment-form__field input,
+.enrollment-form__field select,
+.enrollment-form__field textarea {
+  width: 100%;
+  border: 1px solid rgba(19, 34, 56, 0.14);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.95rem 1rem;
+}
+
+.enrollment-form__field select[multiple] {
+  min-height: 8rem;
+}
+
+.enrollment-form__field input[type='checkbox'] {
+  width: auto;
+  min-height: 1rem;
+}
+
+.enrollment-form__hint {
+  color: #64758a;
+}
+
+.enrollment-form__actions {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .course-card {

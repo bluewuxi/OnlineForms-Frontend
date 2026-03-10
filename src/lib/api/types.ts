@@ -51,7 +51,50 @@ export type Course = CourseListItem & {
   description?: string
   enrollmentOpensAt?: string | null
   enrollmentClosesAt?: string | null
-  formSchema?: Record<string, unknown>
+  formVersion?: number | null
+  formSchema?: FormSchema | Record<string, unknown>
+}
+
+export type FormFieldType =
+  | 'short_text'
+  | 'long_text'
+  | 'email'
+  | 'phone'
+  | 'number'
+  | 'single_select'
+  | 'multi_select'
+  | 'checkbox'
+  | 'date'
+
+export type FormFieldOption = {
+  value: string
+  label: string
+}
+
+export type FormFieldValidation = {
+  minLength?: number | null
+  maxLength?: number | null
+  pattern?: string | null
+  min?: number | null
+  max?: number | null
+}
+
+export type FormField = {
+  fieldId: string
+  type: FormFieldType
+  label: string
+  helpText?: string | null
+  required?: boolean
+  displayOrder?: number
+  options?: FormFieldOption[]
+  validation?: FormFieldValidation
+}
+
+export type FormSchema = {
+  id?: string
+  courseId?: string
+  version: number
+  fields: FormField[]
 }
 
 export type EnrollmentPayload = {
