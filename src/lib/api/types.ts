@@ -96,6 +96,30 @@ export type OrgCourseSummary = Pick<
   | 'activeFormVersion'
 >
 
+export type OrgCourseUpsertPayload = {
+  title: string
+  shortDescription: string
+  fullDescription: string
+  startDate: string
+  endDate: string
+  enrollmentOpenAt: string
+  enrollmentCloseAt: string
+  deliveryMode: DeliveryMode
+  locationText: string | null
+  capacity: number | null
+  pricingMode: PricingMode
+  imageAssetId: string | null
+}
+
+export type OrgCourseUpdatePayload = Partial<OrgCourseUpsertPayload> & {
+  publicVisible?: boolean
+}
+
+export type OrgCourseCreateResponse = {
+  id: string
+  status: CourseStatus
+}
+
 export type FormFieldType =
   | 'short_text'
   | 'long_text'
