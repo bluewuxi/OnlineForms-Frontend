@@ -4,6 +4,7 @@ import type {
   BrandingUpdatePayload,
   BrandingUpdateResponse,
   CursorPage,
+  FormSchema,
   OrgAsset,
   OrgSessionHeaders,
   Submission,
@@ -72,6 +73,16 @@ export function listAuditEvents(
     path: '/org/audit',
     session,
     query: params,
+  })
+}
+
+export function getLatestFormSchema(
+  session: OrgSessionHeaders,
+  courseId: string,
+) {
+  return apiRequest<FormSchema>({
+    path: `/org/courses/${courseId}/form-schema`,
+    session,
   })
 }
 

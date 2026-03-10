@@ -53,4 +53,21 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /submission review queue/i }),
     ).toBeInTheDocument()
   })
+
+  it('renders the form designer route when a session exists', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'org-admin',
+      }),
+    )
+
+    renderRoute('/org/courses/course-demo/form')
+
+    expect(
+      await screen.findByRole('heading', { name: /course form template/i }),
+    ).toBeInTheDocument()
+  })
 })

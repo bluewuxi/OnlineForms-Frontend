@@ -15,6 +15,7 @@ const orgLinks = [
   { to: '/org/submissions', label: 'Submissions' },
   { to: '/org/audit', label: 'Audit' },
   { to: '/org/branding', label: 'Branding' },
+  { to: '/org/courses/course-demo/form', label: 'Form Designer' },
 ]
 
 export function SiteHeader({ section }: SiteHeaderProps) {

@@ -641,6 +641,46 @@ textarea:focus-visible {
   word-break: break-all;
 }
 
+.designer-field-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.designer-field-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(19, 34, 56, 0.04);
+}
+
+.designer-field-card__eyebrow {
+  margin: 0;
+  color: #617289;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.designer-field-card h3 {
+  margin: 0.35rem 0 0;
+  font-size: 1.2rem;
+}
+
+.designer-field-card p {
+  margin: 0.45rem 0 0;
+}
+
+.designer-field-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: #55657b;
+  font-size: 0.9rem;
+}
+
 .state-card--error {
   border-color: rgba(168, 64, 64, 0.12);
 }
