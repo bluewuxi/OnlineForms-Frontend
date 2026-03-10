@@ -43,7 +43,7 @@ describe('App routing', () => {
       JSON.stringify({
         userId: 'demo-user',
         tenantId: 'tenant-123',
-        role: 'org-admin',
+        role: 'org_admin',
       }),
     )
 
@@ -60,11 +60,11 @@ describe('App routing', () => {
       JSON.stringify({
         userId: 'demo-user',
         tenantId: 'tenant-123',
-        role: 'org-admin',
+        role: 'org_admin',
       }),
     )
 
-    renderRoute('/org/courses/course-demo/form')
+    renderRoute('/org/courses/crs_demo_001/form')
 
     expect(
       await screen.findByRole('heading', { name: /course form template/i }),
