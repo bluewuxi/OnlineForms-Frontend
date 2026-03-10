@@ -98,8 +98,12 @@ export type FormSchema = {
 }
 
 export type EnrollmentPayload = {
-  applicant: Record<string, unknown>
+  formVersion: number
   answers: Record<string, unknown>
+  meta?: {
+    locale?: string
+    timezone?: string
+  }
 }
 
 export type EnrollmentResponse = {

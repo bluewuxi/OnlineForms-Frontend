@@ -1,8 +1,21 @@
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import type { FormField, FormSchema } from '../../lib/api'
+import {
+  ApiClientError,
+  createEnrollment,
+  type EnrollmentResponse,
+  type FormField,
+  type FormSchema,
+} from '../../lib/api'
+import {
+  createEnrollmentMeta,
+  normalizeEnrollmentAnswers,
+} from './submission'
 
 type FormPreviewProps = {
   schema: FormSchema | null
+  tenantCode: string
+  courseId: string
 }
 
 function renderField(
@@ -66,8 +79,48 @@ function renderField(
   }
 }
 
-export function FormPreview({ schema }: FormPreviewProps) {
-  const { register } = useForm<Record<string, unknown>>()
+export function FormPreview({
+  schema,
+  tenantCode,
+  courseId,
+}: FormPreviewProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<Record<string, unknown>>()
+  const enrollmentMutation = useMutation<
+    EnrollmentResponse,
+    ApiClientError,
+    Record<string, unknown>
+  >({
+    mutationFn: async (values) => {
+      if (!schema) {
+        throw new ApiClientError(
+          400,
+          {
+            error: {
+              code: 'form_schema_missing',
+              message: 'No active enrollment form is available for this course.',
+            },
+          },
+          'No active enrollment form is available for this course.',
+        )
+      }
+
+      const response = await createEnrollment(tenantCode, courseId, {
+        formVersion: schema.version,
+        answers: normalizeEnrollmentAnswers(values),
+        meta: createEnrollmentMeta(),
+      })
+
+      return response.data
+    },
+    onSuccess() {
+      reset()
+    },
+  })
 
   if (!schema || schema.fields.length === 0) {
     return (
@@ -84,6 +137,36 @@ export function FormPreview({ schema }: FormPreviewProps) {
     )
   }
 
+  const onSubmit = handleSubmit((values) => {
+    enrollmentMutation.mutate(values)
+  })
+
+  if (enrollmentMutation.isSuccess) {
+    return (
+      <section className="content-panel">
+        <div className="section-heading">
+          <p className="section-heading__eyebrow">Enrollment submitted</p>
+          <h2>Your application was received</h2>
+        </div>
+        <p>
+          Submission ID: <strong>{enrollmentMutation.data.submissionId}</strong>
+        </p>
+        <p>
+          Status: <strong>{enrollmentMutation.data.status}</strong>
+        </p>
+        <div className="button-row">
+          <button
+            className="button button--secondary"
+            onClick={() => enrollmentMutation.reset()}
+            type="button"
+          >
+            Submit another response
+          </button>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="content-panel">
       <div className="section-heading">
@@ -91,7 +174,7 @@ export function FormPreview({ schema }: FormPreviewProps) {
         <h2>Version {schema.version}</h2>
       </div>
 
-      <form className="enrollment-form" onSubmit={(event) => event.preventDefault()}>
+      <form className="enrollment-form" onSubmit={onSubmit}>
         {schema.fields.map((field) => (
           <label key={field.fieldId} className="enrollment-form__field">
             <span>
@@ -102,12 +185,37 @@ export function FormPreview({ schema }: FormPreviewProps) {
             {field.helpText ? (
               <small className="enrollment-form__hint">{field.helpText}</small>
             ) : null}
+            {errors[field.fieldId] ? (
+              <small className="enrollment-form__error">
+                This field is required or invalid.
+              </small>
+            ) : null}
           </label>
         ))}
 
+        {enrollmentMutation.isError ? (
+          <div className="enrollment-form__banner" role="alert">
+            <strong>{enrollmentMutation.error.message}</strong>
+            {import.meta.env.DEV ? (
+              <span>
+                {enrollmentMutation.error.code
+                  ? ` (${enrollmentMutation.error.code})`
+                  : ''}
+                {enrollmentMutation.error.correlationId
+                  ? ` correlation ${enrollmentMutation.error.correlationId}`
+                  : ''}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="enrollment-form__actions">
-          <button className="button button--primary" disabled type="submit">
-            Submission flow wiring next
+          <button
+            className="button button--primary"
+            disabled={enrollmentMutation.isPending}
+            type="submit"
+          >
+            {enrollmentMutation.isPending ? 'Submitting...' : 'Submit enrollment'}
           </button>
         </div>
       </form>

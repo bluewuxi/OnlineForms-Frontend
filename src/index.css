@@ -431,6 +431,19 @@ a {
   color: #64758a;
 }
 
+.enrollment-form__error {
+  color: #8a3d3d;
+}
+
+.enrollment-form__banner {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(168, 64, 64, 0.08);
+  color: #7c3131;
+  display: grid;
+  gap: 0.25rem;
+}
+
 .enrollment-form__actions {
   display: flex;
   justify-content: flex-start;

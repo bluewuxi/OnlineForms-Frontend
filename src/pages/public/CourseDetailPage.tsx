@@ -96,7 +96,11 @@ export function CourseDetailPage() {
             </div>
           </section>
 
-          <FormPreview schema={formSchema} />
+          <FormPreview
+            courseId={courseId}
+            schema={formSchema}
+            tenantCode={tenantCode}
+          />
         </>
       ) : null}
     </div>
