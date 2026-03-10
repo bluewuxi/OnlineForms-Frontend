@@ -29,7 +29,7 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 
 ## Phase F5 - Form Designer
 
-- [ ] F5-01 Build org form schema loader and editor shell (#14)
-- [ ] F5-02 Build field editor for labels, help text, type, and required state (#15)
-- [ ] F5-03 Build option, ordering, and validation controls (#16)
-- [ ] F5-04 Add form schema save/version workflow and test coverage (#17)
+- [x] F5-01 Build org form schema loader and editor shell (#14)
+- [x] F5-02 Build field editor for labels, help text, type, and required state (#15)
+- [x] F5-03 Build option, ordering, and validation controls (#16)
+- [x] F5-04 Add form schema save/version workflow and test coverage (#17)
