@@ -111,7 +111,7 @@ export type EnrollmentResponse = {
   status: string
 }
 
-export type SubmissionStatus = 'pending' | 'reviewed' | 'canceled'
+export type SubmissionStatus = 'submitted' | 'reviewed' | 'canceled'
 
 export type Submission = {
   id: string

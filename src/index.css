@@ -371,7 +371,8 @@ a {
   font-weight: 700;
 }
 
-.session-form__field input {
+.session-form__field input,
+.session-form__field select {
   width: 100%;
   border: 1px solid rgba(19, 34, 56, 0.14);
   border-radius: 0.9rem;
@@ -390,6 +391,20 @@ a {
   color: #8a3d3d;
   font-size: 0.92rem;
   margin: 0;
+}
+
+.org-filter-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.org-filter-grid__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .enrollment-form {
@@ -493,6 +508,21 @@ a {
   color: #4f5c6b;
 }
 
+.status-pill--submitted {
+  background: rgba(36, 90, 153, 0.14);
+  color: #234f80;
+}
+
+.status-pill--reviewed {
+  background: rgba(52, 122, 76, 0.12);
+  color: #28613c;
+}
+
+.status-pill--canceled {
+  background: rgba(168, 64, 64, 0.12);
+  color: #8a3d3d;
+}
+
 .pagination-panel {
   display: flex;
   align-items: center;
@@ -509,6 +539,38 @@ a {
 .pagination-panel__hint {
   margin: 0;
   color: #607086;
+}
+
+.responsive-table {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid rgba(19, 34, 56, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table th {
+  color: #516178;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-subtext {
+  margin-top: 0.25rem;
+  color: #687990;
+  font-size: 0.9rem;
 }
 
 .state-card--error {

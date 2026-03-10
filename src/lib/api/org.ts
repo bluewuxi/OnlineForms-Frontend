@@ -18,8 +18,8 @@ type SubmissionListParams = {
   limit?: number
   courseId?: string
   status?: SubmissionStatus
-  from?: string
-  to?: string
+  submittedFrom?: string
+  submittedTo?: string
 }
 
 type AuditListParams = {
