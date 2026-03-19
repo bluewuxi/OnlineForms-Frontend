@@ -1,10 +1,12 @@
-import { apiRequest, createIdempotencyKey } from './http'
+import { getFallbackTenantCodes } from '../config/env'
+import { ApiClientError, apiRequest, createIdempotencyKey } from './http'
 import type {
   Course,
   CourseListItem,
   CursorPage,
   EnrollmentPayload,
   EnrollmentResponse,
+  TenantDirectoryItem,
 } from './types'
 
 type BackendPage = {
@@ -37,6 +39,14 @@ type BackendPublicCourse = BackendPublicCourseListItem & {
   enrollmentOpenNow?: boolean
 }
 
+type BackendTenantDirectoryItem = {
+  tenantCode: string
+  displayName?: string
+  description?: string
+  isActive?: boolean
+  status?: string
+}
+
 function mapCourseListItem(course: BackendPublicCourseListItem): CourseListItem {
   return {
     id: course.id,
@@ -61,6 +71,37 @@ function mapCourse(course: BackendPublicCourse): Course {
     formVersion: null,
     formSchema: undefined,
   }
+}
+
+function prettifyTenantCode(tenantCode: string) {
+  return tenantCode
+    .split('-')
+    .filter((part) => part.length > 0)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function mapTenantDirectoryItem(
+  item: BackendTenantDirectoryItem,
+): TenantDirectoryItem {
+  const tenantCode = item.tenantCode.trim().toLowerCase()
+  return {
+    tenantCode,
+    displayName:
+      item.displayName?.trim() || prettifyTenantCode(tenantCode),
+    description: item.description?.trim() || undefined,
+    isActive:
+      item.isActive ?? (item.status ? item.status.toLowerCase() === 'active' : true),
+  }
+}
+
+function fallbackTenantDirectory(): TenantDirectoryItem[] {
+  return getFallbackTenantCodes().map((tenantCode) => ({
+    tenantCode,
+    displayName: prettifyTenantCode(tenantCode),
+    description: 'Browse available courses for this tenant.',
+    isActive: true,
+  }))
 }
 
 type PublicCourseListParams = {
@@ -118,4 +159,32 @@ export function createEnrollment(
     ...response,
     data: response.data.data,
   }))
+}
+
+export async function listPublicTenants() {
+  try {
+    const response =
+      await apiRequest<BackendListEnvelope<BackendTenantDirectoryItem>>({
+        path: '/public/tenants',
+      })
+
+    return {
+      ...response,
+      data: response.data.data
+        .map(mapTenantDirectoryItem)
+        .filter((tenant) => tenant.isActive !== false),
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiClientError &&
+      (error.status === 404 || error.status === 501)
+    ) {
+      return {
+        data: fallbackTenantDirectory(),
+        requestId: undefined,
+        correlationId: 'fallback_tenant_directory',
+      }
+    }
+    throw error
+  }
 }

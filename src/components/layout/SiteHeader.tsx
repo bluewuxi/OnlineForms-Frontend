@@ -7,8 +7,7 @@ type SiteHeaderProps = {
 
 const publicLinks = [
   { to: '/', label: 'Home' },
-  { to: '/acme-training/courses', label: 'Courses' },
-  { to: '/org/login', label: 'Org Portal' },
+  { to: '/org/login', label: 'Internal Management Portal' },
 ]
 
 const orgLinks = [

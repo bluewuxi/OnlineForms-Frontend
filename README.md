@@ -52,6 +52,7 @@ The frontend integrates with the OnlineForms backend API:
 
 - Copy `.env.example` to `.env.local` for local development overrides.
 - `VITE_API_BASE_URL` defaults to the deployed MVP API if not provided.
+- `VITE_PUBLIC_TENANT_CODES` (comma-separated) provides fallback tenant cards on home page when `/public/tenants` is unavailable.
 
 ## Foundation Stack
 

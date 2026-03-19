@@ -27,6 +27,10 @@ describe('App routing', () => {
     expect(
       await screen.findByRole('heading', { name: /onlineforms frontend/i }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /internal management portal/i }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
 
   it('redirects org routes to login without a session', async () => {

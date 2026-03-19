@@ -260,3 +260,10 @@ export type BrandingUpdateResponse = {
   logoAssetId: string | null
   updatedAt?: string
 }
+
+export type TenantDirectoryItem = {
+  tenantCode: string
+  displayName: string
+  description?: string
+  isActive?: boolean
+}
