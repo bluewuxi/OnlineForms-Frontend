@@ -21,7 +21,7 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
 - Required runtime config:
   - `VITE_API_BASE_URL`
 - Production should point to:
-  - `https://5n7ng70uw5.execute-api.ap-southeast-2.amazonaws.com/v1`
+  - `https://form-api.kidrawer.com/v1`
 
 ## Current MVP Deployment
 
@@ -30,7 +30,7 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
 - CloudFront distribution ID:
   - `EGSNAFPNBDXGH`
 - CloudFront domain:
-  - `https://d1y9ka302ibufy.cloudfront.net`
+  - `https://form.kidrawer.com`
 
 ## S3 Setup
 
@@ -78,4 +78,5 @@ must resolve back to `index.html` at the CDN layer.
 - Asset file names are content-hashed, which makes them cache-friendly
 - `index.html` should be treated as the main deployment control file
 - If a custom domain is used, pair CloudFront with ACM and Route 53
+
 

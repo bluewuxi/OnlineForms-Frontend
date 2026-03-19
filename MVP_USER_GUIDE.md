@@ -4,8 +4,8 @@ Last updated: 2026-03-10
 
 ## 1) Live frontend
 
-- Frontend base URL: `https://d1y9ka302ibufy.cloudfront.net`
-- API base URL: `https://5n7ng70uw5.execute-api.ap-southeast-2.amazonaws.com/v1`
+- Frontend base URL: `https://form.kidrawer.com`
+- API base URL: `https://form-api.kidrawer.com/v1`
 - Region: `ap-southeast-2`
 
 ## 2) Public demo pages
@@ -13,20 +13,20 @@ Last updated: 2026-03-10
 Use the seeded demo tenant and course for the public browser flow:
 
 - Home page:
-  - `https://d1y9ka302ibufy.cloudfront.net/`
+  - `https://form.kidrawer.com/`
 - Public course catalog:
-  - `https://d1y9ka302ibufy.cloudfront.net/t/demo-school/courses`
+  - `https://form.kidrawer.com/t/demo-school/courses`
 - Public course detail and enrollment form:
-  - `https://d1y9ka302ibufy.cloudfront.net/t/demo-school/courses/crs_demo_001`
+  - `https://form.kidrawer.com/t/demo-school/courses/crs_demo_001`
 
 ## 3) Org portal access
 
 The MVP org portal currently uses a temporary browser login form that stores the backend header values locally.
 
 - Org login:
-  - `https://d1y9ka302ibufy.cloudfront.net/org/login`
+  - `https://form.kidrawer.com/org/login`
 - Default post-login page:
-  - `https://d1y9ka302ibufy.cloudfront.net/org/submissions`
+  - `https://form.kidrawer.com/org/submissions`
 
 Recommended demo values:
 
@@ -63,7 +63,7 @@ Org users can:
 4. Review the submission list and open the newest submission.
 5. Change the submission status to `reviewed`.
 6. Open the audit page to confirm the workflow activity.
-7. Open the form designer at `https://d1y9ka302ibufy.cloudfront.net/org/courses/crs_demo_001/form`.
+7. Open the form designer at `https://form.kidrawer.com/org/courses/crs_demo_001/form`.
 
 ## 6) Notes
 
@@ -71,4 +71,5 @@ Org users can:
 - The org login is MVP-only and is not real authentication.
 - Full org course management UI is planned next and is not live yet.
 - If demo data has been reset, reseed from the backend repo with `npm run seed:sample`.
+
 

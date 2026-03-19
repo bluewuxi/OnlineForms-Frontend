@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: OnlineForms Frontend CloudFront custom domain + Route53
+
+Parameters:
+  FrontendBucketName:
+    Type: String
+    Default: onlineforms-frontend-762563144177-ap-southeast-2
+  CustomDomainName:
+    Type: String
+    Default: form.kidrawer.com
+  HostedZoneId:
+    Type: String
+    Default: ZHT81CSFF73IE
+  AcmCertificateArnUsEast1:
+    Type: String
+    Default: arn:aws:acm:us-east-1:762563144177:certificate/4424c01b-89f8-4d1b-b159-3473892b44ab
+
+Resources:
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: OnlineForms frontend with custom domain
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_All
+        Aliases:
+          - !Ref CustomDomainName
+        Origins:
+          - Id: frontend-s3-website
+            DomainName: !Sub ${FrontendBucketName}.s3-website-${AWS::Region}.amazonaws.com
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: http-only
+              OriginSSLProtocols:
+                - TLSv1
+                - TLSv1.1
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: frontend-s3-website
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArnUsEast1
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+
+  FrontendCustomDomainRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref CustomDomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt FrontendDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+        EvaluateTargetHealth: false
+
+Outputs:
+  FrontendDistributionId:
+    Description: CloudFront distribution id for frontend
+    Value: !Ref FrontendDistribution
+  FrontendDistributionDomainName:
+    Description: CloudFront domain name for frontend
+    Value: !GetAtt FrontendDistribution.DomainName
+  FrontendCustomDomainUrl:
+    Description: Frontend custom domain URL
+    Value: !Sub https://${CustomDomainName}

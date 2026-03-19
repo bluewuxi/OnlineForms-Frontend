@@ -14,8 +14,8 @@ This repository contains the customer-facing and organization-facing UI for Onli
 
 The frontend integrates with the OnlineForms backend API:
 
-- Frontend URL (deployed): `https://d1y9ka302ibufy.cloudfront.net`
-- API base URL (deployed): `https://5n7ng70uw5.execute-api.ap-southeast-2.amazonaws.com/v1`
+- Frontend URL (deployed): `https://form.kidrawer.com`
+- API base URL (deployed): `https://form-api.kidrawer.com/v1`
 - Backend repository: `bluewuxi/OnlineForms`
 
 ## Project Docs
@@ -69,4 +69,5 @@ The frontend integrates with the OnlineForms backend API:
 - MVP docs and implementation checklist committed
 - Target stack: React + Vite on S3/CloudFront
 - Phases F1-F5 implemented
+
 
