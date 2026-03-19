@@ -5,7 +5,7 @@ Last updated: 2026-03-10
 ## 1) Live frontend
 
 - Frontend base URL: `https://d1y9ka302ibufy.cloudfront.net`
-- API base URL: `https://y36enrj145.execute-api.ap-southeast-2.amazonaws.com/v1`
+- API base URL: `https://5n7ng70uw5.execute-api.ap-southeast-2.amazonaws.com/v1`
 - Region: `ap-southeast-2`
 
 ## 2) Public demo pages
@@ -71,3 +71,4 @@ Org users can:
 - The org login is MVP-only and is not real authentication.
 - Full org course management UI is planned next and is not live yet.
 - If demo data has been reset, reseed from the backend repo with `npm run seed:sample`.
+
