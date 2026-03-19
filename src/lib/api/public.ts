@@ -96,7 +96,7 @@ function mapTenantDirectoryItem(
 }
 
 function fallbackTenantDirectory(): TenantDirectoryItem[] {
-  return getFallbackTenantCodes().map((tenantCode) => ({
+  return getFallbackTenantCodes().map((tenantCode: string) => ({
     tenantCode,
     displayName: prettifyTenantCode(tenantCode),
     description: 'Browse available courses for this tenant.',
