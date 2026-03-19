@@ -6,6 +6,7 @@ import { PageHero } from '../../components/layout/PageHero'
 import { FormPreview } from '../../features/enrollment/FormPreview'
 import { parseFormSchema } from '../../features/enrollment/formSchema'
 import { getPublicCourse } from '../../lib/api'
+import { normalizeTenantCode } from '../../lib/routing/tenantCode'
 
 function formatDate(value?: string | null) {
   if (!value) {
@@ -17,7 +18,8 @@ function formatDate(value?: string | null) {
 }
 
 export function CourseDetailPage() {
-  const { tenantCode = 'acme-training', courseId = '' } = useParams()
+  const { tenantCode: tenantCodeParam, courseId = '' } = useParams()
+  const tenantCode = normalizeTenantCode(tenantCodeParam ?? '')
   const courseQuery = useQuery({
     queryKey: ['public-course', tenantCode, courseId],
     queryFn: async () => {

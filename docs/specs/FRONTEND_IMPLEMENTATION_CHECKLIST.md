@@ -43,7 +43,7 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 
 ## Phase F7 - Tenant Experience and Internal Management
 
-- [ ] F7-01 Route model update for tenant-first URLs and reserved slug handling (#22)
+- [x] F7-01 Route model update for tenant-first URLs and reserved slug handling (#22)
 - [ ] F7-02 Root home IA refresh and tenant card navigation (#23)
 - [ ] F7-03 Tenant home page and course-list CTA (#24)
 - [ ] F7-04 Internal tenant management screens (update-only) (#25)

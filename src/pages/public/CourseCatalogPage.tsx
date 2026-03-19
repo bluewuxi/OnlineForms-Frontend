@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
 import { listPublicCourses, type CourseListItem } from '../../lib/api'
+import { normalizeTenantCode } from '../../lib/routing/tenantCode'
 
 const pageSize = 9
 
@@ -36,7 +37,8 @@ function filterCoursesByStatus(courses: CourseListItem[], statusFilter: string) 
 }
 
 export function CourseCatalogPage() {
-  const { tenantCode = 'acme-training' } = useParams()
+  const { tenantCode: tenantCodeParam } = useParams()
+  const tenantCode = normalizeTenantCode(tenantCodeParam ?? '')
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
   const initialStatusFilter = searchParams.get('status') ?? 'all'

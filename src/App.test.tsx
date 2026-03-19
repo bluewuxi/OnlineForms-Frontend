@@ -87,4 +87,20 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /course form template/i }),
     ).toBeInTheDocument()
   })
+
+  it('redirects legacy /t tenant route to tenant-first route', async () => {
+    renderRoute('/t/acme-training/courses')
+
+    expect(
+      await screen.findByRole('heading', { name: /find your next course/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('treats reserved tenant slugs as non-tenant routes', async () => {
+    renderRoute('/api/courses')
+
+    expect(
+      await screen.findByRole('heading', { name: /we could not find that page/i }),
+    ).toBeInTheDocument()
+  })
 })

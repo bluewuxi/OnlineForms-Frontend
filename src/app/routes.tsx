@@ -1,5 +1,7 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { RootLayout } from '../components/layout/RootLayout'
+import { LegacyTenantRedirect } from '../components/routing/LegacyTenantRedirect'
+import { TenantRouteGuard } from '../components/routing/TenantRouteGuard'
 import { OrgProtectedRoute } from '../features/org-session/OrgProtectedRoute'
 import { AuditPage } from '../pages/org/AuditPage'
 import { BrandingPage } from '../pages/org/BrandingPage'
@@ -26,12 +28,26 @@ export const appRoutes: RouteObject[] = [
         element: <HomePage />,
       },
       {
-        path: ':tenantCode/courses',
-        element: <CourseCatalogPage />,
+        path: 't/:tenantCode/courses',
+        element: <LegacyTenantRedirect />,
       },
       {
-        path: ':tenantCode/courses/:courseId',
-        element: <CourseDetailPage />,
+        path: 't/:tenantCode/courses/:courseId',
+        element: <LegacyTenantRedirect includeCourseId />,
+      },
+      {
+        path: ':tenantCode',
+        element: <TenantRouteGuard />,
+        children: [
+          {
+            path: 'courses',
+            element: <CourseCatalogPage />,
+          },
+          {
+            path: 'courses/:courseId',
+            element: <CourseDetailPage />,
+          },
+        ],
       },
       {
         path: 'org/login',
