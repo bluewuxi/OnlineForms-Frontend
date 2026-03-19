@@ -149,10 +149,10 @@ APIs:
 ## 7.7 Tenant Home and Internal Tenant Management
 
 - Render tenant home page at `/:tenantCode` with tenant description and optional homepage content.
-- Root page navigation keeps only `Home` and `Internal Management Portal`.
+- Root page navigation keeps only `Home` and `Management`.
 - Root page displays tenant cards that route to tenant home pages.
 - Internal management screens support tenant update-only workflows (no create/delete UI).
-- Frontend role handling must support `internal_manager` for internal routes.
+- Frontend role handling must support `internal_admin` for internal routes.
 - Frontend routing must reject reserved tenant slugs and avoid conflicts with system paths.
 
 APIs:
@@ -183,7 +183,11 @@ APIs:
 
 Initial MVP can use a temporary auth shell for organization routes:
 
-- input fields for `x-user-id`, `x-tenant-id`, `x-role`
+- input controls mapped to `x-user-id`, `x-tenant-id`, `x-role`
+- login labels should be `Username`, `Tenant`, and `Role`
+- `Tenant` dropdown includes all existing tenants plus an empty option
+- `Role` is selected from supported role options (dropdown)
+- `Tenant` is required for non-`internal_admin` roles and optional for `internal_admin`
 - headers attached to org API calls
 
 Later replacement path:
@@ -254,7 +258,8 @@ Later replacement path:
 - Tenant-first URL model and reserved-slug guardrails
 - Root home and tenant card navigation refresh
 - Tenant home page and internal tenant management portal
-- Role-aware frontend access for `internal_manager`
+- Role-aware frontend access for `internal_admin`
+- Management login UX polish (`Management` menu label, tenant/role dropdown controls)
 
 ## 16. Open Questions
 

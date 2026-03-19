@@ -52,10 +52,10 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - Key sections:
   - Product intro
   - Tenant cards
-  - Internal management portal CTA
+  - Management CTA
 - Actions:
   - Navigate to tenant home page (`/:tenantCode`)
-  - Navigate to internal management portal
+  - Navigate to management portal
 - States:
   - Loading state while tenant cards are fetched
   - Empty state when no active tenants are available
@@ -131,9 +131,9 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - Purpose:
   - Capture MVP header-based org session fields before protected route usage.
 - Fields:
-  - `x-user-id`
-  - `x-tenant-id`
-  - `x-role`
+  - `Username` (`x-user-id`)
+  - `Tenant` (`x-tenant-id`) via dropdown populated with existing tenants plus an empty option
+  - `Role` (`x-role`) via dropdown of supported roles
 - Key sections:
   - Short explanation that this is an MVP auth shell
   - Session form
@@ -141,6 +141,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - Behavior:
   - Persist values locally for later org API requests
   - Redirect to org submissions after successful save
+  - `Tenant` is compulsory for non-`internal_admin` roles and optional when role is `internal_admin`
 - States:
   - Inline validation for missing required values
 
@@ -331,7 +332,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Tenant profile edit form (`description`, `isActive`, `homePageContent`)
   - Save result feedback
 - Behavior:
-  - Restrict page access to `internal_manager` (or higher privileged internal roles)
+  - Restrict page access to `internal_admin` (or higher privileged internal roles)
   - Validate and block reserved tenant-code values in edit flow
   - Provide clear validation messages from backend
 - States:
@@ -348,7 +349,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - Protected org routes:
   - Redirect to `/org/login` when MVP session values are missing.
 - Internal area:
-  - Dedicated nav entry from home for `Internal Management Portal`.
+  - Dedicated nav entry from home for `Management`.
   - Reserved slugs (`org`, `internal`, `api`, `admin`, `health`, `courses`) cannot resolve as tenant pages.
 
 ## 6. API-to-UI Notes

@@ -49,3 +49,4 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [ ] F7-04 Internal tenant management screens (update-only) (#25)
 - [ ] F7-05 Internal management role-aware access control (#26)
 - [ ] F7-06 Reserved slug guardrails, QA, and docs (#27)
+- [ ] F7-07 Management login UX polish (menu label + tenant/role dropdowns) (#28)
