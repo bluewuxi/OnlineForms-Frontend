@@ -48,18 +48,36 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 
 - Route: `/`
 - Purpose:
-  - Lightweight entry page linking to the public and org experiences.
+  - Lightweight entry page linking to tenant experiences and the internal management portal.
 - Key sections:
   - Product intro
-  - Public portal entry CTA
-  - Org portal entry CTA
+  - Tenant cards
+  - Internal management portal CTA
 - Actions:
-  - Navigate to tenant public catalog
-  - Navigate to org login
+  - Navigate to tenant home page (`/:tenantCode`)
+  - Navigate to internal management portal
 - States:
-  - Static page, no data load required
+  - Loading state while tenant cards are fetched
+  - Empty state when no active tenants are available
 
-## 4.2 Public Course Catalog
+## 4.2 Tenant Home Page
+
+- Route: `/:tenantCode`
+- API:
+  - Tenant home payload endpoint from backend public API
+- Purpose:
+  - Provide tenant overview and entry point to published courses.
+- Key sections:
+  - Tenant title/branding
+  - Tenant description
+  - Optional tenant home-page content
+  - CTA to `/:tenantCode/courses`
+- States:
+  - Loading content skeleton
+  - Tenant not found/inactive state
+  - Error state with retry
+
+## 4.3 Public Course Catalog
 
 - Route: `/:tenantCode/courses`
 - API:
@@ -84,7 +102,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Search and result cards stack vertically
   - Actions remain thumb-friendly
 
-## 4.3 Public Course Detail
+## 4.4 Public Course Detail
 
 - Route: `/:tenantCode/courses/:courseId`
 - API:
@@ -107,7 +125,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Submission success state
   - Submission error state with retry guidance
 
-## 4.4 Org Login Shell
+## 4.5 Org Login Shell
 
 - Route: `/org/login`
 - Purpose:
@@ -126,7 +144,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - States:
   - Inline validation for missing required values
 
-## 4.5 Org Submissions List
+## 4.6 Org Submissions List
 
 - Route: `/org/submissions`
 - API:
@@ -149,7 +167,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Empty filtered results state
   - Error state with retry
 
-## 4.6 Org Course List
+## 4.7 Org Course List
 
 - Route: `/org/courses`
 - API:
@@ -172,7 +190,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Empty state when no courses exist yet
   - Error state with retry
 
-## 4.7 Org Course Detail and Edit
+## 4.8 Org Course Detail and Edit
 
 - Routes:
   - `/org/courses/new`
@@ -202,7 +220,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Publish/archive success and error feedback
   - Validation errors inline on required fields
 
-## 4.8 Org Submission Detail
+## 4.9 Org Submission Detail
 
 - Route: `/org/submissions/:submissionId`
 - API:
@@ -226,7 +244,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Action success toast or inline confirmation
   - Action error banner with current backend state if available
 
-## 4.9 Org Audit View
+## 4.10 Org Audit View
 
 - Route: `/org/audit`
 - API:
@@ -249,7 +267,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Empty state for no matching events
   - Error state with retry
 
-## 4.10 Asset Upload and Branding Utility
+## 4.11 Asset Upload and Branding Utility
 
 - Route:
   - Final route to be decided during implementation, under org area
@@ -274,7 +292,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Upload success
 - Upload failure with retry guidance
 
-## 4.11 Org Form Template Designer
+## 4.12 Org Form Template Designer
 
 - Route:
   - Final route to be decided during implementation, likely under `/org/courses/:courseId/form`
@@ -299,14 +317,39 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Unsaved changes state
   - Save success and save error feedback
 
+## 4.13 Internal Tenant Management
+
+- Route:
+  - `/internal/tenants`
+- APIs:
+  - `GET /internal/tenants`
+  - `PATCH /internal/tenants/{tenantId}`
+- Purpose:
+  - Let internal operators update tenant profile information without create/delete actions.
+- Key sections:
+  - Tenant list with search/filter
+  - Tenant profile edit form (`description`, `isActive`, `homePageContent`)
+  - Save result feedback
+- Behavior:
+  - Restrict page access to `internal_manager` (or higher privileged internal roles)
+  - Validate and block reserved tenant-code values in edit flow
+  - Provide clear validation messages from backend
+- States:
+  - Loading list/form states
+  - Save success/error feedback
+  - Unauthorized access state
+
 ## 5. Navigation Model
 
 - Public area:
-  - Simple top bar with brand/title and optional catalog context.
+  - Top menu includes only `Home`; tenant navigation is card and page-CTA based.
 - Org area:
   - Compact nav linking to courses, submissions, audit, branding utility, and form designer where appropriate.
 - Protected org routes:
   - Redirect to `/org/login` when MVP session values are missing.
+- Internal area:
+  - Dedicated nav entry from home for `Internal Management Portal`.
+  - Reserved slugs (`org`, `internal`, `api`, `admin`, `health`, `courses`) cannot resolve as tenant pages.
 
 ## 6. API-to-UI Notes
 

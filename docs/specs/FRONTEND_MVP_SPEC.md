@@ -52,10 +52,12 @@ The frontend MVP includes two surfaces:
 
 ### 6.1 Public Routes
 
+- `/:tenantCode` (tenant home page)
 - `/:tenantCode/courses` (catalog)
 - `/:tenantCode/courses/:courseId` (detail)
 - Enrollment form embedded in course detail page
 - Enrollment success state on submit
+- Legacy `/t/:tenantCode/*` routes are deprecated and should redirect when encountered
 
 ### 6.2 Org Routes
 
@@ -68,6 +70,7 @@ The frontend MVP includes two surfaces:
 - `/org/audit`
 - `/org/branding`
 - `/org/courses/:courseId/form`
+- `/internal/tenants` (internal management list/edit shell)
 
 ### 6.3 Shared
 
@@ -142,6 +145,20 @@ APIs:
 - `POST /org/assets/upload-ticket`
 - `GET /org/assets/{assetId}`
 - `PATCH /org/branding`
+
+## 7.7 Tenant Home and Internal Tenant Management
+
+- Render tenant home page at `/:tenantCode` with tenant description and optional homepage content.
+- Root page navigation keeps only `Home` and `Internal Management Portal`.
+- Root page displays tenant cards that route to tenant home pages.
+- Internal management screens support tenant update-only workflows (no create/delete UI).
+- Frontend role handling must support `internal_manager` for internal routes.
+- Frontend routing must reject reserved tenant slugs and avoid conflicts with system paths.
+
+APIs:
+- `GET /public/{tenantCode}/tenant-home` (or equivalent tenant home payload contract)
+- `GET /internal/tenants`
+- `PATCH /internal/tenants/{tenantId}`
 
 ## 8. UX and Design Requirements
 
@@ -232,6 +249,12 @@ Later replacement path:
 - Org course create/edit workflow
 - Publish/archive actions and status UX
 - Link real course records to the form designer
+
+### Phase F7
+- Tenant-first URL model and reserved-slug guardrails
+- Root home and tenant card navigation refresh
+- Tenant home page and internal tenant management portal
+- Role-aware frontend access for `internal_manager`
 
 ## 16. Open Questions
 

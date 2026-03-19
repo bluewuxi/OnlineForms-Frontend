@@ -40,3 +40,12 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [ ] F6-02 Build org course create/edit form workflow (#19)
 - [ ] F6-03 Add publish/archive actions with feedback states (#18)
 - [ ] F6-04 Link course records to the form designer and org navigation (#20)
+
+## Phase F7 - Tenant Experience and Internal Management
+
+- [ ] F7-01 Route model update for tenant-first URLs and reserved slug handling (#22)
+- [ ] F7-02 Root home IA refresh and tenant card navigation (#23)
+- [ ] F7-03 Tenant home page and course-list CTA (#24)
+- [ ] F7-04 Internal tenant management screens (update-only) (#25)
+- [ ] F7-05 Internal management role-aware access control (#26)
+- [ ] F7-06 Reserved slug guardrails, QA, and docs (#27)
