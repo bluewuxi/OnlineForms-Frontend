@@ -15,9 +15,9 @@ Use the seeded demo tenant and course for the public browser flow:
 - Home page:
   - `https://form.kidrawer.com/`
 - Public course catalog:
-  - `https://form.kidrawer.com/t/demo-school/courses`
+  - `https://form.kidrawer.com/demo-school/courses`
 - Public course detail and enrollment form:
-  - `https://form.kidrawer.com/t/demo-school/courses/crs_demo_001`
+  - `https://form.kidrawer.com/demo-school/courses/crs_demo_001`
 
 ## 3) Org portal access
 

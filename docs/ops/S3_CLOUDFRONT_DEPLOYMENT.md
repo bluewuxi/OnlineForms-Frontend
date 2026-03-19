@@ -55,8 +55,8 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
 
 This frontend uses React Router, so deep links such as:
 
-- `/t/acme-training/courses`
-- `/t/acme-training/courses/crs_123`
+- `/acme-training/courses`
+- `/acme-training/courses/crs_123`
 - `/org/submissions/sub_123`
 
 must resolve back to `index.html` at the CDN layer.

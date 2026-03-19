@@ -24,7 +24,7 @@ export function HomePage() {
       />
 
       <section className="content-card-grid">
-        <Link className="destination-card" to="/t/acme-training/courses">
+        <Link className="destination-card" to="/acme-training/courses">
           <span className="destination-card__eyebrow">Public portal</span>
           <h2>Browse the course catalog</h2>
           <p>Use the initial tenant route and course discovery flow.</p>

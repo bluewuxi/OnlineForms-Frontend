@@ -13,7 +13,7 @@ export function NotFoundPage() {
         <Link className="button button--primary" to="/">
           Go home
         </Link>
-        <Link className="button button--secondary" to="/t/acme-training/courses">
+        <Link className="button button--secondary" to="/acme-training/courses">
           Open sample catalog
         </Link>
       </div>

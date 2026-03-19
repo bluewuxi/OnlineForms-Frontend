@@ -26,11 +26,11 @@ export const appRoutes: RouteObject[] = [
         element: <HomePage />,
       },
       {
-        path: 't/:tenantCode/courses',
+        path: ':tenantCode/courses',
         element: <CourseCatalogPage />,
       },
       {
-        path: 't/:tenantCode/courses/:courseId',
+        path: ':tenantCode/courses/:courseId',
         element: <CourseDetailPage />,
       },
       {

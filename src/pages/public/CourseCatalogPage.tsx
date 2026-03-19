@@ -176,7 +176,7 @@ export function CourseCatalogPage() {
                     </span>
                     <Link
                       className="button button--secondary"
-                      to={`/t/${tenantCode}/courses/${course.id}`}
+                      to={`/${tenantCode}/courses/${course.id}`}
                     >
                       View details
                     </Link>

@@ -17,7 +17,7 @@ Provide a quick manual verification flow for the MVP frontend before demos and r
 
 1. Open `/`
 2. Confirm the landing page renders and links to the public catalog and org portal
-3. Open `/t/acme-training/courses`
+3. Open `/acme-training/courses`
 4. Confirm course catalog data loads without console errors
 5. Enter a search term and confirm the URL updates with `q=...`
 6. Apply a status filter and confirm the list updates cleanly

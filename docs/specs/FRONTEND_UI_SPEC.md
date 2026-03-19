@@ -61,7 +61,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 
 ## 4.2 Public Course Catalog
 
-- Route: `/t/:tenantCode/courses`
+- Route: `/:tenantCode/courses`
 - API:
   - `GET /public/{tenantCode}/courses`
 - Purpose:
@@ -86,7 +86,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 
 ## 4.3 Public Course Detail
 
-- Route: `/t/:tenantCode/courses/:courseId`
+- Route: `/:tenantCode/courses/:courseId`
 - API:
   - `GET /public/{tenantCode}/courses/{courseId}`
 - Purpose:
@@ -344,3 +344,4 @@ Implementation should be considered aligned with this UI spec when:
 3. Public and org experiences share consistent UI patterns.
 4. The UI stays usable on mobile-width screens.
 5. The app remains directly aligned to the current backend API surface.
+

@@ -52,8 +52,8 @@ The frontend MVP includes two surfaces:
 
 ### 6.1 Public Routes
 
-- `/t/:tenantCode/courses` (catalog)
-- `/t/:tenantCode/courses/:courseId` (detail)
+- `/:tenantCode/courses` (catalog)
+- `/:tenantCode/courses/:courseId` (detail)
 - Enrollment form embedded in course detail page
 - Enrollment success state on submit
 
@@ -239,5 +239,6 @@ Later replacement path:
 2. What branding elements must be tenant-configurable in MVP UI?
 3. Should org audit view expose raw JSON details or curated fields only?
 4. What minimum browser support matrix is required for demos?
+
 
 

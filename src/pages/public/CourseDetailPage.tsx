@@ -90,7 +90,7 @@ export function CourseDetailPage() {
               </div>
             </div>
             <div className="button-row">
-              <Link className="button button--secondary" to={`/t/${tenantCode}/courses`}>
+              <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
                 Back to catalog
               </Link>
             </div>
