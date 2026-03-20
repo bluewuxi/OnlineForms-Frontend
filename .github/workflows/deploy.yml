@@ -99,7 +99,12 @@ jobs:
           CANDIDATES=$(aws cloudformation list-stacks \
             --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE UPDATE_ROLLBACK_COMPLETE IMPORT_COMPLETE IMPORT_ROLLBACK_COMPLETE \
             --query "StackSummaries[].StackName" \
-            --output text)
+            --output text 2>/dev/null || true)
+          if [ -z "$CANDIDATES" ] || [ "$CANDIDATES" = "None" ]; then
+            echo "Unable to list CloudFormation stacks (likely permission-scoped role)."
+            echo "Set STACK_NAME (backend stack) or VITE_COGNITO_DOMAIN/VITE_COGNITO_CLIENT_ID explicitly in repo variables."
+            exit 0
+          fi
           for STACK in $CANDIDATES; do
             MATCH=$(aws cloudformation describe-stacks \
               --stack-name "$STACK" \
