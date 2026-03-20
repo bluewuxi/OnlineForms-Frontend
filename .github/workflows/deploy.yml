@@ -28,6 +28,11 @@ jobs:
       FRONTEND_HOSTED_ZONE_ID: ${{ vars.FRONTEND_HOSTED_ZONE_ID }}
       FRONTEND_CUSTOM_DOMAIN_CERT_ARN: ${{ vars.FRONTEND_CUSTOM_DOMAIN_CERT_ARN }}
       VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+      VITE_AUTH_MODE: ${{ vars.VITE_AUTH_MODE }}
+      VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
+      VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+      VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
+      VITE_COGNITO_SCOPE: ${{ vars.VITE_COGNITO_SCOPE }}
 
     steps:
       - name: Checkout
@@ -41,6 +46,33 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Normalize frontend auth environment
+        run: |
+          if [ -z "$VITE_AUTH_MODE" ]; then
+            echo "VITE_AUTH_MODE=mock" >> "$GITHUB_ENV"
+            echo "Normalized VITE_AUTH_MODE to mock."
+          fi
+          if [ -z "$VITE_COGNITO_SCOPE" ]; then
+            echo "VITE_COGNITO_SCOPE=openid profile email" >> "$GITHUB_ENV"
+            echo "Normalized VITE_COGNITO_SCOPE to default scopes."
+          fi
+
+      - name: Validate frontend auth environment
+        run: |
+          case "$VITE_AUTH_MODE" in
+            mock|cognito) ;;
+            *)
+              echo "Invalid VITE_AUTH_MODE: '$VITE_AUTH_MODE'. Expected mock or cognito."
+              exit 1
+              ;;
+          esac
+          if [ "$VITE_AUTH_MODE" = "cognito" ]; then
+            if [ -z "$VITE_COGNITO_DOMAIN" ] || [ -z "$VITE_COGNITO_CLIENT_ID" ] || [ -z "$VITE_COGNITO_REDIRECT_URI" ]; then
+              echo "Cognito mode requires VITE_COGNITO_DOMAIN, VITE_COGNITO_CLIENT_ID, and VITE_COGNITO_REDIRECT_URI."
+              exit 1
+            fi
+          fi
 
       - name: Lint
         run: npm run lint
