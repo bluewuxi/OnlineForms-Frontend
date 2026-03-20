@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
@@ -40,14 +40,14 @@ export function OrgLoginPage() {
   const roleOptions = authOptionsQuery.data && authOptionsQuery.data.length > 0
     ? authOptionsQuery.data
     : fallbackRoles
-  const { register, handleSubmit, formState, setError, clearErrors, watch } = useForm<OrgLoginFormValues>({
+  const { control, register, handleSubmit, formState, setError, clearErrors } = useForm<OrgLoginFormValues>({
     defaultValues: {
       userId: session?.userId || '',
       tenantId: session?.tenantId || '',
       role: session?.role || 'org_admin',
     },
   })
-  const selectedRole = watch('role')
+  const selectedRole = useWatch({ control, name: 'role' })
 
   const onSubmit = handleSubmit((values) => {
     const roleMeta = roleOptions.find((row) => row.role === values.role)

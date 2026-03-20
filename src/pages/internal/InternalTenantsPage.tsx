@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
@@ -31,7 +31,7 @@ export function InternalTenantsPage() {
   const { session } = useOrgSession()
   const queryClient = useQueryClient()
   const [selectedTenantId, setSelectedTenantId] = useState<string>('')
-  const [formState, setFormState] = useState<TenantFormState | null>(null)
+  const [draftsByTenantId, setDraftsByTenantId] = useState<Record<string, TenantFormState>>({})
   const [saveMessage, setSaveMessage] = useState<string>('')
 
   const tenantsQuery = useQuery({
@@ -46,27 +46,27 @@ export function InternalTenantsPage() {
     enabled: Boolean(session),
   })
 
-  useEffect(() => {
-    if (!tenantsQuery.data || tenantsQuery.data.length === 0) {
-      setSelectedTenantId('')
-      setFormState(null)
-      return
+  const effectiveSelectedTenantId = useMemo(() => {
+    const tenants = tenantsQuery.data || []
+    if (tenants.length === 0) {
+      return ''
     }
-    if (!selectedTenantId) {
-      const first = tenantsQuery.data[0]
-      setSelectedTenantId(first.tenantId)
-      setFormState(toFormState(first))
-      return
-    }
-    const current = tenantsQuery.data.find((item) => item.tenantId === selectedTenantId)
-    if (current) {
-      setFormState(toFormState(current))
-    }
+    const hasSelection = tenants.some((item) => item.tenantId === selectedTenantId)
+    return hasSelection ? selectedTenantId : tenants[0].tenantId
   }, [tenantsQuery.data, selectedTenantId])
 
   const selectedTenant = useMemo(
-    () => tenantsQuery.data?.find((item) => item.tenantId === selectedTenantId) || null,
-    [tenantsQuery.data, selectedTenantId],
+    () =>
+      tenantsQuery.data?.find((item) => item.tenantId === effectiveSelectedTenantId) || null,
+    [tenantsQuery.data, effectiveSelectedTenantId],
+  )
+
+  const formState = useMemo(
+    () =>
+      selectedTenant
+        ? draftsByTenantId[selectedTenant.tenantId] || toFormState(selectedTenant)
+        : null,
+    [draftsByTenantId, selectedTenant],
   )
 
   const saveMutation = useMutation({
@@ -84,6 +84,12 @@ export function InternalTenantsPage() {
     },
     onSuccess: () => {
       setSaveMessage('Tenant profile updated.')
+      if (selectedTenant && formState) {
+        setDraftsByTenantId((current) => ({
+          ...current,
+          [selectedTenant.tenantId]: formState,
+        }))
+      }
       queryClient.invalidateQueries({ queryKey: ['internal-tenants'] })
     },
   })
@@ -116,13 +122,9 @@ export function InternalTenantsPage() {
             <label className="session-form__field">
               <span>Tenant</span>
               <select
-                value={selectedTenantId}
+                value={effectiveSelectedTenantId}
                 onChange={(event) => {
                   setSelectedTenantId(event.target.value)
-                  const next = tenantsQuery.data?.find(
-                    (row) => row.tenantId === event.target.value,
-                  )
-                  setFormState(next ? toFormState(next) : null)
                   setSaveMessage('')
                 }}
               >
@@ -149,10 +151,19 @@ export function InternalTenantsPage() {
                     type="text"
                     value={formState.displayName}
                     onChange={(event) =>
-                      setFormState({
-                        ...formState,
-                        displayName: event.target.value,
-                      })}
+                      setDraftsByTenantId((current) => {
+                        if (!selectedTenant) {
+                          return current
+                        }
+                        return {
+                          ...current,
+                          [selectedTenant.tenantId]: {
+                            ...formState,
+                            displayName: event.target.value,
+                          },
+                        }
+                      })
+                    }
                   />
                 </label>
                 <label className="session-form__field">
@@ -160,10 +171,19 @@ export function InternalTenantsPage() {
                   <textarea
                     value={formState.description}
                     onChange={(event) =>
-                      setFormState({
-                        ...formState,
-                        description: event.target.value,
-                      })}
+                      setDraftsByTenantId((current) => {
+                        if (!selectedTenant) {
+                          return current
+                        }
+                        return {
+                          ...current,
+                          [selectedTenant.tenantId]: {
+                            ...formState,
+                            description: event.target.value,
+                          },
+                        }
+                      })
+                    }
                   />
                 </label>
                 <label className="session-form__field">
@@ -171,10 +191,19 @@ export function InternalTenantsPage() {
                   <textarea
                     value={formState.homePageContent}
                     onChange={(event) =>
-                      setFormState({
-                        ...formState,
-                        homePageContent: event.target.value,
-                      })}
+                      setDraftsByTenantId((current) => {
+                        if (!selectedTenant) {
+                          return current
+                        }
+                        return {
+                          ...current,
+                          [selectedTenant.tenantId]: {
+                            ...formState,
+                            homePageContent: event.target.value,
+                          },
+                        }
+                      })
+                    }
                   />
                 </label>
                 <label className="session-form__field">
@@ -182,10 +211,19 @@ export function InternalTenantsPage() {
                   <select
                     value={formState.isActive ? 'true' : 'false'}
                     onChange={(event) =>
-                      setFormState({
-                        ...formState,
-                        isActive: event.target.value === 'true',
-                      })}
+                      setDraftsByTenantId((current) => {
+                        if (!selectedTenant) {
+                          return current
+                        }
+                        return {
+                          ...current,
+                          [selectedTenant.tenantId]: {
+                            ...formState,
+                            isActive: event.target.value === 'true',
+                          },
+                        }
+                      })
+                    }
                   >
                     <option value="true">Active</option>
                     <option value="false">Inactive</option>
