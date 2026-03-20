@@ -131,6 +131,17 @@ jobs:
             exit 0
           fi
 
+          DOMAIN_URL=$(aws cloudformation describe-stacks \
+            --stack-name "$API_STACK_NAME" \
+            --query "Stacks[0].Outputs[?OutputKey=='CognitoHostedUiDomainUrl'].OutputValue" \
+            --output text 2>/dev/null || true)
+
+          if [ -n "$DOMAIN_URL" ] && [ "$DOMAIN_URL" != "None" ]; then
+            echo "VITE_COGNITO_DOMAIN=$DOMAIN_URL" >> "$GITHUB_ENV"
+            echo "Hydrated VITE_COGNITO_DOMAIN from backend stack output CognitoHostedUiDomainUrl."
+            exit 0
+          fi
+
           USER_POOL_ID=$(aws cloudformation describe-stacks \
             --stack-name "$API_STACK_NAME" \
             --query "Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue" \
