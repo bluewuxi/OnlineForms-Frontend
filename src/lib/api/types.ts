@@ -21,6 +21,11 @@ export type OrgSessionHeaders = {
   userId: string
   tenantId?: string
   role: string
+  accessToken?: string
+  idToken?: string
+  refreshToken?: string
+  expiresAtEpochSeconds?: number
+  authProvider?: 'mock' | 'cognito'
 }
 
 export type DeliveryMode = 'online' | 'onsite' | 'hybrid'

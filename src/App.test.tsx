@@ -39,7 +39,7 @@ describe('App routing', () => {
     renderRoute('/org/submissions')
 
     expect(
-      await screen.findByRole('heading', { name: /mvp organization login/i }),
+      await screen.findByRole('heading', { name: /management login/i }),
     ).toBeInTheDocument()
   })
 

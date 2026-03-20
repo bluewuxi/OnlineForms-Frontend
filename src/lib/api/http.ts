@@ -79,17 +79,24 @@ function createHeaders(
   correlationId: string,
   extraHeaders?: HeadersInit,
 ) {
+  const hasBearerToken =
+    typeof session?.accessToken === 'string' && session.accessToken.trim().length > 0
   return new Headers({
     Accept: 'application/json',
     'Content-Type': 'application/json',
     'x-correlation-id': correlationId,
     ...extraHeaders,
     ...(session
-      ? {
-          'x-user-id': session.userId,
-          'x-role': session.role,
-          ...(session.tenantId ? { 'x-tenant-id': session.tenantId } : {}),
-        }
+      ? hasBearerToken
+        ? {
+            Authorization: `Bearer ${session.accessToken}`,
+            ...(session.tenantId ? { 'x-tenant-id': session.tenantId } : {}),
+          }
+        : {
+            'x-user-id': session.userId,
+            'x-role': session.role,
+            ...(session.tenantId ? { 'x-tenant-id': session.tenantId } : {}),
+          }
       : {}),
   })
 }

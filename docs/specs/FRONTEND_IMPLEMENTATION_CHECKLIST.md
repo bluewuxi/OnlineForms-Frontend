@@ -54,7 +54,7 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 
 ## Phase F8 - Cognito Login Workflow
 
-- [ ] F8-01 Cognito login UI integration and token acquisition (#30)
+- [x] F8-01 Cognito login UI integration and token acquisition (#30)
 - [ ] F8-02 Session/token storage model with expiry handling (#32)
 - [ ] F8-03 Access token refresh and 401 recovery flow (#33)
 - [ ] F8-04 Auth guard/redirect hardening and end-to-end smoke pack (#31)
