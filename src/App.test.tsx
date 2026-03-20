@@ -60,6 +60,24 @@ describe('App routing', () => {
     ).toBeInTheDocument()
   })
 
+  it('redirects to login for unusable cognito session state', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'org_admin',
+        authProvider: 'cognito',
+      }),
+    )
+
+    renderRoute('/org/submissions')
+
+    expect(
+      await screen.findByRole('heading', { name: /management login/i }),
+    ).toBeInTheDocument()
+  })
+
   it('shows management login labels and allows internal_admin without tenant', async () => {
     renderRoute('/org/login')
 

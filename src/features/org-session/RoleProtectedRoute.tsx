@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { isSessionUsable } from './storage'
 import { useOrgSession } from './useOrgSession'
 
 type RoleProtectedRouteProps = {
@@ -9,7 +10,7 @@ export function RoleProtectedRoute({ allowedRoles }: RoleProtectedRouteProps) {
   const location = useLocation()
   const { session } = useOrgSession()
 
-  if (!session) {
+  if (!isSessionUsable(session)) {
     const returnTo = `${location.pathname}${location.search}`
     return (
       <Navigate
@@ -19,7 +20,8 @@ export function RoleProtectedRoute({ allowedRoles }: RoleProtectedRouteProps) {
     )
   }
 
-  if (!allowedRoles.includes(session.role)) {
+  const activeRole = session.role
+  if (!allowedRoles.includes(activeRole)) {
     return (
       <section className="content-panel content-panel--narrow">
         <p className="section-heading__eyebrow">Access denied</p>

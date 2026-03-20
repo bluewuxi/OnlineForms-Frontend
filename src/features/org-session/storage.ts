@@ -121,6 +121,24 @@ export function isSessionExpired(session: OrgSessionHeaders | null) {
   )
 }
 
+export function isSessionUsable(
+  session: OrgSessionHeaders | null,
+): session is OrgSessionHeaders {
+  if (!session) {
+    return false
+  }
+  if (isSessionExpired(session)) {
+    return false
+  }
+  if (session.authProvider === 'cognito') {
+    return (
+      typeof session.accessToken === 'string' &&
+      session.accessToken.trim().length > 0
+    )
+  }
+  return true
+}
+
 export function clearStoredOrgSession() {
   window.localStorage.removeItem(ORG_SESSION_STORAGE_KEY)
 }

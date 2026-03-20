@@ -9,7 +9,7 @@ Provide a quick manual verification flow for the MVP frontend before demos and r
 
 ## Preconditions
 
-- Org session values available for MVP login shell
+- Cognito app client and Hosted UI are configured for this environment
 - `VITE_API_BASE_URL` points to the deployed backend
 - Frontend is running locally or deployed in a target environment
 
@@ -29,8 +29,10 @@ Provide a quick manual verification flow for the MVP frontend before demos and r
 ## Org Portal
 
 1. Open `/org/login`
-2. Enter `x-user-id`, `x-tenant-id`, and `x-role`
-3. Continue to the org portal and confirm protected routes open successfully
+2. Click `Continue with Cognito` and complete Hosted UI sign-in
+3. Confirm redirect lands on role-appropriate destination:
+   - internal role -> `/internal/tenants`
+   - org role -> `/org/submissions` (or valid org returnTo)
 4. Open `/org/submissions`
 5. Confirm submissions load and filters work
 6. Open one submission detail page
@@ -41,6 +43,9 @@ Provide a quick manual verification flow for the MVP frontend before demos and r
 11. Open `/org/branding`
 12. Upload a valid image and confirm asset metadata is returned
 13. Apply the uploaded asset as the org logo and confirm the success state
+14. Trigger token-expiry scenario (or wait for short-lived token env) and confirm:
+    - API request auto-recovers via refresh
+    - if refresh fails, user is redirected back to `/org/login`
 
 ## Accessibility Spot Checks
 
@@ -57,3 +62,4 @@ Smoke passes when:
 - Public enrollment succeeds
 - Org review actions succeed
 - Audit and branding utilities load successfully
+- Cognito login/refresh/sign-out flows behave as expected
