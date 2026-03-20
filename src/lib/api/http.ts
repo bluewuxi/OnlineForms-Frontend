@@ -1,4 +1,9 @@
+import { refreshCognitoSession } from '../../features/org-session/cognito'
 import { getApiBaseUrl } from '../config/env'
+import {
+  notifySessionInvalidated,
+  notifySessionRefreshed,
+} from './sessionLifecycle'
 import type {
   ApiErrorEnvelope,
   ApiRequestOptions,
@@ -6,6 +11,8 @@ import type {
   OrgSessionHeaders,
   QueryValue,
 } from './types'
+
+let refreshInFlight: Promise<OrgSessionHeaders> | null = null
 
 export class ApiClientError extends Error {
   readonly status: number
@@ -43,6 +50,26 @@ export function createIdempotencyKey() {
     : Math.random().toString(36).slice(2)
 
   return `idem_${value}`
+}
+
+function isCognitoSession(session: OrgSessionHeaders | undefined): session is OrgSessionHeaders {
+  return Boolean(session && session.authProvider === 'cognito' && session.refreshToken)
+}
+
+function isSessionExpiringSoon(session: OrgSessionHeaders | undefined) {
+  if (!session || typeof session.expiresAtEpochSeconds !== 'number') {
+    return false
+  }
+  return session.expiresAtEpochSeconds <= Math.floor(Date.now() / 1000) + 60
+}
+
+async function refreshSession(session: OrgSessionHeaders) {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshCognitoSession(session).finally(() => {
+      refreshInFlight = null
+    })
+  }
+  return refreshInFlight
 }
 
 export function buildQueryString(params?: Record<string, QueryValue>) {
@@ -111,17 +138,65 @@ export async function apiRequest<TResponse>({
   headers,
 }: ApiRequestOptions): Promise<ApiResult<TResponse>> {
   const url = joinApiUrl(getApiBaseUrl(), `${path}${buildQueryString(query)}`)
-  const requestHeaders = createHeaders(session, correlationId, headers)
-
-  if (body === undefined) {
-    requestHeaders.delete('Content-Type')
+  let effectiveSession = session
+  if (isCognitoSession(effectiveSession) && isSessionExpiringSoon(effectiveSession)) {
+    try {
+      effectiveSession = await refreshSession(effectiveSession)
+      notifySessionRefreshed(effectiveSession)
+    } catch {
+      notifySessionInvalidated()
+      throw new ApiClientError(
+        401,
+        {
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'Authentication session expired.',
+            details: [{ issue: 'token_expired' }],
+          },
+        },
+        'Request failed because authentication refresh did not succeed.',
+      )
+    }
   }
 
-  const response = await fetch(url, {
-    method,
-    headers: requestHeaders,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  const sendRequest = (activeSession: OrgSessionHeaders | undefined) => {
+    const requestHeaders = createHeaders(activeSession, correlationId, headers)
+    if (body === undefined) {
+      requestHeaders.delete('Content-Type')
+    }
+    return fetch(url, {
+      method,
+      headers: requestHeaders,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+  }
+
+  let response = await sendRequest(effectiveSession)
+
+  if (
+    response.status === 401 &&
+    isCognitoSession(effectiveSession)
+  ) {
+    try {
+      const refreshedSession = await refreshSession(effectiveSession)
+      notifySessionRefreshed(refreshedSession)
+      effectiveSession = refreshedSession
+      response = await sendRequest(effectiveSession)
+    } catch {
+      notifySessionInvalidated()
+      throw new ApiClientError(
+        401,
+        {
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'Authentication session expired.',
+            details: [{ issue: 'token_expired' }],
+          },
+        },
+        'Request failed because authentication refresh did not succeed.',
+      )
+    }
+  }
 
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({

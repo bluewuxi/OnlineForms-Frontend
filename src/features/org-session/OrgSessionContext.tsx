@@ -4,6 +4,7 @@ import {
   type PropsWithChildren,
 } from 'react'
 import type { OrgSessionHeaders } from '../../lib/api'
+import { registerSessionLifecycleHandlers } from '../../lib/api/sessionLifecycle'
 import {
   ORG_SESSION_STORAGE_KEY,
   clearStoredOrgSession,
@@ -28,6 +29,21 @@ export function OrgSessionProvider({ children }: PropsWithChildren) {
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
+
+  useEffect(
+    () =>
+      registerSessionLifecycleHandlers({
+        onSessionRefreshed(nextSession) {
+          writeStoredOrgSession(nextSession)
+          setSession(nextSession)
+        },
+        onSessionInvalidated() {
+          clearStoredOrgSession()
+          setSession(null)
+        },
+      }),
+    [],
+  )
 
   useEffect(() => {
     if (!session || typeof session.expiresAtEpochSeconds !== 'number') {

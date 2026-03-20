@@ -203,3 +203,48 @@ export async function completeCognitoLoginFromUrl(search: string) {
     requestedReturnTo: stored.requestedReturnTo,
   }
 }
+
+export async function refreshCognitoSession(currentSession: OrgSessionHeaders) {
+  if (!currentSession.refreshToken) {
+    throw new Error('Cannot refresh session without a refresh token.')
+  }
+  const config = getCognitoAuthConfig()
+  const tokenUrl = new URL('/oauth2/token', config.domain)
+  const body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    client_id: config.clientId,
+    refresh_token: currentSession.refreshToken,
+  })
+  const response = await fetch(tokenUrl.toString(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body.toString(),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to refresh Cognito tokens.')
+  }
+  const tokens = (await response.json()) as TokenResponse
+  if (!tokens.access_token) {
+    throw new Error('Cognito refresh response missing access_token.')
+  }
+  const claims = parseJwtPayload(tokens.id_token || tokens.access_token)
+  return {
+    ...currentSession,
+    userId: pickString(claims.sub) || currentSession.userId,
+    role: pickRole(claims),
+    tenantId:
+      pickString(claims['custom:tenantId']) ||
+      pickString(claims.tenantId) ||
+      currentSession.tenantId,
+    accessToken: tokens.access_token,
+    idToken: tokens.id_token || currentSession.idToken,
+    refreshToken: tokens.refresh_token || currentSession.refreshToken,
+    expiresAtEpochSeconds:
+      typeof tokens.expires_in === 'number'
+        ? Math.floor(Date.now() / 1000) + tokens.expires_in
+        : currentSession.expiresAtEpochSeconds,
+    authProvider: 'cognito' as const,
+  }
+}
