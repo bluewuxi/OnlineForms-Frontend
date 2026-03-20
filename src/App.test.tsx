@@ -155,4 +155,23 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /tenant management/i }),
     ).toBeInTheDocument()
   })
+
+  it('blocks internal tenant route for non-internal roles', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'org_admin',
+      }),
+    )
+
+    renderRoute('/internal/tenants')
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /you are not authorised to view this page/i,
+      }),
+    ).toBeInTheDocument()
+  })
 })

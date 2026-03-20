@@ -3,6 +3,7 @@ import { RootLayout } from '../components/layout/RootLayout'
 import { LegacyTenantRedirect } from '../components/routing/LegacyTenantRedirect'
 import { TenantRouteGuard } from '../components/routing/TenantRouteGuard'
 import { OrgProtectedRoute } from '../features/org-session/OrgProtectedRoute'
+import { RoleProtectedRoute } from '../features/org-session/RoleProtectedRoute'
 import { AuditPage } from '../pages/org/AuditPage'
 import { BrandingPage } from '../pages/org/BrandingPage'
 import { CourseEditorPage } from '../pages/org/CourseEditorPage'
@@ -61,7 +62,11 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: 'internal',
-        element: <OrgProtectedRoute />,
+        element: (
+          <RoleProtectedRoute
+            allowedRoles={['internal_admin', 'platform_admin']}
+          />
+        ),
         children: [
           {
             path: 'tenants',
