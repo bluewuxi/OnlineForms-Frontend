@@ -128,8 +128,8 @@ describe('App routing', () => {
   })
 
   it('renders tenant home route', async () => {
-    const originalFetch = global.fetch
-    global.fetch = vi.fn(async () =>
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async () =>
       new Response(
         JSON.stringify({
           data: {
@@ -153,7 +153,7 @@ describe('App routing', () => {
         await screen.findByRole('heading', { name: /standard school/i }),
       ).toBeInTheDocument()
     } finally {
-      global.fetch = originalFetch
+      globalThis.fetch = originalFetch
     }
   })
 
