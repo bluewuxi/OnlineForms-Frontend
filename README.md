@@ -23,6 +23,8 @@ The frontend integrates with the OnlineForms backend API:
 - MVP spec: `docs/specs/FRONTEND_MVP_SPEC.md`
 - UI spec: `docs/specs/FRONTEND_UI_SPEC.md`
 - Implementation checklist: `docs/specs/FRONTEND_IMPLEMENTATION_CHECKLIST.md`
+- Bug management process: `docs/process/bug-management.md`
+- Bug investigation runbook: `docs/guides/BUG_RUNBOOK.md`
 - Visual baseline: `docs/design/FRONTEND_VISUAL_BASELINE.md`
 - Smoke checklist: `docs/ops/FRONTEND_SMOKE_CHECKLIST.md`
 - S3/CloudFront deployment notes: `docs/ops/S3_CLOUDFRONT_DEPLOYMENT.md`
@@ -59,6 +61,12 @@ The frontend integrates with the OnlineForms backend API:
 - Copy `.env.example` to `.env.local` for local development overrides.
 - `VITE_API_BASE_URL` defaults to the deployed MVP API if not provided.
 - `VITE_PUBLIC_TENANT_CODES` (comma-separated) provides fallback tenant cards on home page when `/public/tenants` is unavailable.
+- `VITE_AUTH_MODE` supports `mock` (default) or `cognito`.
+- If `VITE_AUTH_MODE=cognito`, set:
+  - `VITE_COGNITO_DOMAIN`
+  - `VITE_COGNITO_CLIENT_ID`
+  - `VITE_COGNITO_REDIRECT_URI`
+  - `VITE_COGNITO_SCOPE` (optional, default `openid profile email`)
 
 ## Foundation Stack
 
