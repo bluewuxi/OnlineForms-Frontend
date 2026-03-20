@@ -87,8 +87,8 @@ function createHeaders(
     ...(session
       ? {
           'x-user-id': session.userId,
-          'x-tenant-id': session.tenantId,
           'x-role': session.role,
+          ...(session.tenantId ? { 'x-tenant-id': session.tenantId } : {}),
         }
       : {}),
   })

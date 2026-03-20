@@ -19,7 +19,7 @@ export type ApiResult<TData> = {
 
 export type OrgSessionHeaders = {
   userId: string
-  tenantId: string
+  tenantId?: string
   role: string
 }
 
@@ -262,6 +262,7 @@ export type BrandingUpdateResponse = {
 }
 
 export type TenantDirectoryItem = {
+  tenantId: string
   tenantCode: string
   displayName: string
   description?: string
@@ -280,6 +281,12 @@ export type TenantHome = {
   links: {
     publishedCourses: string
   }
+}
+
+export type AuthRoleOption = {
+  role: string
+  label: string
+  requiresTenant: boolean
 }
 
 export type InternalTenantProfile = {

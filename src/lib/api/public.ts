@@ -6,6 +6,7 @@ import type {
   CursorPage,
   EnrollmentPayload,
   EnrollmentResponse,
+  AuthRoleOption,
   TenantDirectoryItem,
   TenantHome,
 } from './types'
@@ -41,6 +42,7 @@ type BackendPublicCourse = BackendPublicCourseListItem & {
 }
 
 type BackendTenantDirectoryItem = {
+  tenantId: string
   tenantCode: string
   displayName?: string
   description?: string
@@ -60,6 +62,12 @@ type BackendTenantHome = {
   links?: {
     publishedCourses?: string
   }
+}
+
+type BackendAuthRoleOption = {
+  role: string
+  label: string
+  requiresTenant: boolean
 }
 
 function mapCourseListItem(course: BackendPublicCourseListItem): CourseListItem {
@@ -101,6 +109,7 @@ function mapTenantDirectoryItem(
 ): TenantDirectoryItem {
   const tenantCode = item.tenantCode.trim().toLowerCase()
   return {
+    tenantId: item.tenantId,
     tenantCode,
     displayName:
       item.displayName?.trim() || prettifyTenantCode(tenantCode),
@@ -112,6 +121,7 @@ function mapTenantDirectoryItem(
 
 function fallbackTenantDirectory(): TenantDirectoryItem[] {
   return getFallbackTenantCodes().map((tenantCode: string) => ({
+    tenantId: tenantCode,
     tenantCode,
     displayName: prettifyTenantCode(tenantCode),
     description: 'Browse available courses for this tenant.',
@@ -133,6 +143,14 @@ function mapTenantHome(item: BackendTenantHome): TenantHome {
         item.links?.publishedCourses ||
         `/v1/public/${tenantCode}/courses`,
     },
+  }
+}
+
+function mapAuthRoleOption(item: BackendAuthRoleOption): AuthRoleOption {
+  return {
+    role: item.role,
+    label: item.label,
+    requiresTenant: item.requiresTenant !== false,
   }
 }
 
@@ -227,5 +245,16 @@ export function getPublicTenantHome(tenantCode: string) {
   }).then((response) => ({
     ...response,
     data: mapTenantHome(response.data.data),
+  }))
+}
+
+export function getPublicAuthOptions() {
+  return apiRequest<{ data: { roles: BackendAuthRoleOption[] } }>({
+    path: '/public/auth-options',
+  }).then((response) => ({
+    ...response,
+    data: {
+      roles: (response.data.data.roles || []).map(mapAuthRoleOption),
+    },
   }))
 }

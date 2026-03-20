@@ -26,7 +26,7 @@ export function HomePage() {
             <p className="hero-card__label">Ready routes</p>
             <ul className="hero-card__list">
               <li>Tenant course catalog and detail views</li>
-              <li>Internal management portal entry</li>
+              <li>Management portal entry</li>
               <li>Org operational routes</li>
             </ul>
           </div>
@@ -40,8 +40,8 @@ export function HomePage() {
           <p>Choose a tenant card below to browse published courses.</p>
         </Link>
         <Link className="destination-card" to="/org/login">
-          <span className="destination-card__eyebrow">Internal Management</span>
-          <h2>Open internal portal</h2>
+          <span className="destination-card__eyebrow">Management</span>
+          <h2>Open management portal</h2>
           <p>Sign in to manage tenant and organization operations.</p>
         </Link>
       </section>

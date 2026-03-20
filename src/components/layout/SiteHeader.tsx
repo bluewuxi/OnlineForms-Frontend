@@ -7,7 +7,7 @@ type SiteHeaderProps = {
 
 const publicLinks = [
   { to: '/', label: 'Home' },
-  { to: '/org/login', label: 'Internal Management Portal' },
+  { to: '/org/login', label: 'Management' },
 ]
 
 const orgLinks = [
@@ -44,7 +44,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
         </nav>
         {section === 'org' && session ? (
           <div className="site-header__session">
-            <span>{session.tenantId}</span>
+            <span>{session.tenantId || '-'}</span>
             <span>{session.userId}</span>
             <button
               className="button button--ghost"

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import { AppProviders } from './app/AppProviders'
@@ -29,7 +30,7 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /onlineforms frontend/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /internal management portal/i }),
+      screen.getByRole('link', { name: /^management$/i }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
@@ -56,6 +57,23 @@ describe('App routing', () => {
 
     expect(
       await screen.findByRole('heading', { name: /submission review queue/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('shows management login labels and allows internal_admin without tenant', async () => {
+    renderRoute('/org/login')
+
+    expect(await screen.findByText(/username/i)).toBeInTheDocument()
+    expect(screen.getByText(/^tenant$/i)).toBeInTheDocument()
+    expect(screen.getByText(/^role$/i)).toBeInTheDocument()
+
+    const user = userEvent.setup()
+    await user.type(screen.getByLabelText(/username/i), 'internal-user')
+    await user.selectOptions(screen.getByLabelText(/role/i), 'internal_admin')
+    await user.click(screen.getByRole('button', { name: /continue to management/i }))
+
+    expect(
+      await screen.findByRole('heading', { name: /tenant management/i }),
     ).toBeInTheDocument()
   })
 

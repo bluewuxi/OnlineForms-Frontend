@@ -14,7 +14,7 @@ function isSessionShape(value: unknown): value is OrgSessionHeaders {
   const candidate = value as Record<string, unknown>
   return (
     typeof candidate.userId === 'string' &&
-    typeof candidate.tenantId === 'string' &&
+    (candidate.tenantId === undefined || typeof candidate.tenantId === 'string') &&
     typeof candidate.role === 'string'
   )
 }
@@ -31,9 +31,14 @@ export function readStoredOrgSession() {
 
   try {
     const parsed = JSON.parse(rawValue)
+    const tenantId =
+      typeof parsed.tenantId === 'string' && parsed.tenantId.trim().length > 0
+        ? parsed.tenantId.trim()
+        : undefined
     return isSessionShape(parsed)
       ? {
           ...parsed,
+          tenantId,
           role: normalizeRole(parsed.role),
         }
       : null
@@ -43,10 +48,15 @@ export function readStoredOrgSession() {
 }
 
 export function writeStoredOrgSession(session: OrgSessionHeaders) {
+  const tenantId =
+    typeof session.tenantId === 'string' && session.tenantId.trim().length > 0
+      ? session.tenantId.trim()
+      : undefined
   window.localStorage.setItem(
     ORG_SESSION_STORAGE_KEY,
     JSON.stringify({
       ...session,
+      tenantId,
       role: normalizeRole(session.role),
     }),
   )
