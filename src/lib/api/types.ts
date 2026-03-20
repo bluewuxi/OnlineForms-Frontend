@@ -281,3 +281,20 @@ export type TenantHome = {
     publishedCourses: string
   }
 }
+
+export type InternalTenantProfile = {
+  tenantId: string
+  tenantCode: string
+  displayName: string
+  description?: string | null
+  isActive: boolean
+  homePageContent?: string | null
+  updatedAt: string
+}
+
+export type InternalTenantUpdatePayload = {
+  displayName?: string
+  description?: string | null
+  isActive?: boolean
+  homePageContent?: string | null
+}

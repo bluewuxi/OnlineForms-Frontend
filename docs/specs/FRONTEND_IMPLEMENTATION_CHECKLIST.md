@@ -46,7 +46,7 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F7-01 Route model update for tenant-first URLs and reserved slug handling (#22)
 - [x] F7-02 Root home IA refresh and tenant card navigation (#23)
 - [x] F7-03 Tenant home page and course-list CTA (#24)
-- [ ] F7-04 Internal tenant management screens (update-only) (#25)
+- [x] F7-04 Internal tenant management screens (update-only) (#25)
 - [ ] F7-05 Internal management role-aware access control (#26)
 - [ ] F7-06 Reserved slug guardrails, QA, and docs (#27)
 - [ ] F7-07 Management login UX polish (menu label + tenant/role dropdowns) (#28)

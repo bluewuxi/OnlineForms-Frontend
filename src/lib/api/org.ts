@@ -21,6 +21,8 @@ import type {
   Submission,
   SubmissionStatus,
   SubmissionStatusUpdatePayload,
+  InternalTenantProfile,
+  InternalTenantUpdatePayload,
   UploadTicketRequest,
   UploadTicketResponse,
 } from './types'
@@ -96,6 +98,16 @@ type BackendOrgCourse = {
   activeFormId?: string | null
   activeFormVersion?: number | null
   createdAt: string
+  updatedAt: string
+}
+
+type BackendInternalTenant = {
+  tenantId: string
+  tenantCode: string
+  displayName: string
+  description?: string | null
+  isActive: boolean
+  homePageContent?: string | null
   updatedAt: string
 }
 
@@ -177,6 +189,20 @@ function mapOrgCourseSummary(course: BackendOrgCourse): OrgCourseSummary {
     publicVisible: course.publicVisible,
     pricingMode: course.pricingMode,
     activeFormVersion: course.activeFormVersion,
+  }
+}
+
+function mapInternalTenantProfile(
+  tenant: BackendInternalTenant,
+): InternalTenantProfile {
+  return {
+    tenantId: tenant.tenantId,
+    tenantCode: tenant.tenantCode,
+    displayName: tenant.displayName,
+    description: tenant.description,
+    isActive: tenant.isActive,
+    homePageContent: tenant.homePageContent,
+    updatedAt: tenant.updatedAt,
   }
 }
 
@@ -402,5 +428,38 @@ export function updateBranding(
   }).then((response) => ({
     ...response,
     data: response.data.data,
+  }))
+}
+
+export function listInternalTenants(
+  session: OrgSessionHeaders,
+  limit = 100,
+) {
+  return apiRequest<BackendListEnvelope<BackendInternalTenant>>({
+    path: '/internal/tenants',
+    session,
+    query: { limit },
+  }).then((response) => ({
+    ...response,
+    data: {
+      items: response.data.data.map(mapInternalTenantProfile),
+      nextCursor: response.data.page.nextCursor,
+    } satisfies CursorPage<InternalTenantProfile>,
+  }))
+}
+
+export function updateInternalTenant(
+  session: OrgSessionHeaders,
+  tenantId: string,
+  payload: InternalTenantUpdatePayload,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalTenant>>({
+    path: `/internal/tenants/${tenantId}`,
+    method: 'PATCH',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalTenantProfile(response.data.data),
   }))
 }

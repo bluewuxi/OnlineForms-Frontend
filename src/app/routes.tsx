@@ -8,6 +8,7 @@ import { BrandingPage } from '../pages/org/BrandingPage'
 import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
+import { InternalTenantsPage } from '../pages/internal/InternalTenantsPage'
 import { OrgLoginPage } from '../pages/org/OrgLoginPage'
 import { SubmissionDetailPage } from '../pages/org/SubmissionDetailPage'
 import { SubmissionsPage } from '../pages/org/SubmissionsPage'
@@ -57,6 +58,16 @@ export const appRoutes: RouteObject[] = [
       {
         path: 'org/login',
         element: <OrgLoginPage />,
+      },
+      {
+        path: 'internal',
+        element: <OrgProtectedRoute />,
+        children: [
+          {
+            path: 'tenants',
+            element: <InternalTenantsPage />,
+          },
+        ],
       },
       {
         path: 'org',

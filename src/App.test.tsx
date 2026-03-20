@@ -138,4 +138,21 @@ describe('App routing', () => {
       global.fetch = originalFetch
     }
   })
+
+  it('renders internal tenant management route when a session exists', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'internal_admin',
+      }),
+    )
+
+    renderRoute('/internal/tenants')
+
+    expect(
+      await screen.findByRole('heading', { name: /tenant management/i }),
+    ).toBeInTheDocument()
+  })
 })
