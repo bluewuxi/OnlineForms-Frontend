@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 
 type SiteHeaderProps = {
-  section: 'public' | 'org'
+  section: 'public' | 'org' | 'login'
 }
 
 const publicLinks = [
@@ -17,8 +17,16 @@ const orgLinks = [
   { to: '/org/branding', label: 'Branding' },
 ]
 
+const loginLinks = [
+  { to: '/', label: 'Home' },
+]
+
 export function SiteHeader({ section }: SiteHeaderProps) {
-  const links = section === 'org' ? orgLinks : publicLinks
+  const links = section === 'org'
+    ? orgLinks
+    : section === 'login'
+      ? loginLinks
+      : publicLinks
   const { session, signOut } = useOrgSession()
 
   return (

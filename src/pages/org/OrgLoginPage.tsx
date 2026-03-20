@@ -40,7 +40,7 @@ export function OrgLoginPage() {
   const roleOptions = authOptionsQuery.data && authOptionsQuery.data.length > 0
     ? authOptionsQuery.data
     : fallbackRoles
-  const { control, register, handleSubmit, formState, setError, clearErrors } = useForm<OrgLoginFormValues>({
+  const { control, register, handleSubmit, formState, setError, clearErrors, getValues, setValue } = useForm<OrgLoginFormValues>({
     defaultValues: {
       userId: session?.userId || '',
       tenantId: session?.tenantId || '',
@@ -68,15 +68,22 @@ export function OrgLoginPage() {
       ...(normalizedTenantId ? { tenantId: normalizedTenantId } : {}),
     })
 
-    const fallbackReturnTo = values.role === 'internal_admin'
-      ? '/internal/tenants'
-      : '/org/submissions'
-    const returnTo =
-      requestedReturnTo && requestedReturnTo.startsWith('/')
-        ? requestedReturnTo
-        : fallbackReturnTo
+    const isInternalRole = values.role === 'internal_admin'
+    const fallbackReturnTo = isInternalRole ? '/internal/tenants' : '/org/submissions'
+
+    let returnTo = fallbackReturnTo
+    if (requestedReturnTo && requestedReturnTo.startsWith('/')) {
+      const matchesRoleBoundary = isInternalRole
+        ? requestedReturnTo.startsWith('/internal/')
+        : requestedReturnTo.startsWith('/org/')
+      if (matchesRoleBoundary) {
+        returnTo = requestedReturnTo
+      }
+    }
     navigate(returnTo, { replace: true })
   })
+
+  const roleRegister = register('role', { required: true })
 
   return (
     <div className="page-stack">
@@ -109,7 +116,7 @@ export function OrgLoginPage() {
             <span>Tenant</span>
             <select
               {...register('tenantId')}
-              disabled={tenantQuery.isLoading}
+              disabled={tenantQuery.isLoading || selectedRole === 'internal_admin'}
             >
               <option value="">Select tenant</option>
               {(tenantQuery.data || []).map((tenant) => (
@@ -127,7 +134,14 @@ export function OrgLoginPage() {
           <label className="session-form__field">
             <span>Role</span>
             <select
-              {...register('role', { required: true })}
+              {...roleRegister}
+              onChange={(event) => {
+                roleRegister.onChange(event)
+                if (event.target.value === 'internal_admin' && getValues('tenantId')) {
+                  setValue('tenantId', '')
+                  clearErrors('tenantId')
+                }
+              }}
             >
               {roleOptions.map((role) => (
                 <option key={role.role} value={role.role}>

@@ -4,11 +4,13 @@ import { SiteHeader } from './SiteHeader'
 
 export function RootLayout() {
   const location = useLocation()
-  const isOrgRoute = location.pathname.startsWith('/org')
+  const isLoginRoute = location.pathname === '/org/login'
+  const isOrgRoute = location.pathname.startsWith('/org') && !isLoginRoute
+  const section = isLoginRoute ? 'login' : isOrgRoute ? 'org' : 'public'
 
   return (
     <AppLayout
-      header={<SiteHeader section={isOrgRoute ? 'org' : 'public'} />}
+      header={<SiteHeader section={section} />}
       notificationSlot={<div aria-live="polite" className="app-notification-slot" />}
     >
       <Outlet />

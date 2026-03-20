@@ -66,10 +66,32 @@ describe('App routing', () => {
     expect(await screen.findByText(/username/i)).toBeInTheDocument()
     expect(screen.getByText(/^tenant$/i)).toBeInTheDocument()
     expect(screen.getByText(/^role$/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^home$/i })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^submissions$/i })).not.toBeInTheDocument()
 
     const user = userEvent.setup()
     await user.type(screen.getByLabelText(/username/i), 'internal-user')
-    await user.selectOptions(screen.getByLabelText(/role/i), 'internal_admin')
+    const tenantSelect = screen.getByLabelText(/^tenant$/i) as HTMLSelectElement
+    if (tenantSelect.options.length > 1) {
+      await user.selectOptions(tenantSelect, tenantSelect.options[1].value)
+      expect(tenantSelect).not.toHaveValue('')
+    }
+    await user.selectOptions(screen.getByLabelText(/^role$/i), 'internal_admin')
+    expect(screen.getByLabelText(/^tenant$/i)).toHaveValue('')
+    await user.click(screen.getByRole('button', { name: /continue to management/i }))
+
+    expect(
+      await screen.findByRole('heading', { name: /tenant management/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('enforces role-safe returnTo for internal login', async () => {
+    renderRoute('/org/login?returnTo=%2Forg%2Fsubmissions')
+
+    const user = userEvent.setup()
+    await user.type(screen.getByLabelText(/username/i), 'internal-user')
+    await user.selectOptions(screen.getByLabelText(/^role$/i), 'internal_admin')
     await user.click(screen.getByRole('button', { name: /continue to management/i }))
 
     expect(
