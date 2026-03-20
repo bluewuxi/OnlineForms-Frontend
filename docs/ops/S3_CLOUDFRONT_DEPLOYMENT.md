@@ -27,6 +27,7 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
   - `VITE_COGNITO_CLIENT_ID`
   - `VITE_COGNITO_REDIRECT_URI`
   - `VITE_COGNITO_SCOPE` (optional, defaults to `openid profile email`)
+  - `VITE_COGNITO_TOKEN_USE` (`access` or `id`, should match backend `COGNITO_TOKEN_USE`)
 - Production should point to:
   - `https://form-api.kidrawer.com/v1`
 

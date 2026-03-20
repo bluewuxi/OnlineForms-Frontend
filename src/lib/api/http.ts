@@ -1,5 +1,5 @@
 import { refreshCognitoSession } from '../../features/org-session/cognito'
-import { getApiBaseUrl } from '../config/env'
+import { getApiBaseUrl, getFrontendCognitoTokenUse } from '../config/env'
 import {
   notifySessionInvalidated,
   notifySessionRefreshed,
@@ -106,8 +106,13 @@ function createHeaders(
   correlationId: string,
   extraHeaders?: HeadersInit,
 ) {
+  const cognitoTokenUse = getFrontendCognitoTokenUse()
+  const bearerToken =
+    session?.authProvider === 'cognito' && cognitoTokenUse === 'id'
+      ? session.idToken
+      : session?.accessToken
   const hasBearerToken =
-    typeof session?.accessToken === 'string' && session.accessToken.trim().length > 0
+    typeof bearerToken === 'string' && bearerToken.trim().length > 0
   return new Headers({
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -116,7 +121,7 @@ function createHeaders(
     ...(session
       ? hasBearerToken
         ? {
-            Authorization: `Bearer ${session.accessToken}`,
+            Authorization: `Bearer ${bearerToken}`,
             ...(session.tenantId ? { 'x-tenant-id': session.tenantId } : {}),
           }
         : {

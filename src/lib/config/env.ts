@@ -4,6 +4,7 @@ const defaultTenantCodes: string[] = ['std-school']
 const defaultAuthMode = 'mock'
 
 export type FrontendAuthMode = 'mock' | 'cognito'
+export type CognitoTokenUse = 'access' | 'id'
 export type CognitoAuthConfig = {
   domain: string
   clientId: string
@@ -35,6 +36,14 @@ export function getFrontendAuthMode(): FrontendAuthMode {
     return 'cognito'
   }
   return defaultAuthMode
+}
+
+export function getFrontendCognitoTokenUse(): CognitoTokenUse {
+  const raw = import.meta.env.VITE_COGNITO_TOKEN_USE?.trim().toLowerCase()
+  if (raw === 'id') {
+    return 'id'
+  }
+  return 'access'
 }
 
 export function getCognitoAuthConfig(): CognitoAuthConfig {

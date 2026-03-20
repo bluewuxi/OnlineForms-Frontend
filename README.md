@@ -67,6 +67,7 @@ The frontend integrates with the OnlineForms backend API:
   - `VITE_COGNITO_CLIENT_ID`
   - `VITE_COGNITO_REDIRECT_URI`
   - `VITE_COGNITO_SCOPE` (optional, default `openid profile email`)
+  - `VITE_COGNITO_TOKEN_USE` (`access` default, set `id` only if backend verifier is configured for ID tokens)
 
 ## Foundation Stack
 

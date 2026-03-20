@@ -33,6 +33,7 @@ jobs:
       VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
       VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
       VITE_COGNITO_SCOPE: ${{ vars.VITE_COGNITO_SCOPE }}
+      VITE_COGNITO_TOKEN_USE: ${{ vars.VITE_COGNITO_TOKEN_USE }}
 
     steps:
       - name: Checkout
@@ -57,6 +58,10 @@ jobs:
             echo "VITE_COGNITO_SCOPE=openid profile email" >> "$GITHUB_ENV"
             echo "Normalized VITE_COGNITO_SCOPE to default scopes."
           fi
+          if [ -z "$VITE_COGNITO_TOKEN_USE" ]; then
+            echo "VITE_COGNITO_TOKEN_USE=access" >> "$GITHUB_ENV"
+            echo "Normalized VITE_COGNITO_TOKEN_USE to access."
+          fi
 
       - name: Validate frontend auth environment
         run: |
@@ -73,6 +78,13 @@ jobs:
               exit 1
             fi
           fi
+          case "$VITE_COGNITO_TOKEN_USE" in
+            access|id) ;;
+            *)
+              echo "Invalid VITE_COGNITO_TOKEN_USE: '$VITE_COGNITO_TOKEN_USE'. Expected access or id."
+              exit 1
+              ;;
+          esac
 
       - name: Lint
         run: npm run lint
