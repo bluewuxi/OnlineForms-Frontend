@@ -22,6 +22,7 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
   - `VITE_API_BASE_URL`
 - Auth mode config:
   - `VITE_AUTH_MODE` (`mock` or `cognito`)
+  - when unset, frontend defaults to `cognito` on non-local hosts and `mock` on localhost
 - If `VITE_AUTH_MODE=cognito`, also required:
   - `VITE_COGNITO_DOMAIN`
   - `VITE_COGNITO_CLIENT_ID`

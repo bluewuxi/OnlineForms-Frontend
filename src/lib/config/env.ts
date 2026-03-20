@@ -1,7 +1,6 @@
 const defaultApiBaseUrl =
   'https://form-api.kidrawer.com/v1'
 const defaultTenantCodes: string[] = ['std-school']
-const defaultAuthMode = 'mock'
 
 export type FrontendAuthMode = 'mock' | 'cognito'
 export type CognitoTokenUse = 'access' | 'id'
@@ -35,7 +34,21 @@ export function getFrontendAuthMode(): FrontendAuthMode {
   if (raw === 'cognito') {
     return 'cognito'
   }
-  return defaultAuthMode
+  if (raw === 'mock') {
+    return 'mock'
+  }
+  if (typeof window === 'undefined') {
+    return 'mock'
+  }
+  const hostname = window.location.hostname.toLowerCase()
+  if (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '::1'
+  ) {
+    return 'mock'
+  }
+  return 'cognito'
 }
 
 export function getFrontendCognitoTokenUse(): CognitoTokenUse {

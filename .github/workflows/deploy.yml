@@ -51,8 +51,8 @@ jobs:
       - name: Normalize frontend auth environment
         run: |
           if [ -z "$VITE_AUTH_MODE" ]; then
-            echo "VITE_AUTH_MODE=mock" >> "$GITHUB_ENV"
-            echo "Normalized VITE_AUTH_MODE to mock."
+            echo "VITE_AUTH_MODE=cognito" >> "$GITHUB_ENV"
+            echo "Normalized VITE_AUTH_MODE to cognito."
           fi
           if [ -z "$VITE_COGNITO_SCOPE" ]; then
             echo "VITE_COGNITO_SCOPE=openid profile email" >> "$GITHUB_ENV"
