@@ -1,6 +1,7 @@
 import type { OrgSessionHeaders } from '../../lib/api'
 
 export const ORG_SESSION_STORAGE_KEY = 'onlineforms.org-session'
+const SESSION_EXPIRY_SKEW_SECONDS = 15
 
 function normalizeRole(role: string) {
   return role.trim().toLowerCase().replace(/-/g, '_')
@@ -55,16 +56,26 @@ export function readStoredOrgSession() {
       typeof parsed.refreshToken === 'string' && parsed.refreshToken.trim().length > 0
         ? parsed.refreshToken.trim()
         : undefined
-    return isSessionShape(parsed)
-      ? {
-          ...parsed,
-          tenantId,
-          accessToken,
-          idToken,
-          refreshToken,
-          role: normalizeRole(parsed.role),
-        }
-      : null
+    if (!isSessionShape(parsed)) {
+      return null
+    }
+    const session = {
+      ...parsed,
+      tenantId,
+      accessToken,
+      idToken,
+      refreshToken,
+      role: normalizeRole(parsed.role),
+    }
+    if (
+      typeof session.expiresAtEpochSeconds === 'number' &&
+      session.expiresAtEpochSeconds <=
+        Math.floor(Date.now() / 1000) + SESSION_EXPIRY_SKEW_SECONDS
+    ) {
+      clearStoredOrgSession()
+      return null
+    }
+    return session
   } catch {
     return null
   }
@@ -97,6 +108,16 @@ export function writeStoredOrgSession(session: OrgSessionHeaders) {
       refreshToken,
       role: normalizeRole(session.role),
     }),
+  )
+}
+
+export function isSessionExpired(session: OrgSessionHeaders | null) {
+  if (!session || typeof session.expiresAtEpochSeconds !== 'number') {
+    return false
+  }
+  return (
+    session.expiresAtEpochSeconds <=
+    Math.floor(Date.now() / 1000) + SESSION_EXPIRY_SKEW_SECONDS
   )
 }
 
