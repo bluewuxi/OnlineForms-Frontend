@@ -30,9 +30,9 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
   - `VITE_COGNITO_SCOPE` (optional, defaults to `openid profile email`)
   - `VITE_COGNITO_TOKEN_USE` (`access` or `id`, should match backend `COGNITO_TOKEN_USE`)
 - CI fallback hydration:
+  - if `STACK_NAME` is empty and `FRONTEND_INFRA_STACK_NAME` ends with `FrontendInfra`, CI infers backend stack name by trimming that suffix (for example `OnlineFormsFrontendInfra` -> `OnlineForms`).
   - if `VITE_COGNITO_DOMAIN` is empty and `COGNITO_DOMAIN` exists, CI copies it.
   - if `VITE_COGNITO_CLIENT_ID` is empty and `COGNITO_CLIENT_ID` exists, CI copies it.
-  - if `STACK_NAME` is not configured in frontend repo, CI attempts to auto-discover backend stack by searching for output `CognitoUserPoolClientId`.
   - if `VITE_COGNITO_CLIENT_ID` is still empty, CI reads backend stack output `CognitoUserPoolClientId`.
   - if `VITE_COGNITO_DOMAIN` is still empty, CI reads backend stack output `CognitoUserPoolId` then resolves user pool domain via `cognito-idp describe-user-pool`.
   - if `VITE_COGNITO_REDIRECT_URI` is empty, CI derives `https://<FRONTEND_CUSTOM_DOMAIN_NAME>/org/login`.

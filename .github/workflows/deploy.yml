@@ -96,6 +96,14 @@ jobs:
             echo "Using configured API_STACK_NAME=$API_STACK_NAME."
             exit 0
           fi
+          if [ -n "$FRONTEND_INFRA_STACK_NAME" ]; then
+            INFERRED_STACK=${FRONTEND_INFRA_STACK_NAME%FrontendInfra}
+            if [ -n "$INFERRED_STACK" ] && [ "$INFERRED_STACK" != "$FRONTEND_INFRA_STACK_NAME" ]; then
+              echo "API_STACK_NAME=$INFERRED_STACK" >> "$GITHUB_ENV"
+              echo "Inferred API_STACK_NAME=$INFERRED_STACK from FRONTEND_INFRA_STACK_NAME=$FRONTEND_INFRA_STACK_NAME."
+              exit 0
+            fi
+          fi
           echo "API_STACK_NAME is not set."
           echo "Set STACK_NAME (backend stack) in frontend repo variables, or set VITE_COGNITO_DOMAIN and VITE_COGNITO_CLIENT_ID explicitly."
 
