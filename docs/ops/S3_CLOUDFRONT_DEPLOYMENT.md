@@ -29,6 +29,11 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
   - `VITE_COGNITO_REDIRECT_URI`
   - `VITE_COGNITO_SCOPE` (optional, defaults to `openid profile email`)
   - `VITE_COGNITO_TOKEN_USE` (`access` or `id`, should match backend `COGNITO_TOKEN_USE`)
+- CI fallback hydration:
+  - if `VITE_COGNITO_DOMAIN` is empty and `COGNITO_DOMAIN` exists, CI copies it.
+  - if `VITE_COGNITO_CLIENT_ID` is empty and `COGNITO_CLIENT_ID` exists, CI copies it.
+  - if `VITE_COGNITO_CLIENT_ID` is still empty, CI tries backend stack output `CognitoUserPoolClientId` using `STACK_NAME`.
+  - if `VITE_COGNITO_REDIRECT_URI` is empty, CI derives `https://<FRONTEND_CUSTOM_DOMAIN_NAME>/org/login`.
 - Production should point to:
   - `https://form-api.kidrawer.com/v1`
 
