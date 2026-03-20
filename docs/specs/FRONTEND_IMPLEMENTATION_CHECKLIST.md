@@ -51,3 +51,10 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F7-06 Reserved slug guardrails, QA, and docs (#27)
 - [x] F7-07 Management login UX polish (menu label + tenant/role dropdowns) (#28)
 - [x] F7-08 Unified login flow with role-safe redirects and tenant auto-clear (#29)
+
+## Phase F8 - Cognito Login Workflow
+
+- [ ] F8-01 Cognito login UI integration and token acquisition (#30)
+- [ ] F8-02 Session/token storage model with expiry handling (#32)
+- [ ] F8-03 Access token refresh and 401 recovery flow (#33)
+- [ ] F8-04 Auth guard/redirect hardening and end-to-end smoke pack (#31)
