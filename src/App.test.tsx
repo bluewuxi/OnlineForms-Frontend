@@ -20,7 +20,12 @@ function renderRoute(initialEntry: string) {
 
 describe('App routing', () => {
   beforeEach(() => {
+    vi.stubEnv('VITE_AUTH_MODE', 'mock')
     window.localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('renders the landing page', async () => {
