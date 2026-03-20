@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import { vi } from 'vitest'
 import { AppProviders } from './app/AppProviders'
 import { appRoutes } from './app/routes'
 import { ORG_SESSION_STORAGE_KEY } from './features/org-session/storage'
@@ -106,5 +107,35 @@ describe('App routing', () => {
     expect(
       await screen.findByRole('heading', { name: /we could not find that page/i }),
     ).toBeInTheDocument()
+  })
+
+  it('renders tenant home route', async () => {
+    const originalFetch = global.fetch
+    global.fetch = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          data: {
+            tenantCode: 'std-school',
+            displayName: 'Standard School',
+            description: 'Tenant profile',
+            homePageContent: 'Welcome to Standard School.',
+            isActive: true,
+            links: {
+              publishedCourses: '/v1/public/std-school/courses',
+            },
+          },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    ) as typeof fetch
+
+    try {
+      renderRoute('/std-school')
+      expect(
+        await screen.findByRole('heading', { name: /standard school/i }),
+      ).toBeInTheDocument()
+    } finally {
+      global.fetch = originalFetch
+    }
   })
 })

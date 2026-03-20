@@ -13,6 +13,7 @@ import { SubmissionDetailPage } from '../pages/org/SubmissionDetailPage'
 import { SubmissionsPage } from '../pages/org/SubmissionsPage'
 import { CourseCatalogPage } from '../pages/public/CourseCatalogPage'
 import { CourseDetailPage } from '../pages/public/CourseDetailPage'
+import { TenantHomePage } from '../pages/public/TenantHomePage'
 import { HomePage } from '../pages/HomePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { RouteErrorPage } from '../pages/RouteErrorPage'
@@ -39,6 +40,10 @@ export const appRoutes: RouteObject[] = [
         path: ':tenantCode',
         element: <TenantRouteGuard />,
         children: [
+          {
+            index: true,
+            element: <TenantHomePage />,
+          },
           {
             path: 'courses',
             element: <CourseCatalogPage />,

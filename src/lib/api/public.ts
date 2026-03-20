@@ -7,6 +7,7 @@ import type {
   EnrollmentPayload,
   EnrollmentResponse,
   TenantDirectoryItem,
+  TenantHome,
 } from './types'
 
 type BackendPage = {
@@ -45,6 +46,20 @@ type BackendTenantDirectoryItem = {
   description?: string
   isActive?: boolean
   status?: string
+}
+
+type BackendTenantHome = {
+  tenantCode: string
+  displayName: string
+  description?: string | null
+  homePageContent?: string | null
+  isActive: boolean
+  branding?: {
+    logoAssetId?: string | null
+  }
+  links?: {
+    publishedCourses?: string
+  }
 }
 
 function mapCourseListItem(course: BackendPublicCourseListItem): CourseListItem {
@@ -102,6 +117,23 @@ function fallbackTenantDirectory(): TenantDirectoryItem[] {
     description: 'Browse available courses for this tenant.',
     isActive: true,
   }))
+}
+
+function mapTenantHome(item: BackendTenantHome): TenantHome {
+  const tenantCode = item.tenantCode.trim().toLowerCase()
+  return {
+    tenantCode,
+    displayName: item.displayName?.trim() || prettifyTenantCode(tenantCode),
+    description: item.description?.trim() || undefined,
+    homePageContent: item.homePageContent?.trim() || undefined,
+    isActive: item.isActive !== false,
+    branding: item.branding,
+    links: {
+      publishedCourses:
+        item.links?.publishedCourses ||
+        `/v1/public/${tenantCode}/courses`,
+    },
+  }
 }
 
 type PublicCourseListParams = {
@@ -187,4 +219,13 @@ export async function listPublicTenants() {
     }
     throw error
   }
+}
+
+export function getPublicTenantHome(tenantCode: string) {
+  return apiRequest<BackendItemEnvelope<BackendTenantHome>>({
+    path: `/public/${tenantCode}/tenant-home`,
+  }).then((response) => ({
+    ...response,
+    data: mapTenantHome(response.data.data),
+  }))
 }

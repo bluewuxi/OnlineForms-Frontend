@@ -267,3 +267,17 @@ export type TenantDirectoryItem = {
   description?: string
   isActive?: boolean
 }
+
+export type TenantHome = {
+  tenantCode: string
+  displayName: string
+  description?: string
+  homePageContent?: string
+  isActive: boolean
+  branding?: {
+    logoAssetId?: string | null
+  }
+  links: {
+    publishedCourses: string
+  }
+}

@@ -73,7 +73,7 @@ export function HomePage() {
                 <Link
                   className="destination-card"
                   key={tenant.tenantCode}
-                  to={`/${tenant.tenantCode}/courses`}
+                  to={`/${tenant.tenantCode}`}
                 >
                   <span className="destination-card__eyebrow">
                     {tenant.tenantCode}
