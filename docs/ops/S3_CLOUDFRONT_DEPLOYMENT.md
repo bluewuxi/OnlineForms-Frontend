@@ -32,7 +32,9 @@ Capture the deployment assumptions for hosting the frontend as static assets beh
 - CI fallback hydration:
   - if `VITE_COGNITO_DOMAIN` is empty and `COGNITO_DOMAIN` exists, CI copies it.
   - if `VITE_COGNITO_CLIENT_ID` is empty and `COGNITO_CLIENT_ID` exists, CI copies it.
-  - if `VITE_COGNITO_CLIENT_ID` is still empty, CI tries backend stack output `CognitoUserPoolClientId` using `STACK_NAME`.
+  - if `STACK_NAME` is not configured in frontend repo, CI attempts to auto-discover backend stack by searching for output `CognitoUserPoolClientId`.
+  - if `VITE_COGNITO_CLIENT_ID` is still empty, CI reads backend stack output `CognitoUserPoolClientId`.
+  - if `VITE_COGNITO_DOMAIN` is still empty, CI reads backend stack output `CognitoUserPoolId` then resolves user pool domain via `cognito-idp describe-user-pool`.
   - if `VITE_COGNITO_REDIRECT_URI` is empty, CI derives `https://<FRONTEND_CUSTOM_DOMAIN_NAME>/org/login`.
 - Production should point to:
   - `https://form-api.kidrawer.com/v1`

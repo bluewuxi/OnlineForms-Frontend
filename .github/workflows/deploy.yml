@@ -90,6 +90,29 @@ jobs:
             echo "Normalized VITE_COGNITO_TOKEN_USE to access."
           fi
 
+      - name: Resolve backend API stack name
+        run: |
+          if [ -n "$API_STACK_NAME" ]; then
+            echo "Using configured API_STACK_NAME=$API_STACK_NAME."
+            exit 0
+          fi
+          CANDIDATES=$(aws cloudformation list-stacks \
+            --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE UPDATE_ROLLBACK_COMPLETE IMPORT_COMPLETE IMPORT_ROLLBACK_COMPLETE \
+            --query "StackSummaries[].StackName" \
+            --output text)
+          for STACK in $CANDIDATES; do
+            MATCH=$(aws cloudformation describe-stacks \
+              --stack-name "$STACK" \
+              --query "length(Stacks[0].Outputs[?OutputKey=='CognitoUserPoolClientId'])" \
+              --output text 2>/dev/null || echo "0")
+            if [ "$MATCH" != "0" ] && [ "$MATCH" != "None" ]; then
+              echo "API_STACK_NAME=$STACK" >> "$GITHUB_ENV"
+              echo "Resolved API_STACK_NAME=$STACK from stack outputs."
+              exit 0
+            fi
+          done
+          echo "No backend stack with Cognito outputs found. Continuing with explicit vars only."
+
       - name: Hydrate Cognito client id from backend stack output
         run: |
           if [ "$VITE_AUTH_MODE" = "cognito" ] && [ -z "$VITE_COGNITO_CLIENT_ID" ] && [ -n "$API_STACK_NAME" ]; then
@@ -106,6 +129,41 @@ jobs:
           else
             echo "Skipped backend stack client-id hydration."
           fi
+
+      - name: Hydrate Cognito domain from backend stack output
+        run: |
+          if [ "$VITE_AUTH_MODE" != "cognito" ] || [ -n "$VITE_COGNITO_DOMAIN" ] || [ -z "$API_STACK_NAME" ]; then
+            echo "Skipped backend stack domain hydration."
+            exit 0
+          fi
+
+          USER_POOL_ID=$(aws cloudformation describe-stacks \
+            --stack-name "$API_STACK_NAME" \
+            --query "Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue" \
+            --output text)
+          if [ -z "$USER_POOL_ID" ] || [ "$USER_POOL_ID" = "None" ]; then
+            echo "Unable to resolve CognitoUserPoolId from stack '$API_STACK_NAME'."
+            exit 0
+          fi
+
+          DOMAIN_VALUE=$(aws cognito-idp describe-user-pool \
+            --user-pool-id "$USER_POOL_ID" \
+            --query "UserPool.Domain" \
+            --output text)
+
+          if [ -z "$DOMAIN_VALUE" ] || [ "$DOMAIN_VALUE" = "None" ]; then
+            echo "User pool '$USER_POOL_ID' has no hosted UI domain configured."
+            exit 0
+          fi
+
+          if [[ "$DOMAIN_VALUE" == *"."* ]]; then
+            FULL_DOMAIN="https://$DOMAIN_VALUE"
+          else
+            FULL_DOMAIN="https://$DOMAIN_VALUE.auth.$AWS_REGION.amazoncognito.com"
+          fi
+
+          echo "VITE_COGNITO_DOMAIN=$FULL_DOMAIN" >> "$GITHUB_ENV"
+          echo "Hydrated VITE_COGNITO_DOMAIN from user pool '$USER_POOL_ID'."
 
       - name: Validate frontend auth environment
         run: |
