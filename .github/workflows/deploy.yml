@@ -96,27 +96,8 @@ jobs:
             echo "Using configured API_STACK_NAME=$API_STACK_NAME."
             exit 0
           fi
-          CANDIDATES=$(aws cloudformation list-stacks \
-            --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE UPDATE_ROLLBACK_COMPLETE IMPORT_COMPLETE IMPORT_ROLLBACK_COMPLETE \
-            --query "StackSummaries[].StackName" \
-            --output text 2>/dev/null || true)
-          if [ -z "$CANDIDATES" ] || [ "$CANDIDATES" = "None" ]; then
-            echo "Unable to list CloudFormation stacks (likely permission-scoped role)."
-            echo "Set STACK_NAME (backend stack) or VITE_COGNITO_DOMAIN/VITE_COGNITO_CLIENT_ID explicitly in repo variables."
-            exit 0
-          fi
-          for STACK in $CANDIDATES; do
-            MATCH=$(aws cloudformation describe-stacks \
-              --stack-name "$STACK" \
-              --query "length(Stacks[0].Outputs[?OutputKey=='CognitoUserPoolClientId'])" \
-              --output text 2>/dev/null || echo "0")
-            if [ "$MATCH" != "0" ] && [ "$MATCH" != "None" ]; then
-              echo "API_STACK_NAME=$STACK" >> "$GITHUB_ENV"
-              echo "Resolved API_STACK_NAME=$STACK from stack outputs."
-              exit 0
-            fi
-          done
-          echo "No backend stack with Cognito outputs found. Continuing with explicit vars only."
+          echo "API_STACK_NAME is not set."
+          echo "Set STACK_NAME (backend stack) in frontend repo variables, or set VITE_COGNITO_DOMAIN and VITE_COGNITO_CLIENT_ID explicitly."
 
       - name: Hydrate Cognito client id from backend stack output
         run: |
