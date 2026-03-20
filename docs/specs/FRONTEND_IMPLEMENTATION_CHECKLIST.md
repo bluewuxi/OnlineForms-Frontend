@@ -50,3 +50,4 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F7-05 Internal management role-aware access control (#26)
 - [x] F7-06 Reserved slug guardrails, QA, and docs (#27)
 - [x] F7-07 Management login UX polish (menu label + tenant/role dropdowns) (#28)
+- [ ] F7-08 Unified login flow with role-safe redirects and tenant auto-clear (#29)
