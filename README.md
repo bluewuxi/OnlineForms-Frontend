@@ -39,6 +39,12 @@ The frontend integrates with the OnlineForms backend API:
    - Submission list
    - Submission detail and status update
 
+## Routing Guardrails
+
+- Tenant routes use `/{tenantCode}` and `/{tenantCode}/courses`.
+- Reserved slugs are blocked from tenant resolution (for example: `org`, `internal`, `api`, `admin`, `health`, `courses`, `public`, `t`, `v1`).
+- Legacy `/t/{tenantCode}/...` URLs redirect to tenant-first routes.
+
 ## Local Scripts
 
 - `npm install`
