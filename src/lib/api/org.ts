@@ -23,6 +23,7 @@ import type {
   SubmissionStatusUpdatePayload,
   InternalTenantProfile,
   InternalTenantUpdatePayload,
+  UserSessionContext,
   UploadTicketRequest,
   UploadTicketResponse,
 } from './types'
@@ -109,6 +110,24 @@ type BackendInternalTenant = {
   isActive: boolean
   homePageContent?: string | null
   updatedAt: string
+}
+
+type BackendUserSessionContext = {
+  tenantId: string
+  status: 'active' | 'invited' | 'suspended'
+  roles: string[]
+}
+
+type BackendSessionContextsResponse = {
+  userId: string
+  tokenRole: string
+  contexts: BackendUserSessionContext[]
+}
+
+type BackendSessionContextValidationResponse = {
+  userId: string
+  tenantId: string
+  role: string
 }
 
 function mapSubmission(submission: BackendSubmission): Submission {
@@ -203,6 +222,16 @@ function mapInternalTenantProfile(
     isActive: tenant.isActive,
     homePageContent: tenant.homePageContent,
     updatedAt: tenant.updatedAt,
+  }
+}
+
+function mapUserSessionContext(
+  context: BackendUserSessionContext,
+): UserSessionContext {
+  return {
+    tenantId: context.tenantId,
+    status: context.status,
+    roles: context.roles || [],
   }
 }
 
@@ -461,5 +490,34 @@ export function updateInternalTenant(
   }).then((response) => ({
     ...response,
     data: mapInternalTenantProfile(response.data.data),
+  }))
+}
+
+export function listSessionContexts(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<BackendSessionContextsResponse>>({
+    path: '/org/session-contexts',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: {
+      userId: response.data.data.userId,
+      tokenRole: response.data.data.tokenRole,
+      contexts: (response.data.data.contexts || []).map(mapUserSessionContext),
+    },
+  }))
+}
+
+export function validateSessionContext(
+  session: OrgSessionHeaders,
+  payload: { tenantId: string; role: string },
+) {
+  return apiRequest<BackendItemEnvelope<BackendSessionContextValidationResponse>>({
+    path: '/org/session-context',
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
   }))
 }

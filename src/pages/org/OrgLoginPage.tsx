@@ -9,7 +9,14 @@ import {
   startCognitoLogin,
 } from '../../features/org-session/cognito'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
-import { getPublicAuthOptions, listPublicTenants, type AuthRoleOption } from '../../lib/api'
+import {
+  getPublicAuthOptions,
+  listPublicTenants,
+  listSessionContexts,
+  type AuthRoleOption,
+  validateSessionContext,
+} from '../../lib/api'
+import type { OrgSessionHeaders } from '../../lib/api'
 
 type OrgLoginFormValues = {
   userId: string
@@ -30,9 +37,18 @@ export function OrgLoginPage() {
   const navigate = useNavigate()
   const isCognitoMode = isCognitoAuthEnabled()
   const [isRedirectingToCognito, setIsRedirectingToCognito] = useState(false)
+  const [pendingCognitoSession, setPendingCognitoSession] =
+    useState<OrgSessionHeaders | null>(null)
+  const [selectedCognitoTenantId, setSelectedCognitoTenantId] = useState('')
+  const [selectedCognitoRole, setSelectedCognitoRole] = useState('')
+  const [cognitoContextError, setCognitoContextError] = useState<string | null>(null)
+  const [isApplyingCognitoContext, setIsApplyingCognitoContext] = useState(false)
+  const [postLoginReturnTo, setPostLoginReturnTo] = useState<string | null>(null)
   const callbackHandledRef = useRef(false)
   const requestedReturnTo = new URLSearchParams(location.search).get('returnTo')
   const hasCognitoCallbackCode = new URLSearchParams(location.search).has('code')
+  const activeCognitoSession =
+    pendingCognitoSession || (session?.authProvider === 'cognito' ? session : null)
   const tenantQuery = useQuery({
     queryKey: ['public-tenants-for-login'],
     queryFn: async () => {
@@ -68,6 +84,25 @@ export function OrgLoginPage() {
     cognitoCallbackQuery.error instanceof Error
       ? cognitoCallbackQuery.error.message
       : 'Failed to complete Cognito login. Please try again.'
+  const sessionContextsQuery = useQuery({
+    queryKey: [
+      'org-session-contexts',
+      activeCognitoSession?.userId || '',
+      activeCognitoSession?.accessToken || '',
+    ],
+    queryFn: async () => {
+      if (!activeCognitoSession) {
+        return {
+          userId: '',
+          tokenRole: '',
+          contexts: [],
+        }
+      }
+      const response = await listSessionContexts(activeCognitoSession)
+      return response.data
+    },
+    enabled: isCognitoMode && Boolean(activeCognitoSession),
+  })
 
   function resolvePostLoginPath(role: string, returnTo: string | null | undefined) {
     const isInternalRole = role === 'internal_admin'
@@ -91,13 +126,45 @@ export function OrgLoginPage() {
       return
     }
     callbackHandledRef.current = true
+    setPendingCognitoSession(cognitoCallbackQuery.data.session)
     signIn(cognitoCallbackQuery.data.session)
-    const nextPath = resolvePostLoginPath(
-      cognitoCallbackQuery.data.session.role,
-      cognitoCallbackQuery.data.requestedReturnTo,
+    setPostLoginReturnTo(cognitoCallbackQuery.data.requestedReturnTo || requestedReturnTo)
+  }, [cognitoCallbackQuery.data, isCognitoMode, requestedReturnTo, signIn])
+
+  useEffect(() => {
+    if (!isCognitoMode || !sessionContextsQuery.data) {
+      return
+    }
+    const activeContexts = (sessionContextsQuery.data.contexts || []).filter(
+      (context) => context.status === 'active',
     )
-    navigate(nextPath, { replace: true })
-  }, [cognitoCallbackQuery.data, isCognitoMode, navigate, signIn])
+    if (activeContexts.length === 0) {
+      setSelectedCognitoTenantId('')
+      setSelectedCognitoRole('')
+      return
+    }
+    if (!selectedCognitoTenantId) {
+      setSelectedCognitoTenantId(activeContexts[0].tenantId)
+      setSelectedCognitoRole(activeContexts[0].roles[0] || '')
+      return
+    }
+    const selectedContext = activeContexts.find(
+      (context) => context.tenantId === selectedCognitoTenantId,
+    )
+    if (!selectedContext) {
+      setSelectedCognitoTenantId(activeContexts[0].tenantId)
+      setSelectedCognitoRole(activeContexts[0].roles[0] || '')
+      return
+    }
+    if (!selectedContext.roles.includes(selectedCognitoRole)) {
+      setSelectedCognitoRole(selectedContext.roles[0] || '')
+    }
+  }, [
+    isCognitoMode,
+    selectedCognitoRole,
+    selectedCognitoTenantId,
+    sessionContextsQuery.data,
+  ])
 
   const onSubmit = handleSubmit((values) => {
     if (isCognitoMode) {
@@ -126,6 +193,49 @@ export function OrgLoginPage() {
   })
 
   const roleRegister = register('role', { required: true })
+  const activeContexts = (sessionContextsQuery.data?.contexts || []).filter(
+    (context) => context.status === 'active',
+  )
+  const selectedContext = activeContexts.find(
+    (context) => context.tenantId === selectedCognitoTenantId,
+  )
+  const cognitoTenantRoleOptions = selectedContext?.roles || []
+
+  async function applyCognitoContext() {
+    if (!activeCognitoSession) {
+      return
+    }
+    if (!selectedCognitoTenantId || !selectedCognitoRole) {
+      setCognitoContextError('Select both tenant and role to continue.')
+      return
+    }
+    setCognitoContextError(null)
+    setIsApplyingCognitoContext(true)
+    try {
+      const response = await validateSessionContext(activeCognitoSession, {
+        tenantId: selectedCognitoTenantId,
+        role: selectedCognitoRole,
+      })
+      signIn({
+        ...activeCognitoSession,
+        tenantId: response.data.tenantId,
+        role: response.data.role,
+      })
+      const nextPath = resolvePostLoginPath(
+        response.data.role,
+        postLoginReturnTo || requestedReturnTo,
+      )
+      navigate(nextPath, { replace: true })
+    } catch (error) {
+      setCognitoContextError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to validate selected tenant and role.',
+      )
+    } finally {
+      setIsApplyingCognitoContext(false)
+    }
+  }
 
   return (
     <div className="page-stack">
@@ -142,33 +252,110 @@ export function OrgLoginPage() {
         </div>
         {isCognitoMode ? (
           <>
-            <p className="content-panel__body-copy">
-              This environment uses Cognito Hosted UI for authentication. After
-              successful sign-in, your role and tenant context are loaded from
-              token claims.
-            </p>
-            <div className="session-form__actions">
-              <button
-                className="button button--primary"
-                type="button"
-                onClick={() => {
-                  setIsRedirectingToCognito(true)
-                  startCognitoLogin(requestedReturnTo || undefined).catch(() => {
-                    setIsRedirectingToCognito(false)
-                  })
-                }}
-                disabled={isRedirectingToCognito || cognitoCallbackQuery.isLoading}
-              >
-                {isRedirectingToCognito || cognitoCallbackQuery.isLoading
-                  ? 'Redirecting...'
-                  : 'Continue with Cognito'}
-              </button>
-              {cognitoCallbackQuery.isError ? (
-                <p className="session-form__error">
-                  {cognitoCallbackErrorMessage}
+            {!activeCognitoSession ? (
+              <>
+                <p className="content-panel__body-copy">
+                  This environment uses Cognito Hosted UI for authentication.
+                  Sign in first, then select tenant and role context.
                 </p>
-              ) : null}
-            </div>
+                <div className="session-form__actions">
+                  <button
+                    className="button button--primary"
+                    type="button"
+                    onClick={() => {
+                      setIsRedirectingToCognito(true)
+                      startCognitoLogin(requestedReturnTo || undefined).catch(() => {
+                        setIsRedirectingToCognito(false)
+                      })
+                    }}
+                    disabled={isRedirectingToCognito || cognitoCallbackQuery.isLoading}
+                  >
+                    {isRedirectingToCognito || cognitoCallbackQuery.isLoading
+                      ? 'Redirecting...'
+                      : 'Continue with Cognito'}
+                  </button>
+                  {cognitoCallbackQuery.isError ? (
+                    <p className="session-form__error">
+                      {cognitoCallbackErrorMessage}
+                    </p>
+                  ) : null}
+                </div>
+              </>
+            ) : (
+              <div className="session-form">
+                <p className="content-panel__body-copy">
+                  Select the tenant and role context for this login session.
+                </p>
+                <label className="session-form__field">
+                  <span>Tenant</span>
+                  <select
+                    value={selectedCognitoTenantId}
+                    onChange={(event) => {
+                      setSelectedCognitoTenantId(event.target.value)
+                      setCognitoContextError(null)
+                    }}
+                    disabled={sessionContextsQuery.isLoading || activeContexts.length === 0}
+                  >
+                    <option value="">Select tenant</option>
+                    {activeContexts.map((context) => {
+                      const tenantMeta = (tenantQuery.data || []).find(
+                        (tenant) => tenant.tenantId === context.tenantId,
+                      )
+                      return (
+                        <option key={context.tenantId} value={context.tenantId}>
+                          {tenantMeta
+                            ? `${tenantMeta.displayName} (${tenantMeta.tenantCode})`
+                            : context.tenantId}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </label>
+                <label className="session-form__field">
+                  <span>Role</span>
+                  <select
+                    value={selectedCognitoRole}
+                    onChange={(event) => {
+                      setSelectedCognitoRole(event.target.value)
+                      setCognitoContextError(null)
+                    }}
+                    disabled={!selectedContext || cognitoTenantRoleOptions.length === 0}
+                  >
+                    <option value="">Select role</option>
+                    {cognitoTenantRoleOptions.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="session-form__actions">
+                  <button
+                    className="button button--primary"
+                    type="button"
+                    onClick={() => {
+                      void applyCognitoContext()
+                    }}
+                    disabled={
+                      isApplyingCognitoContext ||
+                      !selectedCognitoTenantId ||
+                      !selectedCognitoRole
+                    }
+                  >
+                    {isApplyingCognitoContext
+                      ? 'Validating...'
+                      : 'Continue to management'}
+                  </button>
+                  {(cognitoContextError ||
+                    (activeContexts.length === 0 && !sessionContextsQuery.isLoading)) ? (
+                    <p className="session-form__error">
+                      {cognitoContextError ||
+                        'No active tenant membership found for this account.'}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>

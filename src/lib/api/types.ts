@@ -294,6 +294,12 @@ export type AuthRoleOption = {
   requiresTenant: boolean
 }
 
+export type UserSessionContext = {
+  tenantId: string
+  status: 'active' | 'invited' | 'suspended'
+  roles: string[]
+}
+
 export type InternalTenantProfile = {
   tenantId: string
   tenantCode: string

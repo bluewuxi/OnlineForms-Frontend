@@ -15,6 +15,17 @@ export function OrgProtectedRoute() {
       />
     )
   }
+  const requiresTenantContext =
+    session.role === 'org_admin' || session.role === 'org_editor'
+  if (requiresTenantContext && (!session.tenantId || session.tenantId.trim().length === 0)) {
+    const returnTo = `${location.pathname}${location.search}`
+    return (
+      <Navigate
+        replace
+        to={`/org/login?returnTo=${encodeURIComponent(returnTo)}`}
+      />
+    )
+  }
 
   return <Outlet />
 }

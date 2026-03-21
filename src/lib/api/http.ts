@@ -123,6 +123,7 @@ function createHeaders(
         ? {
             Authorization: `Bearer ${bearerToken}`,
             ...(session.tenantId ? { 'x-tenant-id': session.tenantId } : {}),
+            ...(session.role ? { 'x-role': session.role } : {}),
           }
         : {
             'x-user-id': session.userId,
