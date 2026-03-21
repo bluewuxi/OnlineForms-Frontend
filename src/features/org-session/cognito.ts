@@ -91,7 +91,7 @@ function pickString(value: unknown) {
     : undefined
 }
 
-function pickRole(claims: Record<string, unknown>) {
+function roleFromClaims(claims: Record<string, unknown>) {
   const direct = pickString(claims['custom:platformRole'])
     || pickString(claims['custom:role'])
     || pickString(claims.role)
@@ -101,6 +101,17 @@ function pickRole(claims: Record<string, unknown>) {
   const groups = claims['cognito:groups']
   if (Array.isArray(groups) && typeof groups[0] === 'string') {
     return groups[0]
+  }
+  return undefined
+}
+
+function pickRole(...claimSets: Array<Record<string, unknown> | undefined>) {
+  for (const claims of claimSets) {
+    if (!claims) continue
+    const role = roleFromClaims(claims)
+    if (role) {
+      return role
+    }
   }
   throw new Error('Authenticated token does not contain a supported role claim.')
 }
@@ -182,11 +193,16 @@ export async function completeCognitoLoginFromUrl(search: string) {
     throw new Error('Cognito token response is missing access_token.')
   }
 
-  const claims = parseJwtPayload(tokens.id_token || tokens.access_token)
+  const accessClaims = parseJwtPayload(tokens.access_token)
+  const idClaims = tokens.id_token ? parseJwtPayload(tokens.id_token) : undefined
   const session: OrgSessionHeaders = {
-    userId: pickString(claims.sub) || '',
-    role: pickRole(claims),
-    tenantId: pickString(claims['custom:tenantId']) || pickString(claims.tenantId),
+    userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || '',
+    role: pickRole(idClaims, accessClaims),
+    tenantId:
+      pickString(idClaims?.['custom:tenantId']) ||
+      pickString(idClaims?.tenantId) ||
+      pickString(accessClaims['custom:tenantId']) ||
+      pickString(accessClaims.tenantId),
     accessToken: tokens.access_token,
     idToken: tokens.id_token,
     refreshToken: tokens.refresh_token,
@@ -229,14 +245,17 @@ export async function refreshCognitoSession(currentSession: OrgSessionHeaders) {
   if (!tokens.access_token) {
     throw new Error('Cognito refresh response missing access_token.')
   }
-  const claims = parseJwtPayload(tokens.id_token || tokens.access_token)
+  const accessClaims = parseJwtPayload(tokens.access_token)
+  const idClaims = tokens.id_token ? parseJwtPayload(tokens.id_token) : undefined
   return {
     ...currentSession,
-    userId: pickString(claims.sub) || currentSession.userId,
-    role: pickRole(claims),
+    userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || currentSession.userId,
+    role: pickRole(idClaims, accessClaims),
     tenantId:
-      pickString(claims['custom:tenantId']) ||
-      pickString(claims.tenantId) ||
+      pickString(idClaims?.['custom:tenantId']) ||
+      pickString(idClaims?.tenantId) ||
+      pickString(accessClaims['custom:tenantId']) ||
+      pickString(accessClaims.tenantId) ||
       currentSession.tenantId,
     accessToken: tokens.access_token,
     idToken: tokens.id_token || currentSession.idToken,

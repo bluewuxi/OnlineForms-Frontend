@@ -64,6 +64,10 @@ export function OrgLoginPage() {
     enabled: isCognitoMode && hasCognitoCallbackCode,
     retry: false,
   })
+  const cognitoCallbackErrorMessage =
+    cognitoCallbackQuery.error instanceof Error
+      ? cognitoCallbackQuery.error.message
+      : 'Failed to complete Cognito login. Please try again.'
 
   function resolvePostLoginPath(role: string, returnTo: string | null | undefined) {
     const isInternalRole = role === 'internal_admin'
@@ -161,7 +165,7 @@ export function OrgLoginPage() {
               </button>
               {cognitoCallbackQuery.isError ? (
                 <p className="session-form__error">
-                  Failed to complete Cognito login. Please try again.
+                  {cognitoCallbackErrorMessage}
                 </p>
               ) : null}
             </div>
