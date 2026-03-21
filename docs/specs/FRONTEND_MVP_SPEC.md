@@ -194,6 +194,13 @@ Later replacement path:
 
 - Cognito hosted UI / token-based auth flow
 
+Current rollout direction:
+
+- Hosted UI for credential entry and primary authentication
+- Post-login context selection (tenant + role) from allowed memberships
+- Backend validation endpoint confirms selected context before org access
+- Mock login UI remains local/dev fallback only
+
 ## 11. Error Handling
 
 - Respect backend error envelope:
@@ -260,6 +267,16 @@ Later replacement path:
 - Tenant home page and internal tenant management portal
 - Role-aware frontend access for `internal_admin`
 - Management login UX polish (`Management` menu label, tenant/role dropdown controls)
+
+### Phase F8
+- Cognito Hosted UI login integration
+- Session/token storage and refresh handling
+- Auth guard hardening and smoke coverage
+
+### Phase F9
+- Hosted UI post-login tenant/role context selection
+- Context validation integration and route-gate enforcement
+- Extensible phase for upcoming auth workflow features
 
 ## 16. Open Questions
 

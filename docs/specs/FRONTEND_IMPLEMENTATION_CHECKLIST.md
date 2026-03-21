@@ -58,3 +58,9 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F8-02 Session/token storage model with expiry handling (#32)
 - [x] F8-03 Access token refresh and 401 recovery flow (#33)
 - [x] F8-04 Auth guard/redirect hardening and end-to-end smoke pack (#31)
+
+## Phase F9 - Hosted UI Context Selection (Extensible)
+
+- [x] F9-01 Hosted UI post-login tenant/role context selection flow (#36)
+- [ ] F9-02 Login UX hardening and context error diagnostics (#34)
+- [ ] F9-03 Extensible auth UX backlog slot for upcoming features (#35)
