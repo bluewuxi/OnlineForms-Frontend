@@ -280,6 +280,7 @@ Current rollout direction:
 - Context validation integration and route-gate enforcement
 - Dual-intent login UX and support diagnostics
 - Internal portal directory UI (tenant list + internal-access user list)
+- Direct Hosted UI entry from `Management` and post-auth `Internal Management` shortcut by capability
 - Extensible phase for upcoming auth workflow features
 
 ## 16. Open Questions

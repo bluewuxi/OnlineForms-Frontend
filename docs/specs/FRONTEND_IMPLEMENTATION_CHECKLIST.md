@@ -67,3 +67,4 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [ ] F9-04 Dual-intent login UX (tenant portal vs internal portal) (#38)
 - [ ] F9-05 Internal-access UX diagnostics and supportability (#37)
 - [x] F9-06 Internal portal directory UI (tenants + internal-access users) (#39)
+- [ ] F9-07 Direct Hosted UI entry and post-auth internal-management shortcut (#40)
