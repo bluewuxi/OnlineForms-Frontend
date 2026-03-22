@@ -281,6 +281,7 @@ Current rollout direction:
 - Dual-intent login UX and support diagnostics
 - Internal portal directory UI (tenant list + internal-access user list)
 - Direct Hosted UI entry from `Management` and post-auth `Internal Management` shortcut by capability
+- Account-switch flow (`Use different account`/retry sign-in) for extensible auth UX
 - Extensible phase for upcoming auth workflow features
 
 ## 16. Open Questions

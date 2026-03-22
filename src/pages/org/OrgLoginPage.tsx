@@ -40,7 +40,7 @@ function hasInternalCapability(role: string | null | undefined) {
 }
 
 export function OrgLoginPage() {
-  const { session, signIn } = useOrgSession()
+  const { session, signIn, signOut } = useOrgSession()
   const location = useLocation()
   const navigate = useNavigate()
   const isCognitoMode = isCognitoAuthEnabled()
@@ -268,6 +268,19 @@ export function OrgLoginPage() {
     navigate('/internal/tenants', { replace: true })
   }
 
+  function restartCognitoSignIn() {
+    signOut()
+    setPendingCognitoSession(null)
+    setPostLoginReturnTo(null)
+    setSelectedCognitoTenantId('')
+    setSelectedCognitoRole('')
+    setCognitoContextError(null)
+    setIsRedirectingToCognito(true)
+    startCognitoLogin(requestedReturnTo || undefined).catch(() => {
+      setIsRedirectingToCognito(false)
+    })
+  }
+
   return (
     <div className="page-stack">
       <PageHero
@@ -306,9 +319,19 @@ export function OrgLoginPage() {
                       : 'Continue with Cognito'}
                   </button>
                   {cognitoCallbackQuery.isError ? (
-                    <p className="session-form__error">
-                      {cognitoCallbackErrorMessage}
-                    </p>
+                    <>
+                      <p className="session-form__error">
+                        {cognitoCallbackErrorMessage}
+                      </p>
+                      <button
+                        className="button button--ghost"
+                        type="button"
+                        onClick={restartCognitoSignIn}
+                        disabled={isRedirectingToCognito}
+                      >
+                        Retry sign-in
+                      </button>
+                    </>
                   ) : null}
                 </div>
               </>
@@ -402,6 +425,14 @@ export function OrgLoginPage() {
                       {internalAccessDiagnosticMessage}
                     </p>
                   ) : null}
+                  <button
+                    className="button button--ghost"
+                    type="button"
+                    onClick={restartCognitoSignIn}
+                    disabled={isRedirectingToCognito || isApplyingCognitoContext}
+                  >
+                    Use different account
+                  </button>
                 </div>
               </div>
             )}

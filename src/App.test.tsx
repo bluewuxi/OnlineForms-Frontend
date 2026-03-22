@@ -245,4 +245,72 @@ describe('App routing', () => {
       }),
     ).toBeInTheDocument()
   })
+
+  it('shows account-switch controls in cognito post-auth context', async () => {
+    vi.stubEnv('VITE_AUTH_MODE', 'cognito')
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        role: 'org_admin',
+        authProvider: 'cognito',
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+      }),
+    )
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/public/tenants')) {
+        return new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+      }
+      if (url.includes('/public/auth-options')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              roles: [
+                { role: 'org_admin', label: 'Org Admin', requiresTenant: true },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/org/session-contexts')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              userId: 'demo-user',
+              tokenRole: 'org_admin',
+              canAccessInternalPortal: false,
+              contexts: [
+                {
+                  tenantId: 'tenant-123',
+                  status: 'active',
+                  roles: ['org_admin'],
+                },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    }) as typeof fetch
+
+    try {
+      renderRoute('/org/login')
+      expect(
+        await screen.findByRole('button', { name: /use different account/i }),
+      ).toBeInTheDocument()
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
 })
