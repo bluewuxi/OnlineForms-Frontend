@@ -17,6 +17,7 @@ import {
   validateSessionContext,
 } from '../../lib/api'
 import type { OrgSessionHeaders } from '../../lib/api'
+import { toLoginDiagnosticMessage } from './loginDiagnostics'
 
 type OrgLoginFormValues = {
   userId: string
@@ -86,8 +87,8 @@ export function OrgLoginPage() {
   })
   const cognitoCallbackErrorMessage =
     cognitoCallbackQuery.error instanceof Error
-      ? cognitoCallbackQuery.error.message
-      : 'Failed to complete Cognito login. Please try again.'
+      ? toLoginDiagnosticMessage('callback', cognitoCallbackQuery.error.message)
+      : toLoginDiagnosticMessage('callback', undefined)
   const sessionContextsQuery = useQuery({
     queryKey: [
       'org-session-contexts',
@@ -107,6 +108,10 @@ export function OrgLoginPage() {
     },
     enabled: isCognitoMode && Boolean(activeCognitoSession),
   })
+  const sessionContextsErrorMessage =
+    sessionContextsQuery.error instanceof Error
+      ? toLoginDiagnosticMessage('contexts', sessionContextsQuery.error.message)
+      : toLoginDiagnosticMessage('contexts', undefined)
 
   function resolvePostLoginPath(role: string, returnTo: string | null | undefined) {
     const isInternalRole = role === 'internal_admin'
@@ -235,8 +240,8 @@ export function OrgLoginPage() {
     } catch (error) {
       setCognitoContextError(
         error instanceof Error
-          ? error.message
-          : 'Failed to validate selected tenant and role.',
+          ? toLoginDiagnosticMessage('context_validation', error.message)
+          : toLoginDiagnosticMessage('context_validation', undefined),
       )
     } finally {
       setIsApplyingCognitoContext(false)
@@ -304,6 +309,9 @@ export function OrgLoginPage() {
                 <p className="content-panel__body-copy">
                   Select the tenant and role context for this login session.
                 </p>
+                {sessionContextsQuery.isError ? (
+                  <p className="session-form__error">{sessionContextsErrorMessage}</p>
+                ) : null}
                 <label className="session-form__field">
                   <span>Tenant</span>
                   <select

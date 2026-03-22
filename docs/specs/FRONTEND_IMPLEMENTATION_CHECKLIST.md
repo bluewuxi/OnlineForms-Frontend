@@ -62,7 +62,7 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 ## Phase F9 - Hosted UI Context Selection (Extensible)
 
 - [x] F9-01 Hosted UI post-login tenant/role context selection flow (#36)
-- [ ] F9-02 Login UX hardening and context error diagnostics (#34)
+- [x] F9-02 Login UX hardening and context error diagnostics (#34)
 - [ ] F9-03 Extensible auth UX backlog slot for upcoming features (#35)
 - [x] F9-04 Dual-intent login UX (tenant portal vs internal portal) (#38)
 - [ ] F9-05 Internal-access UX diagnostics and supportability (#37)
