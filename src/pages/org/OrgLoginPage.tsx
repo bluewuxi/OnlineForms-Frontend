@@ -17,7 +17,10 @@ import {
   validateSessionContext,
 } from '../../lib/api'
 import type { OrgSessionHeaders } from '../../lib/api'
-import { toLoginDiagnosticMessage } from './loginDiagnostics'
+import {
+  getInternalAccessDiagnosticMessage,
+  toLoginDiagnosticMessage,
+} from './loginDiagnostics'
 
 type OrgLoginFormValues = {
   userId: string
@@ -211,6 +214,11 @@ export function OrgLoginPage() {
   const cognitoTenantRoleOptions = selectedContext?.roles || []
   const tokenRole = sessionContextsQuery.data?.tokenRole || activeCognitoSession?.role || ''
   const canOpenInternalManagement = hasInternalCapability(tokenRole)
+  const internalAccessDiagnosticMessage = getInternalAccessDiagnosticMessage({
+    canOpenInternalManagement,
+    hasActiveContexts: activeContexts.length > 0,
+    tokenRole,
+  })
 
   async function applyCognitoContext() {
     if (!activeCognitoSession) {
@@ -387,6 +395,11 @@ export function OrgLoginPage() {
                     <p className="session-form__error">
                       {cognitoContextError ||
                         'No active tenant membership found for this account.'}
+                    </p>
+                  ) : null}
+                  {!sessionContextsQuery.isLoading ? (
+                    <p className="content-panel__body-copy">
+                      {internalAccessDiagnosticMessage}
                     </p>
                   ) : null}
                 </div>

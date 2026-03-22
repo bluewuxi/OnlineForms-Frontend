@@ -145,6 +145,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - `Management` entry (`/management`) initiates Hosted UI login directly in Cognito mode when unauthenticated
   - In Cognito post-auth context, show `Internal Management` shortcut only when token capability includes internal access
   - Callback/context failures render operator-facing diagnostics with recovery guidance
+  - Internal-access diagnostics explain missing `internal_admin` claim/group and no-membership scenarios
 - States:
   - Inline validation for missing required values
 

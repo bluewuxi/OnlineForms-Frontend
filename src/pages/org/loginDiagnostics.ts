@@ -3,6 +3,12 @@ export type LoginDiagnosticPhase =
   | 'contexts'
   | 'context_validation'
 
+export type InternalAccessDiagnosticInput = {
+  tokenRole: string
+  canOpenInternalManagement: boolean
+  hasActiveContexts: boolean
+}
+
 export function toLoginDiagnosticMessage(
   phase: LoginDiagnosticPhase,
   rawMessage: string | null | undefined,
@@ -36,4 +42,17 @@ export function toLoginDiagnosticMessage(
     return 'No active membership for selected tenant.'
   }
   return rawMessage || 'Failed to validate selected tenant and role.'
+}
+
+export function getInternalAccessDiagnosticMessage(
+  input: InternalAccessDiagnosticInput,
+): string {
+  if (input.canOpenInternalManagement) {
+    if (!input.hasActiveContexts) {
+      return 'No active tenant memberships found. You can still use Internal Management if needed.'
+    }
+    return 'Internal Management is available from this session.'
+  }
+  const roleLabel = input.tokenRole || 'unknown'
+  return `Internal Management is unavailable for this account. Required claim/group: internal_admin (current token role: ${roleLabel}).`
 }
