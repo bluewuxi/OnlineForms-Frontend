@@ -68,3 +68,11 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F9-05 Internal-access UX diagnostics and supportability (#37)
 - [x] F9-06 Internal portal directory UI (tenants + internal-access users) (#39)
 - [x] F9-07 Direct Hosted UI entry and post-auth internal-management shortcut (#40)
+
+## Phase F10 - Internal Portal Improvement
+
+- [ ] F10-01 Internal portal top navigation and layout shell (#41)
+- [ ] F10-02 Internal tenants drawer workflow (list/edit/create) (#42)
+- [ ] F10-03 Internal logout flow (clear session and redirect public home) (#43)
+- [ ] F10-04 Internal users drawer workflow (list/add/remove access) (#44)
+- [ ] F10-05 Internal home page at `/internal` (#45)

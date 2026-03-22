@@ -284,6 +284,13 @@ Current rollout direction:
 - Account-switch flow (`Use different account`/retry sign-in) for extensible auth UX
 - Extensible phase for upcoming auth workflow features
 
+### Phase F10
+- Internal portal IA refresh with dedicated top nav: `Home`, `Tenants`, `Users`, `Logout`
+- Internal home page at `/internal` with operator guidance
+- Tenant management list + right-drawer details/edit + create-tenant flow
+- Internal user management list + right-drawer access details + add/remove internal access
+- Logout flow clears stored auth state and redirects to public home
+
 ## 16. Open Questions
 
 1. Should public enrollment have a dedicated success page route?
