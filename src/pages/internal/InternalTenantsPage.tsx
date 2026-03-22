@@ -6,8 +6,10 @@ import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
+  listInternalAccessUsers,
   listInternalTenants,
   updateInternalTenant,
+  type InternalAccessUser,
   type InternalTenantProfile,
 } from '../../lib/api'
 
@@ -41,6 +43,17 @@ export function InternalTenantsPage() {
         throw new Error('Missing session.')
       }
       const response = await listInternalTenants(session)
+      return response.data.items
+    },
+    enabled: Boolean(session),
+  })
+  const internalUsersQuery = useQuery({
+    queryKey: ['internal-access-users'],
+    queryFn: async () => {
+      if (!session) {
+        throw new Error('Missing session.')
+      }
+      const response = await listInternalAccessUsers(session)
       return response.data.items
     },
     enabled: Boolean(session),
@@ -118,131 +131,176 @@ export function InternalTenantsPage() {
 
       {!tenantsQuery.isLoading && !tenantsQuery.isError ? (
         tenantsQuery.data && tenantsQuery.data.length > 0 ? (
-          <section className="content-panel content-panel--narrow">
-            <label className="session-form__field">
-              <span>Tenant</span>
-              <select
-                value={effectiveSelectedTenantId}
-                onChange={(event) => {
-                  setSelectedTenantId(event.target.value)
-                  setSaveMessage('')
-                }}
-              >
-                {tenantsQuery.data.map((tenant) => (
-                  <option key={tenant.tenantId} value={tenant.tenantId}>
-                    {tenant.displayName} ({tenant.tenantCode})
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div className="page-stack">
+            <section className="content-panel content-panel--narrow">
+              <div className="section-heading">
+                <p className="section-heading__eyebrow">Tenant Directory</p>
+                <h2>Maintain tenant profiles</h2>
+              </div>
+              <label className="session-form__field">
+                <span>Tenant</span>
+                <select
+                  value={effectiveSelectedTenantId}
+                  onChange={(event) => {
+                    setSelectedTenantId(event.target.value)
+                    setSaveMessage('')
+                  }}
+                >
+                  {tenantsQuery.data.map((tenant) => (
+                    <option key={tenant.tenantId} value={tenant.tenantId}>
+                      {tenant.displayName} ({tenant.tenantCode})
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            {formState ? (
-              <form
-                className="session-form"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  setSaveMessage('')
-                  saveMutation.mutate()
-                }}
-              >
-                <label className="session-form__field">
-                  <span>Display Name</span>
-                  <input
-                    type="text"
-                    value={formState.displayName}
-                    onChange={(event) =>
-                      setDraftsByTenantId((current) => {
-                        if (!selectedTenant) {
-                          return current
-                        }
-                        return {
-                          ...current,
-                          [selectedTenant.tenantId]: {
-                            ...formState,
-                            displayName: event.target.value,
-                          },
-                        }
-                      })
-                    }
+              {formState ? (
+                <form
+                  className="session-form"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    setSaveMessage('')
+                    saveMutation.mutate()
+                  }}
+                >
+                  <label className="session-form__field">
+                    <span>Display Name</span>
+                    <input
+                      type="text"
+                      value={formState.displayName}
+                      onChange={(event) =>
+                        setDraftsByTenantId((current) => {
+                          if (!selectedTenant) {
+                            return current
+                          }
+                          return {
+                            ...current,
+                            [selectedTenant.tenantId]: {
+                              ...formState,
+                              displayName: event.target.value,
+                            },
+                          }
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Description</span>
+                    <textarea
+                      value={formState.description}
+                      onChange={(event) =>
+                        setDraftsByTenantId((current) => {
+                          if (!selectedTenant) {
+                            return current
+                          }
+                          return {
+                            ...current,
+                            [selectedTenant.tenantId]: {
+                              ...formState,
+                              description: event.target.value,
+                            },
+                          }
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Tenant Home Content</span>
+                    <textarea
+                      value={formState.homePageContent}
+                      onChange={(event) =>
+                        setDraftsByTenantId((current) => {
+                          if (!selectedTenant) {
+                            return current
+                          }
+                          return {
+                            ...current,
+                            [selectedTenant.tenantId]: {
+                              ...formState,
+                              homePageContent: event.target.value,
+                            },
+                          }
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Active</span>
+                    <select
+                      value={formState.isActive ? 'true' : 'false'}
+                      onChange={(event) =>
+                        setDraftsByTenantId((current) => {
+                          if (!selectedTenant) {
+                            return current
+                          }
+                          return {
+                            ...current,
+                            [selectedTenant.tenantId]: {
+                              ...formState,
+                              isActive: event.target.value === 'true',
+                            },
+                          }
+                        })
+                      }
+                    >
+                      <option value="true">Active</option>
+                      <option value="false">Inactive</option>
+                    </select>
+                  </label>
+                  <div className="session-form__actions">
+                    <button className="button button--primary" type="submit">
+                      {saveMutation.isPending ? 'Saving...' : 'Save'}
+                    </button>
+                    {saveMessage ? <p>{saveMessage}</p> : null}
+                    {saveMutation.isError ? (
+                      <p className="session-form__error">
+                        Failed to save tenant profile.
+                      </p>
+                    ) : null}
+                  </div>
+                </form>
+              ) : null}
+            </section>
+
+            <section className="content-panel content-panel--narrow">
+              <div className="section-heading">
+                <p className="section-heading__eyebrow">Access Directory</p>
+                <h2>Internal portal users</h2>
+              </div>
+              {internalUsersQuery.isLoading ? (
+                <LoadingState
+                  title="Loading users"
+                  message="Fetching users with internal portal access."
+                />
+              ) : null}
+              {internalUsersQuery.isError ? (
+                <ErrorState
+                  title="We could not load internal users"
+                  message="Check internal access configuration and API availability."
+                />
+              ) : null}
+              {!internalUsersQuery.isLoading && !internalUsersQuery.isError ? (
+                internalUsersQuery.data && internalUsersQuery.data.length > 0 ? (
+                  <ul className="content-panel__list">
+                    {internalUsersQuery.data.map((user: InternalAccessUser) => (
+                      <li key={user.userId}>
+                        <strong>{user.username}</strong>{' '}
+                        <span>
+                          ({user.email || 'no-email'}) - {user.status},{' '}
+                          {user.enabled ? 'enabled' : 'disabled'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyState
+                    title="No internal-access users"
+                    message="No users currently map to the internal access capability."
                   />
-                </label>
-                <label className="session-form__field">
-                  <span>Description</span>
-                  <textarea
-                    value={formState.description}
-                    onChange={(event) =>
-                      setDraftsByTenantId((current) => {
-                        if (!selectedTenant) {
-                          return current
-                        }
-                        return {
-                          ...current,
-                          [selectedTenant.tenantId]: {
-                            ...formState,
-                            description: event.target.value,
-                          },
-                        }
-                      })
-                    }
-                  />
-                </label>
-                <label className="session-form__field">
-                  <span>Tenant Home Content</span>
-                  <textarea
-                    value={formState.homePageContent}
-                    onChange={(event) =>
-                      setDraftsByTenantId((current) => {
-                        if (!selectedTenant) {
-                          return current
-                        }
-                        return {
-                          ...current,
-                          [selectedTenant.tenantId]: {
-                            ...formState,
-                            homePageContent: event.target.value,
-                          },
-                        }
-                      })
-                    }
-                  />
-                </label>
-                <label className="session-form__field">
-                  <span>Active</span>
-                  <select
-                    value={formState.isActive ? 'true' : 'false'}
-                    onChange={(event) =>
-                      setDraftsByTenantId((current) => {
-                        if (!selectedTenant) {
-                          return current
-                        }
-                        return {
-                          ...current,
-                          [selectedTenant.tenantId]: {
-                            ...formState,
-                            isActive: event.target.value === 'true',
-                          },
-                        }
-                      })
-                    }
-                  >
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </select>
-                </label>
-                <div className="session-form__actions">
-                  <button className="button button--primary" type="submit">
-                    {saveMutation.isPending ? 'Saving...' : 'Save'}
-                  </button>
-                  {saveMessage ? <p>{saveMessage}</p> : null}
-                  {saveMutation.isError ? (
-                    <p className="session-form__error">
-                      Failed to save tenant profile.
-                    </p>
-                  ) : null}
-                </div>
-              </form>
-            ) : null}
-          </section>
+                )
+              ) : null}
+            </section>
+          </div>
         ) : (
           <EmptyState
             title="No tenants available"

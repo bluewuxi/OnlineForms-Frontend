@@ -23,6 +23,7 @@ import type {
   SubmissionStatusUpdatePayload,
   InternalTenantProfile,
   InternalTenantUpdatePayload,
+  InternalAccessUser,
   UserSessionContext,
   UploadTicketRequest,
   UploadTicketResponse,
@@ -110,6 +111,14 @@ type BackendInternalTenant = {
   isActive: boolean
   homePageContent?: string | null
   updatedAt: string
+}
+
+type BackendInternalAccessUser = {
+  userId: string
+  username: string
+  email?: string | null
+  enabled: boolean
+  status: string
 }
 
 type BackendUserSessionContext = {
@@ -232,6 +241,18 @@ function mapUserSessionContext(
     tenantId: context.tenantId,
     status: context.status,
     roles: context.roles || [],
+  }
+}
+
+function mapInternalAccessUser(
+  user: BackendInternalAccessUser,
+): InternalAccessUser {
+  return {
+    userId: user.userId,
+    username: user.username,
+    email: user.email,
+    enabled: user.enabled,
+    status: user.status,
   }
 }
 
@@ -490,6 +511,24 @@ export function updateInternalTenant(
   }).then((response) => ({
     ...response,
     data: mapInternalTenantProfile(response.data.data),
+  }))
+}
+
+export function listInternalAccessUsers(
+  session: OrgSessionHeaders,
+  limit = 50,
+  cursor?: string,
+) {
+  return apiRequest<BackendListEnvelope<BackendInternalAccessUser>>({
+    path: '/internal/access-users',
+    session,
+    query: { limit, cursor },
+  }).then((response) => ({
+    ...response,
+    data: {
+      items: response.data.data.map(mapInternalAccessUser),
+      nextCursor: response.data.page.nextCursor,
+    } satisfies CursorPage<InternalAccessUser>,
   }))
 }
 

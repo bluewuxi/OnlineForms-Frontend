@@ -316,3 +316,11 @@ export type InternalTenantUpdatePayload = {
   isActive?: boolean
   homePageContent?: string | null
 }
+
+export type InternalAccessUser = {
+  userId: string
+  username: string
+  email?: string | null
+  enabled: boolean
+  status: string
+}

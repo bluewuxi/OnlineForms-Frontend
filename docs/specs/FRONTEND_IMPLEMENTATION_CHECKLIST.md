@@ -66,4 +66,4 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [ ] F9-03 Extensible auth UX backlog slot for upcoming features (#35)
 - [ ] F9-04 Dual-intent login UX (tenant portal vs internal portal) (#38)
 - [ ] F9-05 Internal-access UX diagnostics and supportability (#37)
-- [ ] F9-06 Internal portal directory UI (tenants + internal-access users) (#39)
+- [x] F9-06 Internal portal directory UI (tenants + internal-access users) (#39)
