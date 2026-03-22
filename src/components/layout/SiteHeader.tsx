@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 
 type SiteHeaderProps = {
-  section: 'public' | 'org' | 'login'
+  section: 'public' | 'org' | 'login' | 'internal'
 }
 
 const publicLinks = [
@@ -21,13 +21,23 @@ const loginLinks = [
   { to: '/', label: 'Home' },
 ]
 
+const internalLinks = [
+  { to: '/internal', label: 'Home' },
+  { to: '/internal/tenants', label: 'Tenants' },
+  { to: '/internal/users', label: 'Users' },
+]
+
 export function SiteHeader({ section }: SiteHeaderProps) {
-  const links = section === 'org'
-    ? orgLinks
-    : section === 'login'
-      ? loginLinks
-      : publicLinks
+  const links =
+    section === 'org'
+      ? orgLinks
+      : section === 'login'
+        ? loginLinks
+        : section === 'internal'
+          ? internalLinks
+          : publicLinks
   const { session, signOut } = useOrgSession()
+  const showSession = section === 'org' || section === 'internal'
 
   return (
     <header className="site-header">
@@ -49,18 +59,29 @@ export function SiteHeader({ section }: SiteHeaderProps) {
               {link.label}
             </NavLink>
           ))}
-        </nav>
-        {section === 'org' && session ? (
-          <div className="site-header__session">
-            <span>{session.tenantId || '-'}</span>
-            <span>{session.userId}</span>
+          {section === 'internal' ? (
             <button
-              className="button button--ghost"
+              className="site-header__link site-header__link-button"
               onClick={signOut}
               type="button"
             >
-              Sign out
+              Logout
             </button>
+          ) : null}
+        </nav>
+        {showSession && session ? (
+          <div className="site-header__session">
+            <span>{session.tenantId || '-'}</span>
+            <span>{session.userId}</span>
+            {section === 'org' ? (
+              <button
+                className="button button--ghost"
+                onClick={signOut}
+                type="button"
+              >
+                Sign out
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>

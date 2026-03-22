@@ -225,6 +225,19 @@ describe('App routing', () => {
     expect(
       await screen.findByRole('heading', { name: /tenant management/i }),
     ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^home$/i })).toHaveAttribute(
+      'href',
+      '/internal',
+    )
+    expect(screen.getByRole('link', { name: /^tenants$/i })).toHaveClass(
+      'site-header__link--active',
+    )
+    expect(screen.getByRole('link', { name: /^users$/i })).toHaveAttribute(
+      'href',
+      '/internal/users',
+    )
+    expect(screen.getByRole('button', { name: /^logout$/i })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
 
   it('blocks internal tenant route for non-internal roles', async () => {

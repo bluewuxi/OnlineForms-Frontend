@@ -1,4 +1,4 @@
-import { createBrowserRouter, type RouteObject } from 'react-router-dom'
+import { Navigate, createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { RootLayout } from '../components/layout/RootLayout'
 import { LegacyTenantRedirect } from '../components/routing/LegacyTenantRedirect'
 import { TenantRouteGuard } from '../components/routing/TenantRouteGuard'
@@ -9,7 +9,9 @@ import { BrandingPage } from '../pages/org/BrandingPage'
 import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
+import { InternalHomePage } from '../pages/internal/InternalHomePage'
 import { InternalTenantsPage } from '../pages/internal/InternalTenantsPage'
+import { InternalUsersPage } from '../pages/internal/InternalUsersPage'
 import { ManagementEntryPage } from '../pages/org/ManagementEntryPage'
 import { OrgLoginPage } from '../pages/org/OrgLoginPage'
 import { SubmissionDetailPage } from '../pages/org/SubmissionDetailPage'
@@ -74,8 +76,20 @@ export const appRoutes: RouteObject[] = [
         ),
         children: [
           {
+            index: true,
+            element: <InternalHomePage />,
+          },
+          {
             path: 'tenants',
             element: <InternalTenantsPage />,
+          },
+          {
+            path: 'users',
+            element: <InternalUsersPage />,
+          },
+          {
+            path: 'logout',
+            element: <Navigate replace to="/" />,
           },
         ],
       },
