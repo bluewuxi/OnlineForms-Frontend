@@ -279,6 +279,31 @@ describe('App routing', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders internal home route with quick links', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: '__internal__',
+        role: 'internal_admin',
+      }),
+    )
+
+    renderRoute('/internal')
+
+    expect(
+      await screen.findByRole('heading', { name: /internal management/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /open tenants/i })).toHaveAttribute(
+      'href',
+      '/internal/tenants',
+    )
+    expect(screen.getByRole('link', { name: /open users/i })).toHaveAttribute(
+      'href',
+      '/internal/users',
+    )
+  })
+
   it('logs out from internal route and redirects to home', async () => {
     window.localStorage.setItem(
       ORG_SESSION_STORAGE_KEY,
