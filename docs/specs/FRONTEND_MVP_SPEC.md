@@ -197,8 +197,10 @@ Later replacement path:
 Current rollout direction:
 
 - Hosted UI for credential entry and primary authentication
-- Post-login context selection (tenant + role) from allowed memberships
-- Backend validation endpoint confirms selected context before org access
+- Explicit dual intent:
+  - tenant portal login: post-login context selection (tenant + role) from allowed memberships
+  - internal portal login: internal capability from global claim/group (`internal_admin`)
+- Backend validation endpoint confirms selected tenant context before org access
 - Mock login UI remains local/dev fallback only
 
 ## 11. Error Handling
@@ -276,6 +278,7 @@ Current rollout direction:
 ### Phase F9
 - Hosted UI post-login tenant/role context selection
 - Context validation integration and route-gate enforcement
+- Dual-intent login UX and support diagnostics
 - Extensible phase for upcoming auth workflow features
 
 ## 16. Open Questions
