@@ -317,6 +317,14 @@ export type InternalTenantUpdatePayload = {
   homePageContent?: string | null
 }
 
+export type InternalTenantCreatePayload = {
+  tenantCode: string
+  displayName: string
+  description?: string | null
+  isActive?: boolean
+  homePageContent?: string | null
+}
+
 export type InternalAccessUser = {
   userId: string
   username: string

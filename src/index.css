@@ -336,6 +336,55 @@ textarea:focus-visible {
   max-width: 48rem;
 }
 
+.internal-drawer-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.internal-drawer-list {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.internal-drawer-list__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.internal-drawer-list__item {
+  width: 100%;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  border-radius: 0.9rem;
+  background: #fff;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  display: grid;
+  gap: 0.2rem;
+  cursor: pointer;
+}
+
+.internal-drawer-list__item strong {
+  color: #21364f;
+}
+
+.internal-drawer-list__item span {
+  color: #5d6d83;
+  font-size: 0.9rem;
+}
+
+.internal-drawer-list__item--active {
+  border-color: rgba(36, 75, 127, 0.3);
+  background: rgba(36, 75, 127, 0.08);
+}
+
+.internal-drawer-panel {
+  min-height: 24rem;
+}
+
 .field-grid {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
@@ -830,6 +879,11 @@ textarea:focus-visible {
 @media (min-width: 860px) {
   .page-hero {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .internal-drawer-layout {
+    grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
   }
 
   .designer-grid {

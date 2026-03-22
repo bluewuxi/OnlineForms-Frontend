@@ -22,6 +22,7 @@ import type {
   SubmissionStatus,
   SubmissionStatusUpdatePayload,
   InternalTenantProfile,
+  InternalTenantCreatePayload,
   InternalTenantUpdatePayload,
   InternalAccessUser,
   UserSessionContext,
@@ -506,6 +507,34 @@ export function updateInternalTenant(
   return apiRequest<BackendItemEnvelope<BackendInternalTenant>>({
     path: `/internal/tenants/${tenantId}`,
     method: 'PATCH',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalTenantProfile(response.data.data),
+  }))
+}
+
+export function getInternalTenant(
+  session: OrgSessionHeaders,
+  tenantId: string,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalTenant>>({
+    path: `/internal/tenants/${tenantId}`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalTenantProfile(response.data.data),
+  }))
+}
+
+export function createInternalTenant(
+  session: OrgSessionHeaders,
+  payload: InternalTenantCreatePayload,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalTenant>>({
+    path: '/internal/tenants',
+    method: 'POST',
     session,
     body: payload,
   }).then((response) => ({
