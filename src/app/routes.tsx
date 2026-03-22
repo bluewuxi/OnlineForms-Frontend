@@ -10,6 +10,7 @@ import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
 import { InternalTenantsPage } from '../pages/internal/InternalTenantsPage'
+import { ManagementEntryPage } from '../pages/org/ManagementEntryPage'
 import { OrgLoginPage } from '../pages/org/OrgLoginPage'
 import { SubmissionDetailPage } from '../pages/org/SubmissionDetailPage'
 import { SubmissionsPage } from '../pages/org/SubmissionsPage'
@@ -55,6 +56,10 @@ export const appRoutes: RouteObject[] = [
             element: <CourseDetailPage />,
           },
         ],
+      },
+      {
+        path: 'management',
+        element: <ManagementEntryPage />,
       },
       {
         path: 'org/login',

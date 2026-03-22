@@ -142,6 +142,8 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Persist values locally for later org API requests
   - Redirect to org submissions after successful save
   - `Tenant` is compulsory for non-`internal_admin` roles and optional when role is `internal_admin`
+  - `Management` entry (`/management`) initiates Hosted UI login directly in Cognito mode when unauthenticated
+  - In Cognito post-auth context, show `Internal Management` shortcut only when token capability includes internal access
 - States:
   - Inline validation for missing required values
 

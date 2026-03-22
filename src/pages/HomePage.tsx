@@ -39,7 +39,7 @@ export function HomePage() {
           <h2>Tenant directory</h2>
           <p>Choose a tenant card below to browse published courses.</p>
         </Link>
-        <Link className="destination-card" to="/org/login">
+        <Link className="destination-card" to="/management">
           <span className="destination-card__eyebrow">Management</span>
           <h2>Open management portal</h2>
           <p>Sign in to manage tenant and organization operations.</p>

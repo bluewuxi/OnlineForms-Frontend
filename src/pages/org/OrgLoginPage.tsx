@@ -31,6 +31,10 @@ const fallbackRoles: AuthRoleOption[] = [
   { role: 'platform_admin', label: 'Platform Admin', requiresTenant: true },
 ]
 
+function hasInternalCapability(role: string | null | undefined) {
+  return role === 'internal_admin' || role === 'platform_admin'
+}
+
 export function OrgLoginPage() {
   const { session, signIn } = useOrgSession()
   const location = useLocation()
@@ -200,6 +204,8 @@ export function OrgLoginPage() {
     (context) => context.tenantId === selectedCognitoTenantId,
   )
   const cognitoTenantRoleOptions = selectedContext?.roles || []
+  const tokenRole = sessionContextsQuery.data?.tokenRole || activeCognitoSession?.role || ''
+  const canOpenInternalManagement = hasInternalCapability(tokenRole)
 
   async function applyCognitoContext() {
     if (!activeCognitoSession) {
@@ -235,6 +241,18 @@ export function OrgLoginPage() {
     } finally {
       setIsApplyingCognitoContext(false)
     }
+  }
+
+  function openInternalManagement() {
+    if (!activeCognitoSession || !canOpenInternalManagement) {
+      return
+    }
+    signIn({
+      ...activeCognitoSession,
+      role: tokenRole,
+      tenantId: undefined,
+    })
+    navigate('/internal/tenants', { replace: true })
   }
 
   return (
@@ -346,6 +364,16 @@ export function OrgLoginPage() {
                       ? 'Validating...'
                       : 'Continue to management'}
                   </button>
+                  {canOpenInternalManagement ? (
+                    <button
+                      className="button button--ghost"
+                      type="button"
+                      onClick={openInternalManagement}
+                      disabled={isApplyingCognitoContext}
+                    >
+                      Internal Management
+                    </button>
+                  ) : null}
                   {(cognitoContextError ||
                     (activeContexts.length === 0 && !sessionContextsQuery.isLoading)) ? (
                     <p className="session-form__error">

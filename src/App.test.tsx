@@ -48,6 +48,14 @@ describe('App routing', () => {
     ).toBeInTheDocument()
   })
 
+  it('routes management entry to login in mock mode', async () => {
+    renderRoute('/management')
+
+    expect(
+      await screen.findByRole('heading', { name: /management login/i }),
+    ).toBeInTheDocument()
+  })
+
   it('renders protected org routes when a session exists', async () => {
     window.localStorage.setItem(
       ORG_SESSION_STORAGE_KEY,
