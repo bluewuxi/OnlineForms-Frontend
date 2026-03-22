@@ -332,3 +332,13 @@ export type InternalAccessUser = {
   enabled: boolean
   status: string
 }
+
+export type InternalUserMembership = {
+  tenantId: string
+  status: 'active' | 'invited' | 'suspended'
+  roles: string[]
+}
+
+export type InternalAccessUserDetail = InternalAccessUser & {
+  memberships: InternalUserMembership[]
+}

@@ -74,5 +74,5 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F10-01 Internal portal top navigation and layout shell (#41)
 - [x] F10-02 Internal tenants drawer workflow (list/edit/create) (#42)
 - [x] F10-03 Internal logout flow (clear session and redirect public home) (#43)
-- [ ] F10-04 Internal users drawer workflow (list/add/remove access) (#44)
+- [x] F10-04 Internal users drawer workflow (list/add/remove access) (#44)
 - [ ] F10-05 Internal home page at `/internal` (#45)

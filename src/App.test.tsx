@@ -262,6 +262,23 @@ describe('App routing', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders internal users route when a session exists', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: '__internal__',
+        role: 'internal_admin',
+      }),
+    )
+
+    renderRoute('/internal/users')
+
+    expect(
+      await screen.findByRole('heading', { name: /internal users/i }),
+    ).toBeInTheDocument()
+  })
+
   it('logs out from internal route and redirects to home', async () => {
     window.localStorage.setItem(
       ORG_SESSION_STORAGE_KEY,

@@ -25,6 +25,8 @@ import type {
   InternalTenantCreatePayload,
   InternalTenantUpdatePayload,
   InternalAccessUser,
+  InternalAccessUserDetail,
+  InternalUserMembership,
   UserSessionContext,
   UploadTicketRequest,
   UploadTicketResponse,
@@ -120,6 +122,16 @@ type BackendInternalAccessUser = {
   email?: string | null
   enabled: boolean
   status: string
+}
+
+type BackendInternalUserMembership = {
+  tenantId: string
+  status: 'active' | 'invited' | 'suspended'
+  roles?: string[]
+}
+
+type BackendInternalAccessUserDetail = BackendInternalAccessUser & {
+  memberships?: BackendInternalUserMembership[]
 }
 
 type BackendUserSessionContext = {
@@ -254,6 +266,25 @@ function mapInternalAccessUser(
     email: user.email,
     enabled: user.enabled,
     status: user.status,
+  }
+}
+
+function mapInternalUserMembership(
+  membership: BackendInternalUserMembership,
+): InternalUserMembership {
+  return {
+    tenantId: membership.tenantId,
+    status: membership.status,
+    roles: membership.roles || [],
+  }
+}
+
+function mapInternalAccessUserDetail(
+  user: BackendInternalAccessUserDetail,
+): InternalAccessUserDetail {
+  return {
+    ...mapInternalAccessUser(user),
+    memberships: (user.memberships || []).map(mapInternalUserMembership),
   }
 }
 
@@ -549,7 +580,7 @@ export function listInternalAccessUsers(
   cursor?: string,
 ) {
   return apiRequest<BackendListEnvelope<BackendInternalAccessUser>>({
-    path: '/internal/access-users',
+    path: '/internal/users',
     session,
     query: { limit, cursor },
   }).then((response) => ({
@@ -558,6 +589,48 @@ export function listInternalAccessUsers(
       items: response.data.data.map(mapInternalAccessUser),
       nextCursor: response.data.page.nextCursor,
     } satisfies CursorPage<InternalAccessUser>,
+  }))
+}
+
+export function getInternalAccessUser(
+  session: OrgSessionHeaders,
+  userId: string,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalAccessUserDetail>>({
+    path: `/internal/users/${userId}`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalAccessUserDetail(response.data.data),
+  }))
+}
+
+export function createInternalAccessUser(
+  session: OrgSessionHeaders,
+  payload: { email: string },
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalAccessUser>>({
+    path: '/internal/users',
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalAccessUser(response.data.data),
+  }))
+}
+
+export function removeInternalAccessUser(
+  session: OrgSessionHeaders,
+  userId: string,
+) {
+  return apiRequest<BackendItemEnvelope<{ userId: string; removed: true }>>({
+    path: `/internal/users/${userId}`,
+    method: 'DELETE',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
   }))
 }
 
