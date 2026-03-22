@@ -126,13 +126,6 @@ textarea:focus-visible {
   color: #4f6077;
 }
 
-.site-header__link-button {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font: inherit;
-}
-
 .site-header__link--active,
 .site-header__link:hover {
   background: rgba(19, 34, 56, 0.08);

@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter, type RouteObject } from 'react-router-dom'
+import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { RootLayout } from '../components/layout/RootLayout'
 import { LegacyTenantRedirect } from '../components/routing/LegacyTenantRedirect'
 import { TenantRouteGuard } from '../components/routing/TenantRouteGuard'
@@ -10,6 +10,7 @@ import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
 import { InternalHomePage } from '../pages/internal/InternalHomePage'
+import { InternalLogoutPage } from '../pages/internal/InternalLogoutPage'
 import { InternalTenantsPage } from '../pages/internal/InternalTenantsPage'
 import { InternalUsersPage } from '../pages/internal/InternalUsersPage'
 import { ManagementEntryPage } from '../pages/org/ManagementEntryPage'
@@ -68,6 +69,10 @@ export const appRoutes: RouteObject[] = [
         element: <OrgLoginPage />,
       },
       {
+        path: 'internal/logout',
+        element: <InternalLogoutPage />,
+      },
+      {
         path: 'internal',
         element: (
           <RoleProtectedRoute
@@ -86,10 +91,6 @@ export const appRoutes: RouteObject[] = [
           {
             path: 'users',
             element: <InternalUsersPage />,
-          },
-          {
-            path: 'logout',
-            element: <Navigate replace to="/" />,
           },
         ],
       },

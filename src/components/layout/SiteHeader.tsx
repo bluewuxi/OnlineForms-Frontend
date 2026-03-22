@@ -25,6 +25,7 @@ const internalLinks = [
   { to: '/internal', label: 'Home' },
   { to: '/internal/tenants', label: 'Tenants' },
   { to: '/internal/users', label: 'Users' },
+  { to: '/internal/logout', label: 'Logout' },
 ]
 
 export function SiteHeader({ section }: SiteHeaderProps) {
@@ -59,15 +60,6 @@ export function SiteHeader({ section }: SiteHeaderProps) {
               {link.label}
             </NavLink>
           ))}
-          {section === 'internal' ? (
-            <button
-              className="site-header__link site-header__link-button"
-              onClick={signOut}
-              type="button"
-            >
-              Logout
-            </button>
-          ) : null}
         </nav>
         {showSession && session ? (
           <div className="site-header__session">

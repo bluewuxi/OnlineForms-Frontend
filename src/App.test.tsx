@@ -236,7 +236,10 @@ describe('App routing', () => {
       'href',
       '/internal/users',
     )
-    expect(screen.getByRole('button', { name: /^logout$/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^logout$/i })).toHaveAttribute(
+      'href',
+      '/internal/logout',
+    )
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
 
@@ -257,6 +260,24 @@ describe('App routing', () => {
         name: /you are not authorised to view this page/i,
       }),
     ).toBeInTheDocument()
+  })
+
+  it('logs out from internal route and redirects to home', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: '__internal__',
+        role: 'internal_admin',
+      }),
+    )
+
+    renderRoute('/internal/logout')
+
+    expect(
+      await screen.findByRole('heading', { name: /onlineforms frontend/i }),
+    ).toBeInTheDocument()
+    expect(window.localStorage.getItem(ORG_SESSION_STORAGE_KEY)).toBeNull()
   })
 
   it('shows account-switch controls in cognito post-auth context', async () => {
