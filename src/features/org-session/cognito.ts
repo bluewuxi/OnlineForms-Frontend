@@ -158,7 +158,6 @@ export function startCognitoLogout() {
   const logoutUrl = new URL('/logout', config.domain)
   logoutUrl.searchParams.set('client_id', config.clientId)
   logoutUrl.searchParams.set('logout_uri', publicHomeUrl)
-  logoutUrl.searchParams.set('redirect_uri', publicHomeUrl)
   clearStoredLoginState()
   window.location.assign(logoutUrl.toString())
 }
