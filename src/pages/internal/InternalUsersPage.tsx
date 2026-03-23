@@ -13,15 +13,31 @@ import {
   type InternalAccessUser,
 } from '../../lib/api'
 
+function isLikelyGuid(value: string | null | undefined) {
+  if (!value) {
+    return false
+  }
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())
+}
+
 function resolvePreferredName(
-  user: Pick<InternalAccessUser, 'email' | 'preferredName' | 'username'>,
+  user: Pick<InternalAccessUser, 'email' | 'preferredName' | 'username' | 'userId'>,
 ) {
-  const candidate = (user.preferredName || user.username || '').trim()
+  const candidate = (user.preferredName || '').trim()
   if (!candidate) {
     return null
   }
+  if (isLikelyGuid(candidate)) {
+    return null
+  }
   const email = (user.email || '').trim().toLowerCase()
-  if (email && candidate.toLowerCase() === email) {
+  const username = (user.username || '').trim().toLowerCase()
+  const userId = (user.userId || '').trim().toLowerCase()
+  if (
+    (email && candidate.toLowerCase() === email) ||
+    (username && candidate.toLowerCase() === username) ||
+    (userId && candidate.toLowerCase() === userId)
+  ) {
     return null
   }
   return candidate
@@ -30,7 +46,18 @@ function resolvePreferredName(
 function resolvePrimaryIdentity(
   user: Pick<InternalAccessUser, 'username' | 'email' | 'userId'>,
 ) {
-  return user.username || user.email || user.userId
+  const username = (user.username || '').trim()
+  const email = (user.email || '').trim()
+  if (username.includes('@')) {
+    return username
+  }
+  if (email) {
+    return email
+  }
+  if (username && !isLikelyGuid(username)) {
+    return username
+  }
+  return user.userId
 }
 
 export function InternalUsersPage() {
@@ -168,7 +195,7 @@ export function InternalUsersPage() {
                         }}
                         type="button"
                       >
-                  <strong>{resolvePrimaryIdentity(user)}</strong>
+                        <strong>{resolvePrimaryIdentity(user)}</strong>
                         <span>{preferredName || 'No preferred name'}</span>
                       </button>
                     </li>
@@ -239,7 +266,7 @@ export function InternalUsersPage() {
               <>
                 <div className="section-heading">
                   <p className="section-heading__eyebrow">User detail</p>
-              <h2>{resolvePrimaryIdentity(detailUser)}</h2>
+                  <h2>{resolvePrimaryIdentity(detailUser)}</h2>
                 </div>
                 <p>
                   <strong>Preferred name:</strong> {detailPreferredName || 'Not set'}

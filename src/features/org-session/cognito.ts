@@ -198,10 +198,12 @@ export async function completeCognitoLoginFromUrl(search: string) {
   const session: OrgSessionHeaders = {
     userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || '',
     username:
+      pickString(idClaims?.email) ||
+      pickString(accessClaims.email) ||
       pickString(idClaims?.['cognito:username']) ||
       pickString(accessClaims.username) ||
-      pickString(idClaims?.email) ||
-      pickString(accessClaims.email),
+      pickString(idClaims?.sub) ||
+      pickString(accessClaims.sub),
     preferredName:
       pickString(idClaims?.preferred_username) ||
       pickString(idClaims?.name) ||
@@ -261,10 +263,12 @@ export async function refreshCognitoSession(currentSession: OrgSessionHeaders) {
     ...currentSession,
     userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || currentSession.userId,
     username:
-      pickString(idClaims?.['cognito:username']) ||
-      pickString(accessClaims.username) ||
       pickString(idClaims?.email) ||
       pickString(accessClaims.email) ||
+      pickString(idClaims?.['cognito:username']) ||
+      pickString(accessClaims.username) ||
+      pickString(idClaims?.sub) ||
+      pickString(accessClaims.sub) ||
       currentSession.username,
     preferredName:
       pickString(idClaims?.preferred_username) ||

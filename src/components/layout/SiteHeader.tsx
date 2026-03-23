@@ -28,6 +28,13 @@ const internalLinks = [
   { to: '/internal/users', label: 'Users' },
 ]
 
+function isLikelyGuid(value: string | undefined) {
+  if (!value) {
+    return false
+  }
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())
+}
+
 export function SiteHeader({ section }: SiteHeaderProps) {
   const links =
     section === 'org'
@@ -42,7 +49,18 @@ export function SiteHeader({ section }: SiteHeaderProps) {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
   const showSession = section === 'org' || section === 'internal'
-  const sessionLoginName = session?.username || session?.userId || ''
+  const sessionUsername = session?.username?.trim()
+  const sessionPreferredName = session?.preferredName?.trim()
+  const sessionLoginName =
+    (sessionUsername && !isLikelyGuid(sessionUsername) ? sessionUsername : '') ||
+    session?.userId ||
+    ''
+  const sessionSubtext =
+    (sessionPreferredName &&
+    !isLikelyGuid(sessionPreferredName) &&
+    sessionPreferredName !== sessionLoginName
+      ? sessionPreferredName
+      : '') || session?.role || ''
 
   useEffect(() => {
     if (!isAccountMenuOpen) {
@@ -92,7 +110,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
             >
               <strong>{sessionLoginName}</strong>
               <span className="site-header__account-subtext">
-                {session.preferredName || session.role}
+                {sessionSubtext}
               </span>
             </button>
             {isAccountMenuOpen ? (
