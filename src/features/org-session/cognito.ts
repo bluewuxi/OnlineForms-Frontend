@@ -5,6 +5,7 @@ import {
 } from '../../lib/config/env'
 
 const COGNITO_LOGIN_STORAGE_KEY = 'onlineforms.cognito.login'
+const COGNITO_POST_LOGOUT_HOME_KEY = 'onlineforms.cognito.post-logout-home'
 
 type StoredCognitoLoginState = {
   state: string
@@ -154,12 +155,25 @@ export function startCognitoLogout() {
     return
   }
   const config = getCognitoAuthConfig()
-  const publicHomeUrl = new URL('/', window.location.origin).toString()
   const logoutUrl = new URL('/logout', config.domain)
   logoutUrl.searchParams.set('client_id', config.clientId)
-  logoutUrl.searchParams.set('logout_uri', publicHomeUrl)
+  logoutUrl.searchParams.set('logout_uri', config.redirectUri)
   clearStoredLoginState()
+  if (typeof window !== 'undefined') {
+    window.sessionStorage.setItem(COGNITO_POST_LOGOUT_HOME_KEY, '1')
+  }
   window.location.assign(logoutUrl.toString())
+}
+
+export function consumePostLogoutHomeFlag() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+  const flag = window.sessionStorage.getItem(COGNITO_POST_LOGOUT_HOME_KEY) === '1'
+  if (flag) {
+    window.sessionStorage.removeItem(COGNITO_POST_LOGOUT_HOME_KEY)
+  }
+  return flag
 }
 
 export async function completeCognitoLoginFromUrl(search: string) {
