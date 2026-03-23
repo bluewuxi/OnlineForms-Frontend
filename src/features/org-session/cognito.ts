@@ -149,17 +149,18 @@ export async function startCognitoLogin(requestedReturnTo?: string) {
   window.location.assign(authorizeUrl.toString())
 }
 
-export function startCognitoLogout(postLogoutPath = '/') {
+export function startCognitoLogout(postLogoutPath?: string) {
   if (!isCognitoAuthEnabled()) {
     return
   }
   const config = getCognitoAuthConfig()
+  const targetUri = postLogoutPath
+    ? new URL(postLogoutPath, window.location.origin).toString()
+    : config.redirectUri
   const logoutUrl = new URL('/logout', config.domain)
   logoutUrl.searchParams.set('client_id', config.clientId)
-  logoutUrl.searchParams.set(
-    'logout_uri',
-    new URL(postLogoutPath, window.location.origin).toString(),
-  )
+  logoutUrl.searchParams.set('logout_uri', targetUri)
+  logoutUrl.searchParams.set('redirect_uri', targetUri)
   clearStoredLoginState()
   window.location.assign(logoutUrl.toString())
 }
