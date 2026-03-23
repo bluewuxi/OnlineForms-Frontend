@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { startCognitoLogout } from '../../features/org-session/cognito'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 
 type SiteHeaderProps = {
@@ -127,6 +128,11 @@ export function SiteHeader({ section }: SiteHeaderProps) {
                   role="menuitem"
                   onClick={() => {
                     setIsAccountMenuOpen(false)
+                    if (session.authProvider === 'cognito') {
+                      signOut()
+                      startCognitoLogout('/')
+                      return
+                    }
                     navigate('/', { replace: true })
                     window.setTimeout(() => {
                       signOut()

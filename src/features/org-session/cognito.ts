@@ -149,6 +149,21 @@ export async function startCognitoLogin(requestedReturnTo?: string) {
   window.location.assign(authorizeUrl.toString())
 }
 
+export function startCognitoLogout(postLogoutPath = '/') {
+  if (!isCognitoAuthEnabled()) {
+    return
+  }
+  const config = getCognitoAuthConfig()
+  const logoutUrl = new URL('/logout', config.domain)
+  logoutUrl.searchParams.set('client_id', config.clientId)
+  logoutUrl.searchParams.set(
+    'logout_uri',
+    new URL(postLogoutPath, window.location.origin).toString(),
+  )
+  clearStoredLoginState()
+  window.location.assign(logoutUrl.toString())
+}
+
 export async function completeCognitoLoginFromUrl(search: string) {
   if (!isCognitoAuthEnabled()) {
     return null
