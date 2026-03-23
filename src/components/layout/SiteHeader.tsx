@@ -130,7 +130,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
                     setIsAccountMenuOpen(false)
                     if (session.authProvider === 'cognito') {
                       signOut()
-                      startCognitoLogout()
+                      startCognitoLogout('/')
                       return
                     }
                     navigate('/', { replace: true })
