@@ -15,6 +15,8 @@ function isSessionShape(value: unknown): value is OrgSessionHeaders {
   const candidate = value as Record<string, unknown>
   return (
     typeof candidate.userId === 'string' &&
+    (candidate.email === undefined || typeof candidate.email === 'string') &&
+    (candidate.preferredName === undefined || typeof candidate.preferredName === 'string') &&
     (candidate.tenantId === undefined || typeof candidate.tenantId === 'string') &&
     typeof candidate.role === 'string' &&
     (candidate.accessToken === undefined || typeof candidate.accessToken === 'string') &&
@@ -44,6 +46,14 @@ export function readStoredOrgSession() {
       typeof parsed.tenantId === 'string' && parsed.tenantId.trim().length > 0
         ? parsed.tenantId.trim()
         : undefined
+    const email =
+      typeof parsed.email === 'string' && parsed.email.trim().length > 0
+        ? parsed.email.trim()
+        : undefined
+    const preferredName =
+      typeof parsed.preferredName === 'string' && parsed.preferredName.trim().length > 0
+        ? parsed.preferredName.trim()
+        : undefined
     const accessToken =
       typeof parsed.accessToken === 'string' && parsed.accessToken.trim().length > 0
         ? parsed.accessToken.trim()
@@ -61,6 +71,8 @@ export function readStoredOrgSession() {
     }
     const session = {
       ...parsed,
+      email,
+      preferredName,
       tenantId,
       accessToken,
       idToken,
@@ -86,6 +98,14 @@ export function writeStoredOrgSession(session: OrgSessionHeaders) {
     typeof session.tenantId === 'string' && session.tenantId.trim().length > 0
       ? session.tenantId.trim()
       : undefined
+  const email =
+    typeof session.email === 'string' && session.email.trim().length > 0
+      ? session.email.trim()
+      : undefined
+  const preferredName =
+    typeof session.preferredName === 'string' && session.preferredName.trim().length > 0
+      ? session.preferredName.trim()
+      : undefined
   const accessToken =
     typeof session.accessToken === 'string' && session.accessToken.trim().length > 0
       ? session.accessToken.trim()
@@ -102,6 +122,8 @@ export function writeStoredOrgSession(session: OrgSessionHeaders) {
     ORG_SESSION_STORAGE_KEY,
     JSON.stringify({
       ...session,
+      email,
+      preferredName,
       tenantId,
       accessToken,
       idToken,

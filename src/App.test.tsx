@@ -236,9 +236,21 @@ describe('App routing', () => {
       'href',
       '/internal/users',
     )
-    expect(screen.getByRole('link', { name: /^logout$/i })).toHaveAttribute(
+    expect(screen.queryByRole('link', { name: /^logout$/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /demo-user/i })).toBeInTheDocument()
+    expect(screen.getByText(/internal_admin/i)).toBeInTheDocument()
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: /demo-user/i }))
+    expect(screen.getByRole('menuitem', { name: /logout/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('menuitem', { name: /logout/i }))
+    expect(
+      await screen.findByRole('heading', { name: /onlineforms frontend/i }),
+    ).toBeInTheDocument()
+    expect(window.localStorage.getItem(ORG_SESSION_STORAGE_KEY)).toBeNull()
+    expect(screen.getByRole('link', { name: /^home$/i })).toHaveAttribute(
       'href',
-      '/internal/logout',
+      '/',
     )
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })

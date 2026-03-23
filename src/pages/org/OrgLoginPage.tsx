@@ -193,9 +193,13 @@ export function OrgLoginPage() {
       return
     }
     clearErrors('tenantId')
+    const normalizedUserId = values.userId.trim()
+    const normalizedEmail = normalizedUserId.includes('@') ? normalizedUserId : undefined
 
     signIn({
-      userId: values.userId.trim(),
+      userId: normalizedUserId,
+      email: normalizedEmail,
+      preferredName: normalizedEmail ? undefined : normalizedUserId,
       role: values.role,
       ...(normalizedTenantId ? { tenantId: normalizedTenantId } : {}),
     })

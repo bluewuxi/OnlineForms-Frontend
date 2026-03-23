@@ -10,7 +10,26 @@ import {
   getInternalAccessUser,
   listInternalAccessUsers,
   removeInternalAccessUser,
+  type InternalAccessUser,
 } from '../../lib/api'
+
+function resolvePreferredName(
+  user: Pick<InternalAccessUser, 'email' | 'preferredName' | 'username'>,
+) {
+  const candidate = (user.preferredName || user.username || '').trim()
+  if (!candidate) {
+    return null
+  }
+  const email = (user.email || '').trim().toLowerCase()
+  if (email && candidate.toLowerCase() === email) {
+    return null
+  }
+  return candidate
+}
+
+function resolvePrimaryEmail(user: Pick<InternalAccessUser, 'email' | 'userId'>) {
+  return user.email || user.userId
+}
 
 export function InternalUsersPage() {
   const { session } = useOrgSession()
@@ -87,6 +106,8 @@ export function InternalUsersPage() {
       queryClient.invalidateQueries({ queryKey: ['internal-users'] })
     },
   })
+  const detailUser = detailQuery.data ?? null
+  const detailPreferredName = detailUser ? resolvePreferredName(detailUser) : null
 
   return (
     <div className="page-stack">
@@ -131,6 +152,7 @@ export function InternalUsersPage() {
               <ul className="internal-drawer-list__items">
                 {usersQuery.data.map((user) => {
                   const isActive = panelMode === 'detail' && user.userId === effectiveSelectedUserId
+                  const preferredName = resolvePreferredName(user)
                   return (
                     <li key={user.userId}>
                       <button
@@ -144,8 +166,8 @@ export function InternalUsersPage() {
                         }}
                         type="button"
                       >
-                        <strong>{user.username}</strong>
-                        <span>{user.email || 'no-email'}</span>
+                        <strong>{resolvePrimaryEmail(user)}</strong>
+                        <span>{preferredName || 'No preferred name'}</span>
                       </button>
                     </li>
                   )
@@ -211,26 +233,26 @@ export function InternalUsersPage() {
                 title="Could not load user details"
                 message="Select a user again or retry shortly."
               />
-            ) : detailQuery.data ? (
+            ) : detailUser ? (
               <>
                 <div className="section-heading">
                   <p className="section-heading__eyebrow">User detail</p>
-                  <h2>{detailQuery.data.username}</h2>
+                  <h2>{resolvePrimaryEmail(detailUser)}</h2>
                 </div>
                 <p>
-                  <strong>Email:</strong> {detailQuery.data.email || 'no-email'}
+                  <strong>Preferred name:</strong> {detailPreferredName || 'Not set'}
                 </p>
                 <p>
-                  <strong>Status:</strong> {detailQuery.data.status} ({detailQuery.data.enabled ? 'enabled' : 'disabled'})
+                  <strong>Status:</strong> {detailUser.status} ({detailUser.enabled ? 'enabled' : 'disabled'})
                 </p>
 
                 <div className="section-heading">
                   <p className="section-heading__eyebrow">Memberships</p>
                   <h2>Tenant access</h2>
                 </div>
-                {detailQuery.data.memberships.length > 0 ? (
+                {detailUser.memberships.length > 0 ? (
                   <ul className="internal-drawer-list__items">
-                    {detailQuery.data.memberships.map((membership) => (
+                    {detailUser.memberships.map((membership) => (
                       <li className="internal-drawer-list__item" key={membership.tenantId}>
                         <strong>{membership.tenantId}</strong>
                         <span>{membership.status}</span>

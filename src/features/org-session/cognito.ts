@@ -197,6 +197,14 @@ export async function completeCognitoLoginFromUrl(search: string) {
   const idClaims = tokens.id_token ? parseJwtPayload(tokens.id_token) : undefined
   const session: OrgSessionHeaders = {
     userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || '',
+    email:
+      pickString(idClaims?.email) ||
+      pickString(accessClaims.email),
+    preferredName:
+      pickString(idClaims?.preferred_username) ||
+      pickString(idClaims?.name) ||
+      pickString(accessClaims.preferred_username) ||
+      pickString(accessClaims.name),
     role: pickRole(idClaims, accessClaims),
     tenantId:
       pickString(idClaims?.['custom:tenantId']) ||
@@ -250,6 +258,16 @@ export async function refreshCognitoSession(currentSession: OrgSessionHeaders) {
   return {
     ...currentSession,
     userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || currentSession.userId,
+    email:
+      pickString(idClaims?.email) ||
+      pickString(accessClaims.email) ||
+      currentSession.email,
+    preferredName:
+      pickString(idClaims?.preferred_username) ||
+      pickString(idClaims?.name) ||
+      pickString(accessClaims.preferred_username) ||
+      pickString(accessClaims.name) ||
+      currentSession.preferredName,
     role: pickRole(idClaims, accessClaims),
     tenantId:
       pickString(idClaims?.['custom:tenantId']) ||

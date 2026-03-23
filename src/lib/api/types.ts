@@ -19,6 +19,8 @@ export type ApiResult<TData> = {
 
 export type OrgSessionHeaders = {
   userId: string
+  email?: string
+  preferredName?: string
   tenantId?: string
   role: string
   accessToken?: string
@@ -329,6 +331,7 @@ export type InternalAccessUser = {
   userId: string
   username: string
   email?: string | null
+  preferredName?: string | null
   enabled: boolean
   status: string
 }

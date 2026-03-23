@@ -120,6 +120,7 @@ type BackendInternalAccessUser = {
   userId: string
   username: string
   email?: string | null
+  preferredName?: string | null
   enabled: boolean
   status: string
 }
@@ -264,6 +265,7 @@ function mapInternalAccessUser(
     userId: user.userId,
     username: user.username,
     email: user.email,
+    preferredName: user.preferredName,
     enabled: user.enabled,
     status: user.status,
   }
