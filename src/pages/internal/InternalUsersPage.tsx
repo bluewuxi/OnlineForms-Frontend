@@ -27,8 +27,10 @@ function resolvePreferredName(
   return candidate
 }
 
-function resolvePrimaryEmail(user: Pick<InternalAccessUser, 'email' | 'userId'>) {
-  return user.email || user.userId
+function resolvePrimaryIdentity(
+  user: Pick<InternalAccessUser, 'username' | 'email' | 'userId'>,
+) {
+  return user.username || user.email || user.userId
 }
 
 export function InternalUsersPage() {
@@ -166,7 +168,7 @@ export function InternalUsersPage() {
                         }}
                         type="button"
                       >
-                        <strong>{resolvePrimaryEmail(user)}</strong>
+                  <strong>{resolvePrimaryIdentity(user)}</strong>
                         <span>{preferredName || 'No preferred name'}</span>
                       </button>
                     </li>
@@ -237,7 +239,7 @@ export function InternalUsersPage() {
               <>
                 <div className="section-heading">
                   <p className="section-heading__eyebrow">User detail</p>
-                  <h2>{resolvePrimaryEmail(detailUser)}</h2>
+              <h2>{resolvePrimaryIdentity(detailUser)}</h2>
                 </div>
                 <p>
                   <strong>Preferred name:</strong> {detailPreferredName || 'Not set'}

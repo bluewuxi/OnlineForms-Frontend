@@ -42,7 +42,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
   const showSession = section === 'org' || section === 'internal'
-  const sessionLoginEmail = session?.email || session?.userId || ''
+  const sessionLoginName = session?.username || session?.userId || ''
 
   useEffect(() => {
     if (!isAccountMenuOpen) {
@@ -90,7 +90,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
               aria-expanded={isAccountMenuOpen}
               onClick={() => setIsAccountMenuOpen((open) => !open)}
             >
-              <strong>{sessionLoginEmail}</strong>
+              <strong>{sessionLoginName}</strong>
               <span className="site-header__account-subtext">
                 {session.preferredName || session.role}
               </span>

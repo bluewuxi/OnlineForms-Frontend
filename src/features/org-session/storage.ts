@@ -15,7 +15,7 @@ function isSessionShape(value: unknown): value is OrgSessionHeaders {
   const candidate = value as Record<string, unknown>
   return (
     typeof candidate.userId === 'string' &&
-    (candidate.email === undefined || typeof candidate.email === 'string') &&
+    (candidate.username === undefined || typeof candidate.username === 'string') &&
     (candidate.preferredName === undefined || typeof candidate.preferredName === 'string') &&
     (candidate.tenantId === undefined || typeof candidate.tenantId === 'string') &&
     typeof candidate.role === 'string' &&
@@ -46,9 +46,9 @@ export function readStoredOrgSession() {
       typeof parsed.tenantId === 'string' && parsed.tenantId.trim().length > 0
         ? parsed.tenantId.trim()
         : undefined
-    const email =
-      typeof parsed.email === 'string' && parsed.email.trim().length > 0
-        ? parsed.email.trim()
+    const username =
+      typeof parsed.username === 'string' && parsed.username.trim().length > 0
+        ? parsed.username.trim()
         : undefined
     const preferredName =
       typeof parsed.preferredName === 'string' && parsed.preferredName.trim().length > 0
@@ -71,7 +71,7 @@ export function readStoredOrgSession() {
     }
     const session = {
       ...parsed,
-      email,
+      username,
       preferredName,
       tenantId,
       accessToken,
@@ -98,9 +98,9 @@ export function writeStoredOrgSession(session: OrgSessionHeaders) {
     typeof session.tenantId === 'string' && session.tenantId.trim().length > 0
       ? session.tenantId.trim()
       : undefined
-  const email =
-    typeof session.email === 'string' && session.email.trim().length > 0
-      ? session.email.trim()
+  const username =
+    typeof session.username === 'string' && session.username.trim().length > 0
+      ? session.username.trim()
       : undefined
   const preferredName =
     typeof session.preferredName === 'string' && session.preferredName.trim().length > 0
@@ -122,7 +122,7 @@ export function writeStoredOrgSession(session: OrgSessionHeaders) {
     ORG_SESSION_STORAGE_KEY,
     JSON.stringify({
       ...session,
-      email,
+      username,
       preferredName,
       tenantId,
       accessToken,

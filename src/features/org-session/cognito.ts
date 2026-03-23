@@ -197,7 +197,9 @@ export async function completeCognitoLoginFromUrl(search: string) {
   const idClaims = tokens.id_token ? parseJwtPayload(tokens.id_token) : undefined
   const session: OrgSessionHeaders = {
     userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || '',
-    email:
+    username:
+      pickString(idClaims?.['cognito:username']) ||
+      pickString(accessClaims.username) ||
       pickString(idClaims?.email) ||
       pickString(accessClaims.email),
     preferredName:
@@ -258,10 +260,12 @@ export async function refreshCognitoSession(currentSession: OrgSessionHeaders) {
   return {
     ...currentSession,
     userId: pickString(idClaims?.sub) || pickString(accessClaims.sub) || currentSession.userId,
-    email:
+    username:
+      pickString(idClaims?.['cognito:username']) ||
+      pickString(accessClaims.username) ||
       pickString(idClaims?.email) ||
       pickString(accessClaims.email) ||
-      currentSession.email,
+      currentSession.username,
     preferredName:
       pickString(idClaims?.preferred_username) ||
       pickString(idClaims?.name) ||

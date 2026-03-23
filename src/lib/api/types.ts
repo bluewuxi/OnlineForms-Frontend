@@ -19,7 +19,7 @@ export type ApiResult<TData> = {
 
 export type OrgSessionHeaders = {
   userId: string
-  email?: string
+  username?: string
   preferredName?: string
   tenantId?: string
   role: string
