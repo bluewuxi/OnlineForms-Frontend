@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { PageHero } from '../../components/layout/PageHero'
 import {
   completeCognitoLoginFromUrl,
-  consumePostLogoutHomeFlag,
   isCognitoAuthEnabled,
   startCognitoLogin,
 } from '../../features/org-session/cognito'
@@ -116,15 +115,6 @@ export function OrgLoginPage() {
     sessionContextsQuery.error instanceof Error
       ? toLoginDiagnosticMessage('contexts', sessionContextsQuery.error.message)
       : toLoginDiagnosticMessage('contexts', undefined)
-
-  useEffect(() => {
-    if (!isCognitoMode || hasCognitoCallbackCode) {
-      return
-    }
-    if (consumePostLogoutHomeFlag()) {
-      navigate('/', { replace: true })
-    }
-  }, [hasCognitoCallbackCode, isCognitoMode, navigate])
 
   function resolvePostLoginPath(role: string, returnTo: string | null | undefined) {
     const isInternalRole = role === 'internal_admin'
