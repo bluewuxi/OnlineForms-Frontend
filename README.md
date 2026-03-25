@@ -23,6 +23,7 @@ The frontend integrates with the OnlineForms backend API:
 - MVP spec: `docs/specs/FRONTEND_MVP_SPEC.md`
 - UI spec: `docs/specs/FRONTEND_UI_SPEC.md`
 - Implementation checklist: `docs/specs/FRONTEND_IMPLEMENTATION_CHECKLIST.md`
+- Phase F11 UI improvements: `docs/specs/PHASE_F11_UI_IMPROVEMENTS.md`
 - Bug management process: `docs/process/bug-management.md`
 - Bug investigation runbook: `docs/guides/BUG_RUNBOOK.md`
 - Visual baseline: `docs/design/FRONTEND_VISUAL_BASELINE.md`
@@ -92,6 +93,7 @@ The frontend integrates with the OnlineForms backend API:
 
 - React + Vite + TypeScript frontend deployed on S3/CloudFront
 - MVP docs and implementation checklist committed
+- Phase F11 UI-improvement planning committed
 - Target stack: React + Vite on S3/CloudFront
 - Phases F1-F5 implemented
 

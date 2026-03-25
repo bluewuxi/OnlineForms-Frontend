@@ -84,3 +84,14 @@ Delivered backend-alignment refinements:
 - [x] F10-03 Internal logout flow (clear session and redirect public home) (#43)
 - [x] F10-04 Internal users drawer workflow (list/add/remove access) (#44)
 - [x] F10-05 Internal home page at `/internal` (#45)
+
+## Phase F11 - UI Improvements
+
+- [ ] F11-01 Shared visual system and layout primitives (#51)
+- [ ] F11-02 Public portal IA, navigation, and visual refresh (#47)
+- [ ] F11-03 Enrollment form and success-state UX polish (#48)
+- [ ] F11-04 Organization portal navigation and course-first workspace refresh (#49)
+- [ ] F11-05 Internal portal density and drawer UX refinement (#50)
+- [ ] F11-06 Responsive, accessibility, and UI polish pass (#46)
+
+Detailed rollout checklist: `docs/specs/PHASE_F11_UI_IMPROVEMENTS.md`
