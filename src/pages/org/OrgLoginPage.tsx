@@ -128,12 +128,17 @@ export function OrgLoginPage() {
 
   function resolvePostLoginPath(role: string, returnTo: string | null | undefined) {
     const isInternalRole = role === 'internal_admin'
-    const fallbackReturnTo = isInternalRole ? '/internal/tenants' : '/org/submissions'
+    const fallbackReturnTo = isInternalRole ? '/internal/tenants' : '/org/courses'
     if (returnTo && returnTo.startsWith('/')) {
+      const blockedPaths = ['/org/login', '/management']
+      const isBlockedPath = blockedPaths.some(
+        (blockedPath) =>
+          returnTo === blockedPath || returnTo.startsWith(`${blockedPath}?`),
+      )
       const matchesRoleBoundary = isInternalRole
         ? returnTo.startsWith('/internal/')
         : returnTo.startsWith('/org/')
-      if (matchesRoleBoundary) {
+      if (matchesRoleBoundary && !isBlockedPath) {
         return returnTo
       }
     }

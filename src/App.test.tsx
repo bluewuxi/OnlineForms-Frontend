@@ -401,4 +401,104 @@ describe('App routing', () => {
       globalThis.fetch = originalFetch
     }
   })
+
+  it('does not route post-login context selection back to /org/login', async () => {
+    vi.stubEnv('VITE_AUTH_MODE', 'cognito')
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        role: 'org_admin',
+        authProvider: 'cognito',
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+      }),
+    )
+
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/public/tenants')) {
+        return new Response(
+          JSON.stringify({
+            data: [
+              {
+                tenantId: 'tenant-123',
+                tenantCode: 'std-school',
+                displayName: 'Standard School',
+                isActive: true,
+              },
+            ],
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/public/auth-options')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              roles: [
+                { role: 'org_admin', label: 'Org Admin', requiresTenant: true },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/org/session-contexts')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              userId: 'demo-user',
+              tokenRole: 'org_admin',
+              canAccessInternalPortal: false,
+              contexts: [
+                {
+                  tenantId: 'tenant-123',
+                  status: 'active',
+                  roles: ['org_admin'],
+                },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/org/session-context')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              userId: 'demo-user',
+              tenantId: 'tenant-123',
+              role: 'org_admin',
+              shell: {
+                portal: 'org',
+                tenantScoped: true,
+              },
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    }) as typeof fetch
+
+    try {
+      const user = userEvent.setup()
+      renderRoute('/org/login?returnTo=%2Forg%2Flogin')
+
+      await user.selectOptions(screen.getByLabelText(/^tenant$/i), 'tenant-123')
+      await user.selectOptions(screen.getByLabelText(/^role$/i), 'org_admin')
+      await user.click(screen.getByRole('button', { name: /continue to management/i }))
+
+      expect(
+        await screen.findByRole('heading', { name: /tenant course management/i }),
+      ).toBeInTheDocument()
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
 })
