@@ -15,6 +15,10 @@ function normalizeStatusLabel(value?: string) {
     return 'Open'
   }
 
+  if (value === 'upcoming') {
+    return 'Opening soon'
+  }
+
   return value
     .replace(/[_-]+/g, ' ')
     .replace(/\b\w/g, (character) => character.toUpperCase())
@@ -123,7 +127,7 @@ export function CourseCatalogPage() {
           >
             <option value="all">All</option>
             <option value="open">Open</option>
-            <option value="closing-soon">Closing soon</option>
+            <option value="upcoming">Opening soon</option>
             <option value="closed">Closed</option>
           </select>
         </div>
@@ -169,6 +173,7 @@ export function CourseCatalogPage() {
                   <div className="course-card__meta">
                     {course.deliveryMode ? <span>{course.deliveryMode}</span> : null}
                     {course.durationLabel ? <span>{course.durationLabel}</span> : null}
+                    {course.locationText ? <span>{course.locationText}</span> : null}
                   </div>
                   <div className="course-card__footer">
                     <span
@@ -178,7 +183,7 @@ export function CourseCatalogPage() {
                     </span>
                     <Link
                       className="button button--secondary"
-                      to={`/${tenantCode}/courses/${course.id}`}
+                      to={course.links?.detail || `/${tenantCode}/courses/${course.id}`}
                     >
                       View details
                     </Link>

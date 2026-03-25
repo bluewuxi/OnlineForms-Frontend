@@ -44,6 +44,18 @@ export function TenantHomePage() {
               tenantQuery.data.description ||
               'Explore this tenant and browse available published courses.'
             }
+            aside={
+              tenantQuery.data.branding?.logoUrl ? (
+                <div className="hero-card">
+                  <p className="hero-card__label">Tenant branding</p>
+                  <img
+                    alt={`${tenantQuery.data.displayName} logo`}
+                    className="tenant-logo"
+                    src={tenantQuery.data.branding.logoUrl}
+                  />
+                </div>
+              ) : undefined
+            }
           />
 
           {tenantQuery.data.homePageContent ? (
@@ -62,7 +74,7 @@ export function TenantHomePage() {
             <div className="button-row">
               <Link
                 className="button button--primary"
-                to={`/${tenantQuery.data.tenantCode}/courses`}
+                to={tenantQuery.data.links.publishedCourses}
               >
                 View published courses
               </Link>

@@ -280,6 +280,13 @@ textarea:focus-visible {
   color: #506078;
 }
 
+.tenant-logo {
+  width: min(220px, 100%);
+  max-height: 96px;
+  object-fit: contain;
+  margin-top: 1rem;
+}
+
 .content-card-grid,
 .state-grid,
 .course-grid,
@@ -639,6 +646,11 @@ textarea:focus-visible {
 }
 
 .status-pill--closing-soon {
+  background: rgba(170, 120, 36, 0.14);
+  color: #8d5b12;
+}
+
+.status-pill--upcoming {
   background: rgba(170, 120, 36, 0.14);
   color: #8d5b12;
 }

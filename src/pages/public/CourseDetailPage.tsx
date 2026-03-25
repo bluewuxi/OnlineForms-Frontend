@@ -67,6 +67,9 @@ export function CourseDetailPage() {
                   <li>Opens: {formatDate(courseQuery.data.enrollmentOpensAt)}</li>
                   <li>Closes: {formatDate(courseQuery.data.enrollmentClosesAt)}</li>
                   <li>Status: {courseQuery.data.enrollmentStatus || 'Open'}</li>
+                  <li>
+                    Form: {courseQuery.data.formAvailable === false ? 'Unavailable' : 'Available'}
+                  </li>
                 </ul>
               </div>
             }
@@ -89,6 +92,14 @@ export function CourseDetailPage() {
               <div className="field-card">
                 <span>Form version</span>
                 <strong>{courseQuery.data.formVersion ?? formSchema?.version ?? 'N/A'}</strong>
+              </div>
+              <div className="field-card">
+                <span>Location</span>
+                <strong>{courseQuery.data.locationText || 'Not specified'}</strong>
+              </div>
+              <div className="field-card">
+                <span>Capacity</span>
+                <strong>{courseQuery.data.capacity ?? 'Not specified'}</strong>
               </div>
             </div>
             <div className="button-row">

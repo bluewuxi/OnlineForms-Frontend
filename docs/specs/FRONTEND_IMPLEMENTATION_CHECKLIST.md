@@ -15,6 +15,11 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F2-02 Build public course detail page with enrollment form rendering (#6)
 - [x] F2-03 Implement enrollment submission flow, success states, and error handling (#7)
 
+Delivered backend-alignment refinements:
+- `F2-01` now consumes backend-provided public links, enrollment status, and location metadata.
+- `F2-02` now consumes course capacity and form-availability metadata.
+- `F2-03` now consumes enrollment success links and course-title metadata.
+
 ## Phase F3 - Organization Portal
 
 - [x] F3-01 Build org submissions list with filters and cursor pagination (#8)
@@ -51,6 +56,9 @@ Source spec: `FRONTEND_MVP_SPEC.md`
 - [x] F7-06 Reserved slug guardrails, QA, and docs (#27)
 - [x] F7-07 Management login UX polish (menu label + tenant/role dropdowns) (#28)
 - [x] F7-08 Unified login flow with role-safe redirects and tenant auto-clear (#29)
+
+Delivered backend-alignment refinements:
+- `F7-03` now consumes tenant branding/logo metadata and backend-provided tenant navigation links.
 
 ## Phase F8 - Cognito Login Workflow
 

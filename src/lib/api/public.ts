@@ -32,13 +32,21 @@ type BackendPublicCourseListItem = {
   deliveryMode?: string
   startDate?: string
   endDate?: string
+  locationText?: string | null
+  enrollmentOpenAt?: string | null
+  enrollmentCloseAt?: string | null
+  enrollmentOpenNow?: boolean
+  enrollmentStatus?: 'upcoming' | 'open' | 'closed'
+  links?: {
+    detail?: string
+    enrollmentForm?: string
+  }
 }
 
 type BackendPublicCourse = BackendPublicCourseListItem & {
   fullDescription?: string
-  enrollmentOpenAt?: string | null
-  enrollmentCloseAt?: string | null
-  enrollmentOpenNow?: boolean
+  capacity?: number | null
+  formAvailable?: boolean
 }
 
 type BackendTenantDirectoryItem = {
@@ -48,6 +56,14 @@ type BackendTenantDirectoryItem = {
   description?: string
   isActive?: boolean
   status?: string
+  branding?: {
+    logoAssetId?: string | null
+    logoUrl?: string | null
+  }
+  links?: {
+    home?: string
+    courses?: string
+  }
 }
 
 type BackendTenantHome = {
@@ -58,8 +74,10 @@ type BackendTenantHome = {
   isActive: boolean
   branding?: {
     logoAssetId?: string | null
+    logoUrl?: string | null
   }
   links?: {
+    home?: string
     publishedCourses?: string
   }
 }
@@ -70,7 +88,58 @@ type BackendAuthRoleOption = {
   requiresTenant: boolean
 }
 
+function toPublicAppPath(path?: string, tenantCode?: string, fallback?: string) {
+  if (!path) {
+    return fallback
+  }
+
+  const normalizedTenantCode = tenantCode?.trim().toLowerCase()
+  if (normalizedTenantCode) {
+    if (path === `/v1/public/${normalizedTenantCode}/tenant-home`) {
+      return `/${normalizedTenantCode}`
+    }
+
+    const courseDetailPrefix = `/v1/public/${normalizedTenantCode}/courses/`
+    if (path.startsWith(courseDetailPrefix)) {
+      const suffix = path.slice(courseDetailPrefix.length)
+      if (suffix.endsWith('/form')) {
+        const courseId = suffix.slice(0, -'/form'.length)
+        return `/${normalizedTenantCode}/courses/${courseId}`
+      }
+      return `/${normalizedTenantCode}/courses/${suffix}`
+    }
+
+    if (path === `/v1/public/${normalizedTenantCode}/courses`) {
+      return `/${normalizedTenantCode}/courses`
+    }
+  }
+
+  return fallback
+}
+
+function extractTenantCodeFromPublicPath(path?: string) {
+  if (!path) {
+    return undefined
+  }
+
+  const match = path.match(/^\/v1\/public\/([^/]+)/)
+  return match?.[1]?.trim().toLowerCase()
+}
+
 function mapCourseListItem(course: BackendPublicCourseListItem): CourseListItem {
+  const tenantCodeFromLinks =
+    extractTenantCodeFromPublicPath(course.links?.detail) ||
+    extractTenantCodeFromPublicPath(course.links?.enrollmentForm)
+  const detailLink = toPublicAppPath(
+    course.links?.detail,
+    tenantCodeFromLinks,
+    undefined,
+  )
+  const enrollmentFormLink = toPublicAppPath(
+    course.links?.enrollmentForm,
+    tenantCodeFromLinks,
+    detailLink,
+  )
   return {
     id: course.id,
     title: course.title,
@@ -80,7 +149,13 @@ function mapCourseListItem(course: BackendPublicCourseListItem): CourseListItem 
       course.startDate && course.endDate
         ? `${course.startDate} to ${course.endDate}`
         : undefined,
-    enrollmentStatus: undefined,
+    enrollmentStatus: course.enrollmentStatus,
+    enrollmentOpenNow: course.enrollmentOpenNow,
+    locationText: course.locationText ?? undefined,
+    links: {
+      detail: detailLink,
+      enrollmentForm: enrollmentFormLink,
+    },
   }
 }
 
@@ -90,7 +165,11 @@ function mapCourse(course: BackendPublicCourse): Course {
     description: course.fullDescription,
     enrollmentOpensAt: course.enrollmentOpenAt ?? null,
     enrollmentClosesAt: course.enrollmentCloseAt ?? null,
-    enrollmentStatus: course.enrollmentOpenNow ? 'open' : undefined,
+    enrollmentStatus: course.enrollmentStatus,
+    enrollmentOpenNow: course.enrollmentOpenNow,
+    locationText: course.locationText ?? undefined,
+    capacity: course.capacity ?? null,
+    formAvailable: course.formAvailable ?? false,
     formVersion: null,
     formSchema: undefined,
   }
@@ -116,6 +195,15 @@ function mapTenantDirectoryItem(
     description: item.description?.trim() || undefined,
     isActive:
       item.isActive ?? (item.status ? item.status.toLowerCase() === 'active' : true),
+    branding: item.branding,
+    links: {
+      home: toPublicAppPath(item.links?.home, tenantCode, `/${tenantCode}`),
+      courses: toPublicAppPath(
+        item.links?.courses,
+        tenantCode,
+        `/${tenantCode}/courses`,
+      ),
+    },
   }
 }
 
@@ -139,9 +227,15 @@ function mapTenantHome(item: BackendTenantHome): TenantHome {
     isActive: item.isActive !== false,
     branding: item.branding,
     links: {
+      home:
+        toPublicAppPath(item.links?.home, tenantCode, `/${tenantCode}`) ||
+        `/${tenantCode}`,
       publishedCourses:
-        item.links?.publishedCourses ||
-        `/v1/public/${tenantCode}/courses`,
+        toPublicAppPath(
+          item.links?.publishedCourses,
+          tenantCode,
+          `/${tenantCode}/courses`,
+        ) || `/${tenantCode}/courses`,
     },
   }
 }
@@ -207,7 +301,23 @@ export function createEnrollment(
     body: payload,
   }).then((response) => ({
     ...response,
-    data: response.data.data,
+    data: {
+      ...response.data.data,
+      links: response.data.data.links
+        ? {
+            tenantHome: toPublicAppPath(
+              response.data.data.links.tenantHome,
+              response.data.data.tenantCode ?? tenantCode,
+              `/${tenantCode}`,
+            ),
+            course: toPublicAppPath(
+              response.data.data.links.course,
+              response.data.data.tenantCode ?? tenantCode,
+              `/${tenantCode}/courses/${courseId}`,
+            ),
+          }
+        : undefined,
+    },
   }))
 }
 

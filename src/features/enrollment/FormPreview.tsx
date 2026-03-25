@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import {
   ApiClientError,
   createEnrollment,
@@ -148,6 +149,11 @@ export function FormPreview({
           <p className="section-heading__eyebrow">Enrollment submitted</p>
           <h2>Your application was received</h2>
         </div>
+        {enrollmentMutation.data.courseTitle ? (
+          <p>
+            Course: <strong>{enrollmentMutation.data.courseTitle}</strong>
+          </p>
+        ) : null}
         <p>
           Submission ID: <strong>{enrollmentMutation.data.submissionId}</strong>
         </p>
@@ -155,6 +161,19 @@ export function FormPreview({
           Status: <strong>{enrollmentMutation.data.status}</strong>
         </p>
         <div className="button-row">
+          {enrollmentMutation.data.links?.course ? (
+            <Link className="button button--primary" to={enrollmentMutation.data.links.course}>
+              Back to course
+            </Link>
+          ) : null}
+          {enrollmentMutation.data.links?.tenantHome ? (
+            <Link
+              className="button button--secondary"
+              to={enrollmentMutation.data.links.tenantHome}
+            >
+              Back to tenant home
+            </Link>
+          ) : null}
           <button
             className="button button--secondary"
             onClick={() => enrollmentMutation.reset()}

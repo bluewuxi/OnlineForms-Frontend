@@ -55,13 +55,21 @@ export type CourseListItem = {
   summary?: string
   deliveryMode?: string
   durationLabel?: string
-  enrollmentStatus?: string
+  enrollmentStatus?: 'upcoming' | 'open' | 'closed'
+  enrollmentOpenNow?: boolean
+  locationText?: string | null
+  links?: {
+    detail?: string
+    enrollmentForm?: string
+  }
 }
 
 export type Course = CourseListItem & {
   description?: string
   enrollmentOpensAt?: string | null
   enrollmentClosesAt?: string | null
+  capacity?: number | null
+  formAvailable?: boolean
   formVersion?: number | null
   formSchema?: FormSchema | Record<string, unknown>
 }
@@ -196,6 +204,14 @@ export type EnrollmentPayload = {
 export type EnrollmentResponse = {
   submissionId: string
   status: string
+  submittedAt?: string
+  tenantCode?: string
+  courseId?: string
+  courseTitle?: string
+  links?: {
+    tenantHome?: string
+    course?: string
+  }
 }
 
 export type SubmissionStatus = 'submitted' | 'reviewed' | 'canceled'
@@ -274,6 +290,14 @@ export type TenantDirectoryItem = {
   displayName: string
   description?: string
   isActive?: boolean
+  branding?: {
+    logoAssetId?: string | null
+    logoUrl?: string | null
+  }
+  links?: {
+    home?: string
+    courses?: string
+  }
 }
 
 export type TenantHome = {
@@ -284,8 +308,10 @@ export type TenantHome = {
   isActive: boolean
   branding?: {
     logoAssetId?: string | null
+    logoUrl?: string | null
   }
   links: {
+    home?: string
     publishedCourses: string
   }
 }

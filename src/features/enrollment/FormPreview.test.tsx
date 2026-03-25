@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import { FormPreview } from './FormPreview'
 
@@ -22,6 +23,11 @@ describe('FormPreview', () => {
       data: {
         submissionId: 'sub_123',
         status: 'submitted',
+        courseTitle: 'Intro to AI',
+        links: {
+          course: '/acme-training/courses/course-1',
+          tenantHome: '/acme-training',
+        },
       },
     })
 
@@ -34,21 +40,23 @@ describe('FormPreview', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <FormPreview
-          courseId="course-1"
-          schema={{
-            version: 3,
-            fields: [
-              {
-                fieldId: 'first_name',
-                type: 'short_text',
-                label: 'First name',
-                required: true,
-              },
-            ],
-          }}
-          tenantCode="acme-training"
-        />
+        <MemoryRouter>
+          <FormPreview
+            courseId="course-1"
+            schema={{
+              version: 3,
+              fields: [
+                {
+                  fieldId: 'first_name',
+                  type: 'short_text',
+                  label: 'First name',
+                  required: true,
+                },
+              ],
+            }}
+            tenantCode="acme-training"
+          />
+        </MemoryRouter>
       </QueryClientProvider>,
     )
 
@@ -61,6 +69,12 @@ describe('FormPreview', () => {
       expect(
         screen.getByRole('heading', { name: /your application was received/i }),
       ).toBeInTheDocument(),
+    )
+
+    expect(screen.getByText(/intro to ai/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /back to course/i })).toHaveAttribute(
+      'href',
+      '/acme-training/courses/course-1',
     )
 
     expect(createEnrollmentMock).toHaveBeenCalledWith(
