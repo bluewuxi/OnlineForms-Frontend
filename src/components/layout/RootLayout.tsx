@@ -12,6 +12,7 @@ export function RootLayout() {
 
   return (
     <AppLayout
+      section={section}
       header={<SiteHeader section={section} />}
       notificationSlot={<div aria-live="polite" className="app-notification-slot" />}
     >

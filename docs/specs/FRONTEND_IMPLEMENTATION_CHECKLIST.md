@@ -87,7 +87,7 @@ Delivered backend-alignment refinements:
 
 ## Phase F11 - UI Improvements
 
-- [ ] F11-01 Shared visual system and layout primitives (#51)
+- [x] F11-01 Shared visual system and layout primitives (#51)
 - [ ] F11-02 Public portal IA, navigation, and visual refresh (#47)
 - [ ] F11-03 Enrollment form and success-state UX polish (#48)
 - [ ] F11-04 Organization portal navigation and course-first workspace refresh (#49)

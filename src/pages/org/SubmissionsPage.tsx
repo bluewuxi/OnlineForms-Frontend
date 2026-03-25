@@ -4,7 +4,9 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { StatusChip } from '../../components/feedback/StatusChip'
 import { PageHero } from '../../components/layout/PageHero'
+import { SectionHeader } from '../../components/layout/SectionHeader'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listSubmissions, type SubmissionStatus } from '../../lib/api'
 
@@ -19,6 +21,12 @@ const statusOptions: Array<{ value: 'all' | SubmissionStatus; label: string }> =
 function formatSubmissionDate(value: string) {
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+}
+
+function submissionTone(status: SubmissionStatus) {
+  if (status === 'submitted') return 'info'
+  if (status === 'reviewed') return 'success'
+  return 'muted'
 }
 
 export function SubmissionsPage() {
@@ -87,10 +95,11 @@ export function SubmissionsPage() {
       />
 
       <section className="content-panel">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Queue controls</p>
-          <h2>Filters and list layout</h2>
-        </div>
+        <SectionHeader
+          eyebrow="Queue controls"
+          title="Filters and list layout"
+          description="Use the shared filter surface to narrow the review queue without losing list context."
+        />
         <form
           className="org-filter-grid"
           onSubmit={(event) => {
@@ -188,10 +197,11 @@ export function SubmissionsPage() {
         submissionsQuery.data?.items.length ? (
           <>
             <section className="content-panel">
-              <div className="section-heading">
-                <p className="section-heading__eyebrow">Submission list</p>
-                <h2>Current tenant submissions</h2>
-              </div>
+              <SectionHeader
+                eyebrow="Submission list"
+                title="Current tenant submissions"
+                description="A list-detail review surface built on the shared system primitives."
+              />
               <div className="responsive-table">
                 <table className="data-table">
                   <thead>
@@ -214,11 +224,12 @@ export function SubmissionsPage() {
                         </td>
                         <td>{submission.courseTitle || submission.courseId}</td>
                         <td>
-                          <span
+                          <StatusChip
                             className={`status-pill status-pill--${submission.status}`}
+                            tone={submissionTone(submission.status)}
                           >
                             {submission.status}
-                          </span>
+                          </StatusChip>
                         </td>
                         <td>{formatSubmissionDate(submission.submittedAt)}</td>
                         <td>

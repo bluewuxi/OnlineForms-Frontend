@@ -80,7 +80,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
   }, [isAccountMenuOpen])
 
   return (
-    <header className="site-header">
+    <header className={`site-header site-header--${section}`}>
       <div className="site-header__inner">
         <NavLink className="site-header__brand" to="/">
           OnlineForms

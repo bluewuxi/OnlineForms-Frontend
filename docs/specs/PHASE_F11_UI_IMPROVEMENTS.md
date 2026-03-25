@@ -14,12 +14,16 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
 
 ## Tasks
 
-- [ ] F11-01 Shared visual system and layout primitives
+- [x] F11-01 Shared visual system and layout primitives
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/51
   Scope:
   - Add or refine shared design tokens for spacing, color, radius, typography, and status states
   - Build shared layout primitives for app shell, section header, list-detail view, drawer, status chip, and form section
   - Keep portal themes related while preserving distinct public, org, and internal personalities
+  Delivered:
+  - Added shared CSS tokens for color, spacing, radius, and surface shadows
+  - Added shared primitives for `SectionHeader`, `ListDetailLayout`, `StatusChip`, and `FormSection`
+  - Applied the new primitives to representative org/internal work surfaces to establish the shared system
 
 - [ ] F11-02 Public portal IA, navigation, and visual refresh
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/47
