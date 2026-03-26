@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
-import { AppProviders } from './app/AppProviders'
+import { AppProviders, appQueryClient } from './app/AppProviders'
 import { appRoutes } from './app/routes'
 import { ORG_SESSION_STORAGE_KEY } from './features/org-session/storage'
 
@@ -22,6 +22,7 @@ describe('App routing', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_AUTH_MODE', 'mock')
     window.localStorage.clear()
+    appQueryClient.clear()
   })
 
   afterEach(() => {
@@ -342,8 +343,8 @@ describe('App routing', () => {
         userId: 'demo-user',
         role: 'org_admin',
         authProvider: 'cognito',
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
+        accessToken: 'claims-access-token',
+        refreshToken: 'claims-refresh-token',
       }),
     )
     const originalFetch = globalThis.fetch
@@ -490,6 +491,10 @@ describe('App routing', () => {
       const user = userEvent.setup()
       renderRoute('/org/login?returnTo=%2Forg%2Flogin')
 
+      await waitFor(() => {
+        const tenantSelect = screen.getByLabelText(/^tenant$/i) as HTMLSelectElement
+        expect(tenantSelect.options.length).toBeGreaterThan(1)
+      })
       await user.selectOptions(screen.getByLabelText(/^tenant$/i), 'tenant-123')
       await user.selectOptions(screen.getByLabelText(/^role$/i), 'org_admin')
       await user.click(screen.getByRole('button', { name: /continue to management/i }))
@@ -497,6 +502,111 @@ describe('App routing', () => {
       expect(
         await screen.findByRole('heading', { name: /tenant course management/i }),
       ).toBeInTheDocument()
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('opens internal management without tenantId when internal portal access is available from claims', async () => {
+    vi.stubEnv('VITE_AUTH_MODE', 'cognito')
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        role: 'org_admin',
+        authProvider: 'cognito',
+        accessToken: 'claims-access-token',
+        refreshToken: 'claims-refresh-token',
+      }),
+    )
+
+    const fetchSpy = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/public/tenants')) {
+        return new Response(
+          JSON.stringify({
+            data: [
+              {
+                tenantId: 'tenant-123',
+                tenantCode: 'std-school',
+                displayName: 'Standard School',
+                isActive: true,
+              },
+            ],
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/public/auth-options')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              roles: [
+                { role: 'org_admin', label: 'Org Admin', requiresTenant: true },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/org/session-contexts')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              userId: 'demo-user',
+              tokenRole: 'org_admin',
+              canAccessInternalPortal: true,
+              contexts: [
+                {
+                  tenantId: 'tenant-123',
+                  status: 'active',
+                  roles: ['org_admin'],
+                },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      if (url.includes('/org/session-context')) {
+        expect(init?.body).toBe(JSON.stringify({ role: 'internal_admin', tenantId: null }))
+        return new Response(
+          JSON.stringify({
+            data: {
+              userId: 'demo-user',
+              tenantId: null,
+              role: 'internal_admin',
+              shell: {
+                portal: 'internal',
+                tenantScoped: false,
+              },
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    })
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = fetchSpy as typeof fetch
+
+    try {
+      const user = userEvent.setup()
+      renderRoute('/org/login')
+
+      await user.click(await screen.findByRole('button', { name: /internal management/i }))
+
+      await waitFor(() => {
+        expect(fetchSpy).toHaveBeenCalledWith(
+          expect.stringContaining('/org/session-context'),
+          expect.objectContaining({
+            body: JSON.stringify({ role: 'internal_admin', tenantId: null }),
+          }),
+        )
+      })
     } finally {
       globalThis.fetch = originalFetch
     }
