@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3.0] - 2026-03-26
+
+### Fixed
+- Fixed the frontend deploy lint failure by moving the shared React Query client out of `AppProviders.tsx`.
+- Kept the app routing test isolation by importing the shared query client from a dedicated module.
+
 ## [0.1.2.0] - 2026-03-26
 
 ### Fixed
