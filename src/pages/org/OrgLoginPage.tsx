@@ -104,6 +104,7 @@ export function OrgLoginPage() {
         return {
           userId: '',
           tokenRole: '',
+          canAccessInternalPortal: false,
           contexts: [],
         }
       }
@@ -231,7 +232,8 @@ export function OrgLoginPage() {
   )
   const cognitoTenantRoleOptions = selectedContext?.roles || []
   const tokenRole = sessionContextsQuery.data?.tokenRole || activeCognitoSession?.role || ''
-  const canOpenInternalManagement = hasInternalCapability(tokenRole)
+  const canOpenInternalManagement =
+    Boolean(sessionContextsQuery.data?.canAccessInternalPortal) || hasInternalCapability(tokenRole)
   const internalAccessDiagnosticMessage = getInternalAccessDiagnosticMessage({
     canOpenInternalManagement,
     hasActiveContexts: activeContexts.length > 0,
@@ -255,7 +257,7 @@ export function OrgLoginPage() {
       })
       signIn({
         ...activeCognitoSession,
-        tenantId: response.data.tenantId,
+        tenantId: response.data.tenantId ?? undefined,
         role: response.data.role,
       })
       const nextPath = resolvePostLoginPath(
@@ -282,7 +284,7 @@ export function OrgLoginPage() {
     setIsApplyingCognitoContext(true)
     try {
       const response = await validateSessionContext(activeCognitoSession, {
-        role: tokenRole,
+        role: 'internal_admin',
         tenantId: null,
       })
       signIn({
