@@ -9,6 +9,7 @@ This repository contains the customer-facing and organization-facing UI for Onli
 - Public course catalog and course detail pages
 - Public enrollment form experience
 - Organization portal views (submissions and review workflow)
+- Internal portal control-plane screens for tenant and user administration
 
 ## Backend Integration
 
@@ -78,6 +79,20 @@ The frontend integrates with the OnlineForms backend API:
 - Frontend validates selected context through backend endpoints:
   - `GET /v1/org/session-contexts`
   - `POST /v1/org/session-context`
+- If the authenticated identity has internal capability, the login shell exposes an `Internal Management` path that validates context before entering the internal portal.
+
+## Internal Portal Status
+
+The internal portal is no longer limited to tenant editing. It now includes an internal-users access-control console with:
+
+- searchable operator directory
+- selected-user workspace
+- create user with initial password and temporary-password option
+- activate / deactivate actions
+- add / remove internal-admin access
+- password reset confirmation flow
+- read-only tenant membership context
+- per-user activity timeline for login, logout, status, role, and credential events
 
 ## Foundation Stack
 

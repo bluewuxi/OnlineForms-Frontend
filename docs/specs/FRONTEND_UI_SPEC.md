@@ -345,6 +345,53 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Save success/error feedback
   - Unauthorized access state
 
+## 4.14 Internal Users Access Control Console
+
+- Route:
+  - `/internal/users`
+- APIs:
+  - `GET /internal/users`
+  - `GET /internal/users/{userId}`
+  - `POST /internal/users`
+  - `POST /internal/users/{userId}/activate`
+  - `POST /internal/users/{userId}/deactivate`
+  - `POST /internal/users/{userId}/roles/add`
+  - `POST /internal/users/{userId}/roles/remove`
+  - `POST /internal/users/{userId}/password-reset`
+  - `GET /internal/users/{userId}/activity`
+  - `POST /internal/users/activity/logout`
+- Purpose:
+  - Let internal operators manage platform-user lifecycle from a professional access-control console rather than a basic CRUD drawer.
+- Key sections:
+  - searchable user directory rail
+  - selected-user summary
+  - internal access actions
+  - credentials section with reset confirmation
+  - read-only tenant memberships
+  - activity timeline
+- Create-user flow:
+  - email
+  - preferred name
+  - initial password
+  - temporary-password option
+  - enabled-on-create toggle
+  - day-one role assignment for `internal_admin`
+- Behavior:
+  - selecting a user loads detail and activity separately
+  - status and role changes act immediately with inline feedback
+  - password reset requires confirmation before mutation
+  - narrow screens switch between directory mode and workspace mode
+  - login and logout events should appear in the activity timeline when auth flow succeeds
+- States:
+  - loading directory
+  - loading selected-user detail
+  - loading activity
+  - no internal users yet
+  - no activity yet
+  - activity source unavailable
+  - mutation success / mutation failure
+  - blocked guardrail state for self-lockout / last-operator protection
+
 ## 5. Navigation Model
 
 - Public area:
@@ -355,6 +402,7 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Redirect to `/org/login` when MVP session values are missing.
 - Internal area:
   - Dedicated nav entry from home for `Management`.
+  - Internal operational pages include `Tenants` and `Users`.
   - Reserved slugs (`org`, `internal`, `api`, `admin`, `health`, `courses`) cannot resolve as tenant pages.
 
 ## 6. API-to-UI Notes
@@ -383,6 +431,9 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
 - Error state panel
 - Form field renderer
 - Submission detail section
+- Internal user directory item
+- Internal activity timeline row
+- Internal password-reset confirmation modal
 
 ## 8. Acceptance Focus
 
@@ -393,4 +444,5 @@ Implementation should be considered aligned with this UI spec when:
 3. Public and org experiences share consistent UI patterns.
 4. The UI stays usable on mobile-width screens.
 5. The app remains directly aligned to the current backend API surface.
+6. Internal portal user management behaves like an access-control workspace, not a single-form admin page.
 

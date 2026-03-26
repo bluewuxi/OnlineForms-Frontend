@@ -274,16 +274,32 @@ export function OrgLoginPage() {
     }
   }
 
-  function openInternalManagement() {
+  async function openInternalManagement() {
     if (!activeCognitoSession || !canOpenInternalManagement) {
       return
     }
-    signIn({
-      ...activeCognitoSession,
-      role: tokenRole,
-      tenantId: undefined,
-    })
-    navigate('/internal/tenants', { replace: true })
+    setCognitoContextError(null)
+    setIsApplyingCognitoContext(true)
+    try {
+      const response = await validateSessionContext(activeCognitoSession, {
+        role: tokenRole,
+        tenantId: null,
+      })
+      signIn({
+        ...activeCognitoSession,
+        role: response.data.role,
+        tenantId: undefined,
+      })
+      navigate('/internal/tenants', { replace: true })
+    } catch (error) {
+      setCognitoContextError(
+        error instanceof Error
+          ? toLoginDiagnosticMessage('context_validation', error.message)
+          : toLoginDiagnosticMessage('context_validation', undefined),
+      )
+    } finally {
+      setIsApplyingCognitoContext(false)
+    }
   }
 
   function restartCognitoSignIn() {
@@ -425,7 +441,9 @@ export function OrgLoginPage() {
                     <button
                       className="button button--ghost"
                       type="button"
-                      onClick={openInternalManagement}
+                      onClick={() => {
+                        void openInternalManagement()
+                      }}
                       disabled={isApplyingCognitoContext}
                     >
                       Internal Management
