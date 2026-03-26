@@ -179,7 +179,6 @@ export function InternalUsersPage() {
       return response.data
     },
     enabled: Boolean(session) && workspaceMode === 'detail' && Boolean(effectiveSelectedUserId),
-    placeholderData: (previous) => previous,
   })
 
   const activityQuery = useQuery({
@@ -192,11 +191,11 @@ export function InternalUsersPage() {
       return response.data
     },
     enabled: Boolean(session) && workspaceMode === 'detail' && Boolean(effectiveSelectedUserId),
-    placeholderData: (previous) => previous,
   })
 
   const selectedUser = detailQuery.data || selectedListUser
   const selectedPreferredName = selectedUser ? resolvePreferredName(selectedUser) : null
+  const selectedWorkspaceUserId = selectedUser?.userId || ''
 
   function setSuccess(message: string) {
     setNotice({ tone: 'success', message })
@@ -242,15 +241,15 @@ export function InternalUsersPage() {
   })
 
   const activationMutation = useMutation({
-    mutationFn: async (mode: 'activate' | 'deactivate') => {
-      if (!session || !effectiveSelectedUserId) {
+    mutationFn: async (payload: { userId: string; mode: 'activate' | 'deactivate' }) => {
+      if (!session || !payload.userId) {
         throw new Error('Missing user context.')
       }
-      if (mode === 'activate') {
-        const response = await activateInternalAccessUser(session, effectiveSelectedUserId)
+      if (payload.mode === 'activate') {
+        const response = await activateInternalAccessUser(session, payload.userId)
         return response.data
       }
-      const response = await deactivateInternalAccessUser(session, effectiveSelectedUserId)
+      const response = await deactivateInternalAccessUser(session, payload.userId)
       return response.data
     },
     onSuccess: (updated) => {
@@ -261,17 +260,17 @@ export function InternalUsersPage() {
   })
 
   const roleMutation = useMutation({
-    mutationFn: async (mode: 'add' | 'remove') => {
-      if (!session || !effectiveSelectedUserId) {
+    mutationFn: async (payload: { userId: string; mode: 'add' | 'remove' }) => {
+      if (!session || !payload.userId) {
         throw new Error('Missing user context.')
       }
-      if (mode === 'add') {
-        const response = await addInternalAccessUserRole(session, effectiveSelectedUserId, {
+      if (payload.mode === 'add') {
+        const response = await addInternalAccessUserRole(session, payload.userId, {
           role: 'internal_admin',
         })
         return response.data
       }
-      const response = await removeInternalAccessUserRole(session, effectiveSelectedUserId, {
+      const response = await removeInternalAccessUserRole(session, payload.userId, {
         role: 'internal_admin',
       })
       return response.data
@@ -288,11 +287,11 @@ export function InternalUsersPage() {
   })
 
   const passwordResetMutation = useMutation({
-    mutationFn: async () => {
-      if (!session || !effectiveSelectedUserId) {
+    mutationFn: async (userId: string) => {
+      if (!session || !userId) {
         throw new Error('Missing user context.')
       }
-      const response = await resetInternalAccessUserPassword(session, effectiveSelectedUserId, {
+      const response = await resetInternalAccessUserPassword(session, userId, {
         password: resetPasswordDraft,
       })
       return response.data
@@ -575,7 +574,11 @@ export function InternalUsersPage() {
                       <div className="internal-users-action-row">
                         <button
                           className="button button--primary"
-                          onClick={() => activationMutation.mutate(selectedUser.enabled ? 'deactivate' : 'activate')}
+                          onClick={() =>
+                            activationMutation.mutate({
+                              userId: selectedWorkspaceUserId,
+                              mode: selectedUser.enabled ? 'deactivate' : 'activate',
+                            })}
                           type="button"
                         >
                           {activationMutation.isPending
@@ -586,9 +589,11 @@ export function InternalUsersPage() {
                         </button>
                         <button
                           className="button button--secondary"
-                          onClick={() => roleMutation.mutate(
-                            selectedUser.internalRoles.includes('internal_admin') ? 'remove' : 'add',
-                          )}
+                          onClick={() =>
+                            roleMutation.mutate({
+                              userId: selectedWorkspaceUserId,
+                              mode: selectedUser.internalRoles.includes('internal_admin') ? 'remove' : 'add',
+                            })}
                           type="button"
                         >
                           {roleMutation.isPending
@@ -716,7 +721,7 @@ export function InternalUsersPage() {
             <div className="session-form__actions">
               <button
                 className="button button--primary"
-                onClick={() => passwordResetMutation.mutate()}
+                onClick={() => passwordResetMutation.mutate(selectedWorkspaceUserId)}
                 type="button"
               >
                 {passwordResetMutation.isPending ? 'Resetting...' : 'Confirm reset'}
