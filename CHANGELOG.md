@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2.0] - 2026-03-26
+
+### Fixed
+- Fixed Cognito post-login internal management entry so internal access validates with `internal_admin` and no tenant context.
+- Fixed frontend session-context mapping to preserve `canAccessInternalPortal` and nullable internal tenant bootstrap behavior.
+- Added regression coverage for claim-based internal management access and cleared shared query cache between app routing tests.
+
 ## [0.1.1.0] - 2026-03-26
 
 ### Added
