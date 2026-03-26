@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
 import { OrgSessionProvider } from '../features/org-session/OrgSessionContext'
 
-const queryClient = new QueryClient({
+export const appQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
 
 export function AppProviders({ children }: PropsWithChildren) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={appQueryClient}>
       <OrgSessionProvider>{children}</OrgSessionProvider>
     </QueryClientProvider>
   )

@@ -167,12 +167,13 @@ type BackendUserSessionContext = {
 type BackendSessionContextsResponse = {
   userId: string
   tokenRole: string
+  canAccessInternalPortal?: boolean
   contexts: BackendUserSessionContext[]
 }
 
 type BackendSessionContextValidationResponse = {
   userId: string
-  tenantId: string
+  tenantId: string | null
   role: string
 }
 
@@ -776,6 +777,7 @@ export function listSessionContexts(session: OrgSessionHeaders) {
     data: {
       userId: response.data.data.userId,
       tokenRole: response.data.data.tokenRole,
+      canAccessInternalPortal: Boolean(response.data.data.canAccessInternalPortal),
       contexts: (response.data.data.contexts || []).map(mapUserSessionContext),
     },
   }))
