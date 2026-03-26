@@ -27,6 +27,12 @@ import type {
   InternalAccessUser,
   InternalAccessUserDetail,
   InternalUserMembership,
+  InternalRole,
+  InternalUserActivityPage,
+  InternalUserCreatePayload,
+  InternalUserPasswordResetPayload,
+  InternalUserPasswordResetResult,
+  InternalUserRoleMutationPayload,
   UserSessionContext,
   UploadTicketRequest,
   UploadTicketResponse,
@@ -123,6 +129,7 @@ type BackendInternalAccessUser = {
   preferredName?: string | null
   enabled: boolean
   status: string
+  internalRoles?: InternalRole[]
 }
 
 type BackendInternalUserMembership = {
@@ -133,6 +140,22 @@ type BackendInternalUserMembership = {
 
 type BackendInternalAccessUserDetail = BackendInternalAccessUser & {
   memberships?: BackendInternalUserMembership[]
+}
+
+type BackendInternalUserActivityEvent = {
+  id: string
+  userId: string
+  actorUserId?: string | null
+  eventType: InternalUserActivityPage['items'][number]['eventType']
+  summary: string
+  details?: Record<string, unknown>
+  createdAt: string
+}
+
+type BackendInternalUserActivityPage = {
+  data: BackendInternalUserActivityEvent[]
+  page: BackendPage
+  sourceStatus: 'ok' | 'unavailable'
 }
 
 type BackendUserSessionContext = {
@@ -268,6 +291,7 @@ function mapInternalAccessUser(
     preferredName: user.preferredName,
     enabled: user.enabled,
     status: user.status,
+    internalRoles: user.internalRoles || [],
   }
 }
 
@@ -287,6 +311,20 @@ function mapInternalAccessUserDetail(
   return {
     ...mapInternalAccessUser(user),
     memberships: (user.memberships || []).map(mapInternalUserMembership),
+  }
+}
+
+function mapInternalUserActivityEvent(
+  event: BackendInternalUserActivityEvent,
+) {
+  return {
+    id: event.id,
+    userId: event.userId,
+    actorUserId: event.actorUserId,
+    eventType: event.eventType,
+    summary: event.summary,
+    details: event.details || {},
+    createdAt: event.createdAt,
   }
 }
 
@@ -609,7 +647,7 @@ export function getInternalAccessUser(
 
 export function createInternalAccessUser(
   session: OrgSessionHeaders,
-  payload: { email: string },
+  payload: InternalUserCreatePayload,
 ) {
   return apiRequest<BackendItemEnvelope<BackendInternalAccessUser>>({
     path: '/internal/users',
@@ -622,13 +660,106 @@ export function createInternalAccessUser(
   }))
 }
 
-export function removeInternalAccessUser(
+export function activateInternalAccessUser(
   session: OrgSessionHeaders,
   userId: string,
 ) {
-  return apiRequest<BackendItemEnvelope<{ userId: string; removed: true }>>({
-    path: `/internal/users/${userId}`,
-    method: 'DELETE',
+  return apiRequest<BackendItemEnvelope<BackendInternalAccessUser>>({
+    path: `/internal/users/${userId}/activate`,
+    method: 'POST',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalAccessUser(response.data.data),
+  }))
+}
+
+export function deactivateInternalAccessUser(
+  session: OrgSessionHeaders,
+  userId: string,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalAccessUser>>({
+    path: `/internal/users/${userId}/deactivate`,
+    method: 'POST',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalAccessUser(response.data.data),
+  }))
+}
+
+export function addInternalAccessUserRole(
+  session: OrgSessionHeaders,
+  userId: string,
+  payload: InternalUserRoleMutationPayload,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalAccessUser>>({
+    path: `/internal/users/${userId}/roles/add`,
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalAccessUser(response.data.data),
+  }))
+}
+
+export function removeInternalAccessUserRole(
+  session: OrgSessionHeaders,
+  userId: string,
+  payload: InternalUserRoleMutationPayload,
+) {
+  return apiRequest<BackendItemEnvelope<BackendInternalAccessUser>>({
+    path: `/internal/users/${userId}/roles/remove`,
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: mapInternalAccessUser(response.data.data),
+  }))
+}
+
+export function resetInternalAccessUserPassword(
+  session: OrgSessionHeaders,
+  userId: string,
+  payload: InternalUserPasswordResetPayload,
+) {
+  return apiRequest<BackendItemEnvelope<InternalUserPasswordResetResult>>({
+    path: `/internal/users/${userId}/password-reset`,
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function listInternalAccessUserActivity(
+  session: OrgSessionHeaders,
+  userId: string,
+  limit = 20,
+  cursor?: string,
+) {
+  return apiRequest<BackendInternalUserActivityPage>({
+    path: `/internal/users/${userId}/activity`,
+    session,
+    query: { limit, cursor },
+  }).then((response) => ({
+    ...response,
+    data: {
+      items: response.data.data.map(mapInternalUserActivityEvent),
+      nextCursor: response.data.page.nextCursor,
+      sourceStatus: response.data.sourceStatus,
+    } satisfies InternalUserActivityPage,
+  }))
+}
+
+export function logInternalAccessUserLogout(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<{ loggedOut: true }>>({
+    path: '/internal/users/activity/logout',
+    method: 'POST',
     session,
   }).then((response) => ({
     ...response,
@@ -652,7 +783,7 @@ export function listSessionContexts(session: OrgSessionHeaders) {
 
 export function validateSessionContext(
   session: OrgSessionHeaders,
-  payload: { tenantId: string; role: string },
+  payload: { tenantId?: string | null; role: string },
 ) {
   return apiRequest<BackendItemEnvelope<BackendSessionContextValidationResponse>>({
     path: '/org/session-context',

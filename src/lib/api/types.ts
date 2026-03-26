@@ -360,6 +360,7 @@ export type InternalAccessUser = {
   preferredName?: string | null
   enabled: boolean
   status: string
+  internalRoles: InternalRole[]
 }
 
 export type InternalUserMembership = {
@@ -368,6 +369,53 @@ export type InternalUserMembership = {
   roles: string[]
 }
 
+export type InternalRole = 'internal_admin' | 'platform_admin'
+
 export type InternalAccessUserDetail = InternalAccessUser & {
   memberships: InternalUserMembership[]
+}
+
+export type InternalUserCreatePayload = {
+  email: string
+  preferredName?: string | null
+  password: string
+  temporaryPassword?: boolean
+  internalRoles: InternalRole[]
+  enabled?: boolean
+}
+
+export type InternalUserRoleMutationPayload = {
+  role: InternalRole
+}
+
+export type InternalUserPasswordResetPayload = {
+  password: string
+}
+
+export type InternalUserPasswordResetResult = {
+  userId: string
+  passwordReset: true
+  temporaryPassword: true
+}
+
+export type InternalUserActivityEvent = {
+  id: string
+  userId: string
+  actorUserId?: string | null
+  eventType:
+    | 'internal_user.created'
+    | 'internal_user.role_added'
+    | 'internal_user.role_removed'
+    | 'internal_user.activated'
+    | 'internal_user.deactivated'
+    | 'internal_user.password_reset'
+    | 'internal_user.login'
+    | 'internal_user.logout'
+  summary: string
+  details: Record<string, unknown>
+  createdAt: string
+}
+
+export type InternalUserActivityPage = CursorPage<InternalUserActivityEvent> & {
+  sourceStatus: 'ok' | 'unavailable'
 }
