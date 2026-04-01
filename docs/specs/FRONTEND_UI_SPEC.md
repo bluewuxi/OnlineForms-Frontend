@@ -72,6 +72,10 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Tenant description
   - Optional tenant home-page content
   - CTA to `/:tenantCode/courses`
+- Content rules:
+  - `description` may contain stored HTML from tenant maintenance workflows
+  - render tenant-authored HTML safely and intentionally rather than as escaped plain text
+  - preserve readable typography, spacing, and link treatment for rendered rich text
 - States:
   - Loading content skeleton
   - Tenant not found/inactive state
@@ -340,6 +344,8 @@ Define the initial UI and interaction behavior for the OnlineForms MVP frontend 
   - Restrict page access to `internal_admin` (or higher privileged internal roles)
   - Validate and block reserved tenant-code values in edit flow
   - Provide clear validation messages from backend
+  - `description` should use an HTML-capable editor suitable for simple rich-text maintenance
+  - editor output must stay compatible with safe rendering on the tenant public page
 - States:
   - Loading list/form states
   - Save success/error feedback
@@ -445,4 +451,3 @@ Implementation should be considered aligned with this UI spec when:
 4. The UI stays usable on mobile-width screens.
 5. The app remains directly aligned to the current backend API surface.
 6. Internal portal user management behaves like an access-control workspace, not a single-form admin page.
-

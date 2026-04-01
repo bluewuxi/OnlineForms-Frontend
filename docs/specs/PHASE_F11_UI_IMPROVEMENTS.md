@@ -31,12 +31,13 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Rework `/` so the primary message is about browsing training providers and courses rather than demo routes
   - Improve tenant-card hierarchy and CTA clarity on the home page
   - Improve `/:tenantCode` so branding, description, and homepage content feel like a real tenant landing page
+  - Treat tenant description as rich HTML content and render it safely with deliberate typography and spacing
   - Tighten `/:tenantCode/courses` hierarchy, filter placement, and course-card CTA/status balance
   - Tighten `/:tenantCode/courses/:courseId` top-of-page hierarchy for summary, key facts, and enrollment entry
   - Keep public navigation shallow and enrollment-oriented without backend contract changes
   Acceptance focus:
   - Home page no longer leads with internal/demo framing
-  - Tenant home feels like a real landing page
+  - Tenant home feels like a real landing page, including safe rich-text rendering for tenant-authored description content
   - Catalog and course detail hierarchy is clearer without changing route structure or API behavior
 
 - [ ] F11-03 Enrollment form and success-state UX polish
