@@ -74,7 +74,7 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Improve drawer presentation, scanning, and filter ergonomics
   - Sharpen status visibility and row-to-detail transitions
 
-- [ ] F11-06 Responsive, accessibility, and UI polish pass
+- [x] F11-06 Responsive, accessibility, and UI polish pass
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/46
   Scope:
   - Treat this as the final cross-portal QA/polish pass after F11-02, F11-03, and F11-04

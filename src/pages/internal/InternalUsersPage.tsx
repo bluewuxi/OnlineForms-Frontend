@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
@@ -123,6 +123,8 @@ export function InternalUsersPage() {
   const [confirmResetOpen, setConfirmResetOpen] = useState(false)
   const [notice, setNotice] = useState<Notice | null>(null)
   const deferredSearch = useDeferredValue(searchInput)
+  const resetConfirmButtonRef = useRef<HTMLButtonElement | null>(null)
+  const resetTriggerButtonRef = useRef<HTMLButtonElement | null>(null)
 
   const usersQuery = useQuery({
     queryKey: ['internal-users'],
@@ -308,6 +310,31 @@ export function InternalUsersPage() {
     onError: (error) => setFailure(error, 'Failed to reset password.'),
   })
 
+  useEffect(() => {
+    if (!confirmResetOpen) {
+      return
+    }
+
+    resetConfirmButtonRef.current?.focus()
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setConfirmResetOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [confirmResetOpen])
+
+  useEffect(() => {
+    if (confirmResetOpen) {
+      return
+    }
+    resetTriggerButtonRef.current?.focus()
+  }, [confirmResetOpen])
+
   return (
     <div className="page-stack">
       <PageHero
@@ -317,7 +344,11 @@ export function InternalUsersPage() {
       />
 
       {notice ? (
-        <div className={`internal-users-notice internal-users-notice--${notice.tone}`}>
+        <div
+          className={`internal-users-notice internal-users-notice--${notice.tone}`}
+          role="status"
+          aria-live="polite"
+        >
           {notice.message}
         </div>
       ) : null}
@@ -333,6 +364,7 @@ export function InternalUsersPage() {
         <ErrorState
           title="Could not load internal users"
           message="Check API availability and internal access configuration."
+          onRetry={() => void usersQuery.refetch()}
         />
       ) : null}
 
@@ -644,6 +676,7 @@ export function InternalUsersPage() {
                         </label>
                         <button
                           className="button button--secondary"
+                          ref={resetTriggerButtonRef}
                           onClick={() => {
                             setConfirmResetOpen(true)
                             setNotice(null)
@@ -670,6 +703,7 @@ export function InternalUsersPage() {
                         <ErrorState
                           title="Activity source unavailable"
                           message="User management is still available, but recent activity could not be loaded right now."
+                          onRetry={() => void activityQuery.refetch()}
                         />
                       ) : activityQuery.data?.items.length ? (
                         <ol className="internal-users-activity-list">
@@ -734,15 +768,16 @@ export function InternalUsersPage() {
 
       {confirmResetOpen && selectedUser ? (
         <div className="internal-users-modal" role="dialog" aria-modal="true" aria-labelledby="reset-password-title">
-          <div className="internal-users-modal__surface">
+          <div className="internal-users-modal__surface" aria-describedby="reset-password-description">
             <p className="section-heading__eyebrow">Confirm action</p>
             <h2 id="reset-password-title">Reset password for {resolvePrimaryIdentity(selectedUser)}</h2>
-            <p>
+            <p id="reset-password-description">
               This will replace the current password with a temporary password and require the user to change it on next login.
             </p>
             <div className="session-form__actions">
               <button
                 className="button button--primary"
+                ref={resetConfirmButtonRef}
                 onClick={() => passwordResetMutation.mutate(selectedWorkspaceUserId)}
                 type="button"
               >

@@ -49,6 +49,8 @@ export function SiteHeader({ section }: SiteHeaderProps) {
   const navigate = useNavigate()
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
+  const accountTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const logoutButtonRef = useRef<HTMLButtonElement | null>(null)
   const showSession = section === 'org' || section === 'internal'
   const sessionUsername = session?.username?.trim()
   const sessionPreferredName = session?.preferredName?.trim()
@@ -78,6 +80,20 @@ export function SiteHeader({ section }: SiteHeaderProps) {
     document.addEventListener('mousedown', onDocumentClick)
     return () => document.removeEventListener('mousedown', onDocumentClick)
   }, [isAccountMenuOpen])
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) {
+      return
+    }
+    logoutButtonRef.current?.focus()
+  }, [isAccountMenuOpen])
+
+  function closeAccountMenu() {
+    setIsAccountMenuOpen(false)
+    window.setTimeout(() => {
+      accountTriggerRef.current?.focus()
+    }, 0)
+  }
 
   return (
     <header className={`site-header site-header--${section}`}>
@@ -112,7 +128,14 @@ export function SiteHeader({ section }: SiteHeaderProps) {
               type="button"
               aria-haspopup="menu"
               aria-expanded={isAccountMenuOpen}
+              ref={accountTriggerRef}
               onClick={() => setIsAccountMenuOpen((open) => !open)}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown' && !isAccountMenuOpen) {
+                  event.preventDefault()
+                  setIsAccountMenuOpen(true)
+                }
+              }}
             >
               <strong>{sessionLoginName}</strong>
               <span className="site-header__account-subtext">
@@ -120,7 +143,16 @@ export function SiteHeader({ section }: SiteHeaderProps) {
               </span>
             </button>
             {isAccountMenuOpen ? (
-              <div className="site-header__account-menu" role="menu">
+              <div
+                className="site-header__account-menu"
+                role="menu"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    event.preventDefault()
+                    closeAccountMenu()
+                  }
+                }}
+              >
                 <button className="site-header__account-item" type="button" role="menuitem" disabled>
                   Profile (Coming soon)
                 </button>
@@ -131,6 +163,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
                   className="site-header__account-item"
                   type="button"
                   role="menuitem"
+                  ref={logoutButtonRef}
                   onClick={() => {
                     setIsAccountMenuOpen(false)
                     if (session.authProvider === 'cognito') {

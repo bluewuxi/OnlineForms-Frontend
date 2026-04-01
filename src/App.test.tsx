@@ -269,6 +269,12 @@ describe('App routing', () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: /demo-user/i }))
     expect(screen.getByRole('menuitem', { name: /logout/i })).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: /logout/i })).not.toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: /demo-user/i })).toHaveFocus()
+    await user.click(screen.getByRole('button', { name: /demo-user/i }))
     await user.click(screen.getByRole('menuitem', { name: /logout/i }))
     expect(
       await screen.findByRole('heading', { name: /choose a training provider/i }),

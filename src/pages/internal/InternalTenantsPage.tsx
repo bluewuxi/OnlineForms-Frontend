@@ -195,6 +195,7 @@ export function InternalTenantsPage() {
         <ErrorState
           title="We could not load tenants"
           message="Check credentials and API availability."
+          onRetry={() => void tenantsQuery.refetch()}
         />
       ) : null}
 
@@ -446,6 +447,7 @@ export function InternalTenantsPage() {
                       <ErrorState
                         title="Could not load tenant details"
                         message="Select a tenant again or retry shortly."
+                        onRetry={() => void detailQuery.refetch()}
                       />
                     ) : null}
                     {editFormState ? (
