@@ -9,6 +9,7 @@ import { BrandingPage } from '../pages/org/BrandingPage'
 import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
+import { OrgSettingsPage } from '../pages/org/OrgSettingsPage'
 import { InternalHomePage } from '../pages/internal/InternalHomePage'
 import { InternalLogoutPage } from '../pages/internal/InternalLogoutPage'
 import { InternalTenantsPage } from '../pages/internal/InternalTenantsPage'
@@ -113,6 +114,10 @@ export const appRoutes: RouteObject[] = [
           {
             path: 'submissions',
             element: <SubmissionsPage />,
+          },
+          {
+            path: 'settings',
+            element: <OrgSettingsPage />,
           },
           {
             path: 'submissions/:submissionId',

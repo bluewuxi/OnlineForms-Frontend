@@ -3,6 +3,7 @@ import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
@@ -521,23 +522,43 @@ export function CourseEditorPage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge={isCreateMode ? 'New course' : 'Course editor'}
+        badge={isCreateMode ? 'Course setup' : 'Course details'}
         title={
           isCreateMode
             ? 'Create tenant course'
             : courseQuery.data?.title || 'Edit tenant course'
         }
-        description="Create or update tenant course metadata, enrollment dates, delivery details, and publish readiness."
-        aside={
-          <div className="hero-card">
-            <p className="hero-card__label">Editor mode</p>
-            <ul className="hero-card__list">
-              <li>Mode: {isCreateMode ? 'Create' : 'Edit'}</li>
-              <li>Course ID: {courseId || 'Generated on save'}</li>
-            </ul>
-          </div>
-        }
+        description="Maintain the core course record here, then move directly into the linked form-design and publish workflow."
       />
+
+      {session ? (
+        <OrgWorkspaceNav
+          eyebrow="Course workflow"
+          title="Keep authoring in one connected flow"
+          items={[
+            {
+              label: 'Course details',
+              description: isCreateMode
+                ? 'Finish the draft setup before moving on.'
+                : 'Update course metadata, dates, and delivery settings.',
+              to: isCreateMode ? '/org/courses/new' : `/org/courses/${courseId}`,
+              state: 'current',
+            },
+            {
+              label: 'Form designer',
+              description: isCreateMode
+                ? 'Available after the first course save.'
+                : 'Design or revise the enrolment form linked to this course.',
+              to: !isCreateMode && courseId ? `/org/courses/${courseId}/form` : undefined,
+            },
+            {
+              label: 'Back to course list',
+              description: 'Return to the course workspace and open another intake.',
+              to: '/org/courses',
+            },
+          ]}
+        />
+      ) : null}
 
       {!isCreateMode && courseQuery.isLoading ? (
         <LoadingState

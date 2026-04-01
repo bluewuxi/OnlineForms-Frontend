@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listCourses } from '../../lib/api'
@@ -13,6 +14,22 @@ function formatDateRange(startDate: string, endDate: string) {
 
 function formatCourseStatus(status: string) {
   return status.replace(/_/g, ' ')
+}
+
+function describeNextStep(activeFormVersion: number | null | undefined, status: string) {
+  if (status === 'draft' && !activeFormVersion) {
+    return 'Design the first enrolment form'
+  }
+
+  if (status === 'draft') {
+    return 'Review details, then publish'
+  }
+
+  if (status === 'published') {
+    return 'Monitor submissions and archive when finished'
+  }
+
+  return 'Reopen detail to review archived setup'
 }
 
 export function CoursesPage() {
@@ -33,31 +50,33 @@ export function CoursesPage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge="Org courses"
-        title="Tenant course management"
-        description="Browse the tenant course catalog, check publication readiness, and move into edit or form-design workflows."
-        aside={
-          <div className="hero-card">
-            <p className="hero-card__label">Course workspace</p>
-            <ul className="hero-card__list">
-              <li>Tenant: {session?.tenantId || 'No active session'}</li>
-              <li>Scope: Course list and publishing workflows</li>
-            </ul>
-          </div>
-        }
+        badge="Org workspace"
+        title="Courses are the center of tenant operations"
+        description="Create and refine course records first, then move directly into form design, publish readiness, and submission review."
       />
 
-      <section className="content-panel">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Course actions</p>
-          <h2>Start a new course or open an existing one</h2>
-        </div>
-        <div className="button-row">
-          <Link className="button button--primary" to="/org/courses/new">
-            Create course
-          </Link>
-        </div>
-      </section>
+      <OrgWorkspaceNav
+        eyebrow="Course workflow"
+        title="Move from course record to published intake"
+        items={[
+          {
+            label: 'Course list',
+            description: 'Review current drafts, published intakes, and archived courses.',
+            to: '/org/courses',
+            state: 'current',
+          },
+          {
+            label: 'Create course',
+            description: 'Start a new course record before moving into form design.',
+            to: '/org/courses/new',
+          },
+          {
+            label: 'Settings',
+            description: 'Open tenant branding and audit tools without leaving the org portal.',
+            to: '/org/settings',
+          },
+        ]}
+      />
 
       {coursesQuery.isLoading ? (
         <LoadingState
@@ -85,10 +104,11 @@ export function CoursesPage() {
                 <thead>
                   <tr>
                     <th scope="col">Course</th>
+                    <th scope="col">Form</th>
                     <th scope="col">Delivery</th>
                     <th scope="col">Schedule</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Visibility</th>
+                    <th scope="col">Next step</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
@@ -101,6 +121,19 @@ export function CoursesPage() {
                           {course.shortDescription}
                         </div>
                       </td>
+                      <td>
+                        {course.activeFormVersion ? (
+                          <>
+                            <strong>Version {course.activeFormVersion}</strong>
+                            <div className="table-subtext">Ready for authoring updates</div>
+                          </>
+                        ) : (
+                          <>
+                            <strong>No active form</strong>
+                            <div className="table-subtext">Start in form designer</div>
+                          </>
+                        )}
+                      </td>
                       <td>{course.deliveryMode}</td>
                       <td>{formatDateRange(course.startDate, course.endDate)}</td>
                       <td>
@@ -110,14 +143,14 @@ export function CoursesPage() {
                           {formatCourseStatus(course.status)}
                         </span>
                       </td>
-                      <td>{course.publicVisible ? 'Public' : 'Internal only'}</td>
+                      <td>{describeNextStep(course.activeFormVersion, course.status)}</td>
                       <td>
                         <div className="button-row">
                           <Link
                             className="button button--secondary"
                             to={`/org/courses/${course.id}`}
                           >
-                            Edit
+                            Open details
                           </Link>
                           <Link
                             className="button button--ghost"

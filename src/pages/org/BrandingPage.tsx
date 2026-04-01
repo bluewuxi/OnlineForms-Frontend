@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
@@ -84,9 +85,32 @@ export function BrandingPage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge="Branding utility"
-        title="Asset upload and branding"
-        description="Upload a logo asset, inspect the resulting metadata, and apply it to the tenant branding profile."
+        badge="Org settings"
+        title="Branding and public identity"
+        description="Update the tenant logo from the settings workspace without pulling course authoring out of focus."
+      />
+
+      <OrgWorkspaceNav
+        eyebrow="Settings workspace"
+        title="Settings tools stay grouped together"
+        items={[
+          {
+            label: 'Branding',
+            description: 'Upload and apply the public logo asset for this tenant.',
+            to: '/org/branding',
+            state: 'current',
+          },
+          {
+            label: 'Audit',
+            description: 'Inspect recent tenant actions and trace identifiers.',
+            to: '/org/audit',
+          },
+          {
+            label: 'Back to courses',
+            description: 'Return to the course workspace when settings work is done.',
+            to: '/org/courses',
+          },
+        ]}
       />
 
       <section className="content-panel">

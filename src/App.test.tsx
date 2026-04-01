@@ -145,8 +145,28 @@ describe('App routing', () => {
     renderRoute('/org/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /tenant course management/i }),
+      await screen.findByRole('heading', { name: /courses are the center of tenant operations/i }),
     ).toBeInTheDocument()
+  })
+
+  it('renders the org settings route when a session exists', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'org_admin',
+      }),
+    )
+
+    renderRoute('/org/settings')
+
+    expect(
+      await screen.findByRole('heading', { name: /tenant settings and operational references/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^settings$/i })).toHaveClass(
+      'site-header__link--active',
+    )
   })
 
   it('renders the form designer route when a session exists', async () => {
@@ -505,7 +525,7 @@ describe('App routing', () => {
       await user.click(screen.getByRole('button', { name: /continue to management/i }))
 
       expect(
-        await screen.findByRole('heading', { name: /tenant course management/i }),
+        await screen.findByRole('heading', { name: /courses are the center of tenant operations/i }),
       ).toBeInTheDocument()
     } finally {
       globalThis.fetch = originalFetch

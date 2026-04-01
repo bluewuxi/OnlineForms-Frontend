@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { startCognitoLogout } from '../../features/org-session/cognito'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 
@@ -15,8 +15,7 @@ const publicLinks = [
 const orgLinks = [
   { to: '/org/courses', label: 'Courses' },
   { to: '/org/submissions', label: 'Submissions' },
-  { to: '/org/audit', label: 'Audit' },
-  { to: '/org/branding', label: 'Branding' },
+  { to: '/org/settings', label: 'Settings' },
 ]
 
 const loginLinks = [
@@ -46,6 +45,7 @@ export function SiteHeader({ section }: SiteHeaderProps) {
           ? internalLinks
           : publicLinks
   const { session, signOut } = useOrgSession()
+  const location = useLocation()
   const navigate = useNavigate()
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
@@ -91,7 +91,12 @@ export function SiteHeader({ section }: SiteHeaderProps) {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                isActive
+                isActive ||
+                (section === 'org' &&
+                  link.to === '/org/settings' &&
+                  (location.pathname.startsWith('/org/settings') ||
+                    location.pathname.startsWith('/org/branding') ||
+                    location.pathname.startsWith('/org/audit')))
                   ? 'site-header__link site-header__link--active'
                   : 'site-header__link'
               }
