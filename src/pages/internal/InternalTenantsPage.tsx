@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { StatusChip } from '../../components/feedback/StatusChip'
 import { FormSection } from '../../components/forms/FormSection'
+import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { ListDetailLayout } from '../../components/layout/ListDetailLayout'
 import { PageHero } from '../../components/layout/PageHero'
 import { SectionHeader } from '../../components/layout/SectionHeader'
@@ -50,9 +51,13 @@ export function InternalTenantsPage() {
   const queryClient = useQueryClient()
   const [selectedTenantId, setSelectedTenantId] = useState<string>('')
   const [panelMode, setPanelMode] = useState<'edit' | 'create'>('edit')
+  const [mobileMode, setMobileMode] = useState<'directory' | 'workspace'>('directory')
+  const [searchInput, setSearchInput] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [draftsByTenantId, setDraftsByTenantId] = useState<Record<string, TenantFormState>>({})
   const [createDraft, setCreateDraft] = useState<TenantCreateFormState>(emptyCreateState)
   const [saveMessage, setSaveMessage] = useState<string>('')
+  const deferredSearch = useDeferredValue(searchInput)
 
   const tenantsQuery = useQuery({
     queryKey: ['internal-tenants'],
@@ -66,8 +71,26 @@ export function InternalTenantsPage() {
     enabled: Boolean(session),
   })
 
+  const filteredTenants = useMemo(() => {
+    const query = deferredSearch.trim().toLowerCase()
+    return (tenantsQuery.data || []).filter((tenant) => {
+      const matchesSearch =
+        !query ||
+        tenant.displayName.toLowerCase().includes(query) ||
+        tenant.tenantCode.toLowerCase().includes(query) ||
+        tenant.tenantId.toLowerCase().includes(query)
+      const matchesStatus =
+        statusFilter === 'all'
+          ? true
+          : statusFilter === 'active'
+            ? tenant.isActive
+            : !tenant.isActive
+      return matchesSearch && matchesStatus
+    })
+  }, [deferredSearch, statusFilter, tenantsQuery.data])
+
   const effectiveSelectedTenantId = useMemo(() => {
-    const tenants = tenantsQuery.data || []
+    const tenants = filteredTenants
     if (tenants.length === 0) {
       return ''
     }
@@ -75,7 +98,7 @@ export function InternalTenantsPage() {
       return selectedTenantId
     }
     return tenants[0].tenantId
-  }, [selectedTenantId, tenantsQuery.data])
+  }, [filteredTenants, selectedTenantId])
 
   const detailQuery = useQuery({
     queryKey: ['internal-tenant', effectiveSelectedTenantId],
@@ -90,6 +113,7 @@ export function InternalTenantsPage() {
   })
 
   const selectedTenant = detailQuery.data
+    || filteredTenants.find((row) => row.tenantId === effectiveSelectedTenantId)
     || tenantsQuery.data?.find((row) => row.tenantId === effectiveSelectedTenantId)
     || null
 
@@ -141,6 +165,7 @@ export function InternalTenantsPage() {
     },
     onSuccess: (created) => {
       setPanelMode('edit')
+      setMobileMode('workspace')
       setSelectedTenantId(created.tenantId)
       setCreateDraft(emptyCreateState)
       setSaveMessage('Tenant created successfully.')
@@ -149,12 +174,14 @@ export function InternalTenantsPage() {
     },
   })
 
+  const activeTenantCount = (tenantsQuery.data || []).filter((tenant) => tenant.isActive).length
+
   return (
     <div className="page-stack">
       <PageHero
         badge="Management"
         title="Tenant management"
-        description="Select a tenant from the list to open the right-side drawer, or create a new tenant profile."
+        description="Inspect tenant readiness, update branded content, and create new tenant profiles from one internal workspace."
       />
 
       {tenantsQuery.isLoading ? (
@@ -172,299 +199,350 @@ export function InternalTenantsPage() {
       ) : null}
 
       {!tenantsQuery.isLoading && !tenantsQuery.isError ? (
-        <ListDetailLayout
-          mode="internal"
-          list={
-            <section className="content-panel internal-drawer-list">
-              <SectionHeader
-                eyebrow="Tenant directory"
-                title="Tenants"
-                description="Select a tenant to keep list context while editing details in the adjacent drawer."
-                actions={
-                  <button
-                    className="button button--primary"
-                    onClick={() => {
-                      setPanelMode('create')
-                      setSaveMessage('')
-                    }}
-                    type="button"
-                  >
-                    Create tenant
-                  </button>
-                }
-              />
-              {tenantsQuery.data && tenantsQuery.data.length > 0 ? (
-                <ul className="internal-drawer-list__items">
-                  {tenantsQuery.data.map((tenant) => {
-                    const isActive = panelMode === 'edit' && effectiveSelectedTenantId === tenant.tenantId
-                    return (
-                      <li key={tenant.tenantId}>
-                        <button
-                          className={isActive
-                            ? 'internal-drawer-list__item internal-drawer-list__item--active'
-                            : 'internal-drawer-list__item'}
-                          onClick={() => {
-                            setPanelMode('edit')
-                            setSelectedTenantId(tenant.tenantId)
-                            setSaveMessage('')
-                          }}
-                          type="button"
-                        >
-                          <strong>{tenant.displayName}</strong>
-                          <span>{tenant.tenantCode}</span>
-                          <StatusChip tone={tenant.isActive ? 'success' : 'muted'}>
-                            {tenant.isActive ? 'active' : 'inactive'}
-                          </StatusChip>
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              ) : (
-                <EmptyState
-                  title="No tenants available"
-                  message="Create the first tenant profile to start onboarding tenants."
-                />
-              )}
-            </section>
-          }
-          detail={
-            <section className="content-panel internal-drawer-panel">
-            {panelMode === 'create' ? (
-              <>
+        <div className={`internal-tenants-console internal-tenants-console--${mobileMode}`}>
+          <ListDetailLayout
+            mode="internal"
+            list={(
+              <section className="content-panel internal-drawer-list">
                 <SectionHeader
-                  eyebrow="Create"
-                  title="New tenant"
-                  description="Use the shared form sections to add a tenant profile without leaving the drawer workflow."
-                />
-                <form
-                  className="session-form"
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                      setSaveMessage('')
-                      createMutation.mutate()
-                    }}
-                  >
-                  <FormSection
-                    eyebrow="Identity"
-                    title="Core profile"
-                    description="Capture the tenant code and display name first, then add descriptive content."
-                  >
-                    <label className="session-form__field">
-                      <span>Tenant Code</span>
-                      <input
-                        type="text"
-                        value={createDraft.tenantCode}
-                        onChange={(event) =>
-                          setCreateDraft((current) => ({
-                            ...current,
-                            tenantCode: event.target.value,
-                          }))
-                        }
-                      />
-                    </label>
-                    <label className="session-form__field">
-                      <span>Display Name</span>
-                      <input
-                        type="text"
-                        value={createDraft.displayName}
-                        onChange={(event) =>
-                          setCreateDraft((current) => ({
-                            ...current,
-                            displayName: event.target.value,
-                          }))
-                        }
-                      />
-                    </label>
-                  </FormSection>
-                  <FormSection
-                    eyebrow="Content"
-                    title="Public-facing copy"
-                    description="These fields feed the tenant-facing pages and should stay concise and useful."
-                  >
-                    <label className="session-form__field">
-                      <span>Description</span>
-                      <textarea
-                        value={createDraft.description}
-                        onChange={(event) =>
-                          setCreateDraft((current) => ({
-                            ...current,
-                            description: event.target.value,
-                          }))
-                        }
-                      />
-                    </label>
-                    <label className="session-form__field">
-                      <span>Tenant Home Content</span>
-                      <textarea
-                        value={createDraft.homePageContent}
-                        onChange={(event) =>
-                          setCreateDraft((current) => ({
-                            ...current,
-                            homePageContent: event.target.value,
-                          }))
-                        }
-                      />
-                    </label>
-                    <label className="session-form__field">
-                      <span>Active</span>
-                      <select
-                        value={createDraft.isActive ? 'true' : 'false'}
-                        onChange={(event) =>
-                          setCreateDraft((current) => ({
-                            ...current,
-                            isActive: event.target.value === 'true',
-                          }))
-                        }
-                      >
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                      </select>
-                    </label>
-                  </FormSection>
-                  <div className="session-form__actions">
-                    <button className="button button--primary" type="submit">
-                      {createMutation.isPending ? 'Creating...' : 'Create tenant'}
-                    </button>
+                  eyebrow="Tenant directory"
+                  title="Tenants"
+                  description="Filter the directory, then open a tenant to inspect status and maintain public-facing content."
+                  actions={(
                     <button
-                      className="button button--secondary"
-                      onClick={() => setPanelMode('edit')}
+                      className="button button--primary"
+                      onClick={() => {
+                        setPanelMode('create')
+                        setMobileMode('workspace')
+                        setSaveMessage('')
+                      }}
                       type="button"
                     >
-                      Cancel
+                      Create tenant
                     </button>
-                    {createMutation.isError ? (
-                      <p className="session-form__error">
-                        Failed to create tenant profile.
-                      </p>
-                    ) : null}
-                  </div>
-                </form>
-              </>
-            ) : selectedTenant ? (
-              <>
-                <SectionHeader
-                  eyebrow="Tenant"
-                  title="Edit tenant"
-                  description="Review the selected tenant in place, then update profile content without leaving the list."
+                  )}
                 />
-                <p>
-                  <strong>Tenant Code:</strong> {selectedTenant.tenantCode}
-                </p>
-                {detailQuery.isLoading ? (
-                  <LoadingState
-                    title="Loading tenant details"
-                    message="Fetching full tenant profile."
-                  />
-                ) : null}
-                {detailQuery.isError ? (
-                  <ErrorState
-                    title="Could not load tenant details"
-                    message="Select a tenant again or retry shortly."
-                  />
-                ) : null}
-                {editFormState ? (
-                  <form
-                    className="session-form"
-                    onSubmit={(event) => {
-                      event.preventDefault()
-                      setSaveMessage('')
-                      saveMutation.mutate()
-                    }}
-                  >
-                    <FormSection
-                      eyebrow="Profile"
-                      title="Tenant content"
-                      description="The shared form-section pattern keeps administrative editing grouped and easier to scan."
+                <div className="internal-tenant-summary-strip" aria-label="Tenant directory summary">
+                  <div className="internal-tenant-summary-strip__item">
+                    <span>Total tenants</span>
+                    <strong>{tenantsQuery.data?.length || 0}</strong>
+                  </div>
+                  <div className="internal-tenant-summary-strip__item">
+                    <span>Active tenants</span>
+                    <strong>{activeTenantCount}</strong>
+                  </div>
+                </div>
+                <div className="internal-drawer-list__filters">
+                  <label className="session-form__field">
+                    <span>Search tenants</span>
+                    <input
+                      type="search"
+                      value={searchInput}
+                      onChange={(event) => setSearchInput(event.target.value)}
+                      placeholder="Search display name, code, or tenant ID"
+                    />
+                  </label>
+                  <label className="session-form__field">
+                    <span>Status</span>
+                    <select
+                      value={statusFilter}
+                      onChange={(event) =>
+                        setStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
                     >
-                      <label className="session-form__field">
-                        <span>Display Name</span>
-                        <input
-                          type="text"
-                          value={editFormState.displayName}
-                          onChange={(event) =>
-                            setDraftsByTenantId((current) => ({
-                              ...current,
-                              [selectedTenant.tenantId]: {
-                                ...editFormState,
-                                displayName: event.target.value,
-                              },
-                            }))
-                          }
-                        />
-                      </label>
-                      <label className="session-form__field">
-                        <span>Description</span>
-                        <textarea
-                          value={editFormState.description}
-                          onChange={(event) =>
-                            setDraftsByTenantId((current) => ({
-                              ...current,
-                              [selectedTenant.tenantId]: {
-                                ...editFormState,
-                                description: event.target.value,
-                              },
-                            }))
-                          }
-                        />
-                      </label>
-                      <label className="session-form__field">
-                        <span>Tenant Home Content</span>
-                        <textarea
-                          value={editFormState.homePageContent}
-                          onChange={(event) =>
-                            setDraftsByTenantId((current) => ({
-                              ...current,
-                              [selectedTenant.tenantId]: {
-                                ...editFormState,
-                                homePageContent: event.target.value,
-                              },
-                            }))
-                          }
-                        />
-                      </label>
-                      <label className="session-form__field">
-                        <span>Active</span>
-                        <select
-                          value={editFormState.isActive ? 'true' : 'false'}
-                          onChange={(event) =>
-                            setDraftsByTenantId((current) => ({
-                              ...current,
-                              [selectedTenant.tenantId]: {
-                                ...editFormState,
-                                isActive: event.target.value === 'true',
-                              },
-                            }))
-                          }
-                        >
-                          <option value="true">Active</option>
-                          <option value="false">Inactive</option>
-                        </select>
-                      </label>
-                    </FormSection>
-                    <div className="session-form__actions">
-                      <button className="button button--primary" type="submit">
-                        {saveMutation.isPending ? 'Saving...' : 'Save'}
-                      </button>
-                      {saveMessage ? <p>{saveMessage}</p> : null}
-                      {saveMutation.isError ? (
-                        <p className="session-form__error">
-                          Failed to save tenant profile.
-                        </p>
-                      ) : null}
-                    </div>
-                  </form>
-                ) : null}
-              </>
-            ) : (
-              <EmptyState
-                title="Select a tenant"
-                message="Choose a tenant from the list to open details in the drawer."
-              />
+                      <option value="all">All</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </label>
+                </div>
+                {filteredTenants.length > 0 ? (
+                  <ul className="internal-drawer-list__items">
+                    {filteredTenants.map((tenant) => {
+                      const isActive = panelMode === 'edit' && effectiveSelectedTenantId === tenant.tenantId
+                      return (
+                        <li key={tenant.tenantId}>
+                          <button
+                            className={isActive
+                              ? 'internal-drawer-list__item internal-drawer-list__item--active'
+                              : 'internal-drawer-list__item'}
+                            onClick={() => {
+                              setPanelMode('edit')
+                              setMobileMode('workspace')
+                              setSelectedTenantId(tenant.tenantId)
+                              setSaveMessage('')
+                            }}
+                            type="button"
+                          >
+                            <div className="internal-drawer-list__item-header">
+                              <strong>{tenant.displayName}</strong>
+                              <StatusChip tone={tenant.isActive ? 'success' : 'muted'}>
+                                {tenant.isActive ? 'active' : 'inactive'}
+                              </StatusChip>
+                            </div>
+                            <span>{tenant.tenantCode}</span>
+                            <span className="internal-drawer-list__item-meta">
+                              {tenant.description ? 'Description ready' : 'Description missing'}
+                            </span>
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ) : (
+                  <EmptyState
+                    title={tenantsQuery.data?.length ? 'No tenants match those filters' : 'No tenants available'}
+                    message={tenantsQuery.data?.length
+                      ? 'Try a different search or status filter.'
+                      : 'Create the first tenant profile to start onboarding tenants.'}
+                  />
+                )}
+              </section>
             )}
-            </section>
-          }
-        />
+            detail={(
+              <section className="content-panel internal-drawer-panel">
+                <div className="internal-tenants-workspace__mobile-actions">
+                  <button
+                    className="button button--ghost"
+                    onClick={() => setMobileMode('directory')}
+                    type="button"
+                  >
+                    Back to tenants
+                  </button>
+                </div>
+                {panelMode === 'create' ? (
+                  <>
+                    <SectionHeader
+                      eyebrow="Create"
+                      title="New tenant"
+                      description="Set up the tenant identity first, then add the public HTML content that powers the tenant landing page."
+                    />
+                    <form
+                      className="session-form"
+                      onSubmit={(event) => {
+                        event.preventDefault()
+                        setSaveMessage('')
+                        createMutation.mutate()
+                      }}
+                    >
+                      <FormSection
+                        eyebrow="Identity"
+                        title="Core profile"
+                        description="Capture the tenant code and display name first so the directory and public portal have the right tenant identity."
+                      >
+                        <label className="session-form__field">
+                          <span>Tenant Code</span>
+                          <input
+                            type="text"
+                            value={createDraft.tenantCode}
+                            onChange={(event) =>
+                              setCreateDraft((current) => ({
+                                ...current,
+                                tenantCode: event.target.value,
+                              }))}
+                          />
+                        </label>
+                        <label className="session-form__field">
+                          <span>Display Name</span>
+                          <input
+                            type="text"
+                            value={createDraft.displayName}
+                            onChange={(event) =>
+                              setCreateDraft((current) => ({
+                                ...current,
+                                displayName: event.target.value,
+                              }))}
+                          />
+                        </label>
+                      </FormSection>
+                      <FormSection
+                        eyebrow="Content"
+                        title="Public-facing copy"
+                        description="These fields feed the tenant-facing pages and support HTML content with a safe preview."
+                      >
+                        <HtmlEditorField
+                          label="Description"
+                          value={createDraft.description}
+                          onChange={(value) =>
+                            setCreateDraft((current) => ({
+                              ...current,
+                              description: value,
+                            }))}
+                        />
+                        <HtmlEditorField
+                          label="Tenant Home Content"
+                          value={createDraft.homePageContent}
+                          onChange={(value) =>
+                            setCreateDraft((current) => ({
+                              ...current,
+                              homePageContent: value,
+                            }))}
+                        />
+                        <label className="session-form__field">
+                          <span>Active</span>
+                          <select
+                            value={createDraft.isActive ? 'true' : 'false'}
+                            onChange={(event) =>
+                              setCreateDraft((current) => ({
+                                ...current,
+                                isActive: event.target.value === 'true',
+                              }))}
+                          >
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                          </select>
+                        </label>
+                      </FormSection>
+                      <div className="session-form__actions">
+                        <button className="button button--primary" type="submit">
+                          {createMutation.isPending ? 'Creating...' : 'Create tenant'}
+                        </button>
+                      <button
+                        className="button button--secondary"
+                        onClick={() => {
+                          setPanelMode('edit')
+                          setMobileMode('directory')
+                        }}
+                        type="button"
+                      >
+                        Cancel
+                      </button>
+                        {createMutation.isError ? (
+                          <p className="session-form__error">
+                            Failed to create tenant profile.
+                          </p>
+                        ) : null}
+                      </div>
+                    </form>
+                  </>
+                ) : selectedTenant ? (
+                  <>
+                    <SectionHeader
+                      eyebrow="Tenant"
+                      title="Edit tenant"
+                      description="Review tenant status and maintain tenant-authored content without leaving the directory."
+                    />
+                    <section className="internal-tenant-detail-summary">
+                      <div>
+                        <p className="internal-tenant-detail-summary__eyebrow">Tenant code</p>
+                        <h2>{selectedTenant.displayName}</h2>
+                        <p>{selectedTenant.tenantCode}</p>
+                      </div>
+                      <div className="internal-tenant-detail-summary__meta">
+                        <StatusChip tone={selectedTenant.isActive ? 'success' : 'muted'}>
+                          {selectedTenant.isActive ? 'active' : 'inactive'}
+                        </StatusChip>
+                        <StatusChip tone={selectedTenant.description ? 'info' : 'warning'}>
+                          {selectedTenant.description ? 'description ready' : 'description needed'}
+                        </StatusChip>
+                      </div>
+                    </section>
+                    {detailQuery.isLoading ? (
+                      <LoadingState
+                        title="Loading tenant details"
+                        message="Fetching full tenant profile."
+                      />
+                    ) : null}
+                    {detailQuery.isError ? (
+                      <ErrorState
+                        title="Could not load tenant details"
+                        message="Select a tenant again or retry shortly."
+                      />
+                    ) : null}
+                    {editFormState ? (
+                      <form
+                        className="session-form"
+                        onSubmit={(event) => {
+                          event.preventDefault()
+                          setSaveMessage('')
+                          saveMutation.mutate()
+                        }}
+                      >
+                        <FormSection
+                          eyebrow="Profile"
+                          title="Tenant content"
+                          description="Keep the public summary and homepage copy accurate. Both fields accept HTML and can be previewed safely."
+                        >
+                          <label className="session-form__field">
+                            <span>Display Name</span>
+                            <input
+                              type="text"
+                              value={editFormState.displayName}
+                              onChange={(event) =>
+                                setDraftsByTenantId((current) => ({
+                                  ...current,
+                                  [selectedTenant.tenantId]: {
+                                    ...editFormState,
+                                    displayName: event.target.value,
+                                  },
+                                }))}
+                            />
+                          </label>
+                          <HtmlEditorField
+                            label="Description"
+                            value={editFormState.description}
+                            onChange={(value) =>
+                              setDraftsByTenantId((current) => ({
+                                ...current,
+                                [selectedTenant.tenantId]: {
+                                  ...editFormState,
+                                  description: value,
+                                },
+                              }))}
+                          />
+                          <HtmlEditorField
+                            label="Tenant Home Content"
+                            value={editFormState.homePageContent}
+                            onChange={(value) =>
+                              setDraftsByTenantId((current) => ({
+                                ...current,
+                                [selectedTenant.tenantId]: {
+                                  ...editFormState,
+                                  homePageContent: value,
+                                },
+                              }))}
+                          />
+                          <label className="session-form__field">
+                            <span>Active</span>
+                            <select
+                              value={editFormState.isActive ? 'true' : 'false'}
+                              onChange={(event) =>
+                                setDraftsByTenantId((current) => ({
+                                  ...current,
+                                  [selectedTenant.tenantId]: {
+                                    ...editFormState,
+                                    isActive: event.target.value === 'true',
+                                  },
+                                }))}
+                            >
+                              <option value="true">Active</option>
+                              <option value="false">Inactive</option>
+                            </select>
+                          </label>
+                        </FormSection>
+                        <div className="session-form__actions">
+                          <button className="button button--primary" type="submit">
+                            {saveMutation.isPending ? 'Saving...' : 'Save'}
+                          </button>
+                          {saveMessage ? <p>{saveMessage}</p> : null}
+                          {saveMutation.isError ? (
+                            <p className="session-form__error">
+                              Failed to save tenant profile.
+                            </p>
+                          ) : null}
+                        </div>
+                      </form>
+                    ) : null}
+                  </>
+                ) : (
+                  <EmptyState
+                    title="Select a tenant"
+                    message="Choose a tenant from the list to open details in the drawer."
+                  />
+                )}
+              </section>
+            )}
+          />
+        </div>
       ) : null}
     </div>
   )

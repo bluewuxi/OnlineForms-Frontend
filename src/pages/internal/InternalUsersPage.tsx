@@ -196,6 +196,10 @@ export function InternalUsersPage() {
   const selectedUser = detailQuery.data || selectedListUser
   const selectedPreferredName = selectedUser ? resolvePreferredName(selectedUser) : null
   const selectedWorkspaceUserId = selectedUser?.userId || ''
+  const totalUsers = usersQuery.data?.length || 0
+  const activeUsers = (usersQuery.data || []).filter((user) => user.enabled).length
+  const privilegedUsers = (usersQuery.data || []).filter((user) =>
+    user.internalRoles.includes('internal_admin')).length
 
   function setSuccess(message: string) {
     setNotice({ tone: 'success', message })
@@ -359,6 +363,21 @@ export function InternalUsersPage() {
                   )}
                 />
 
+                <div className="internal-users-summary-strip" aria-label="Internal user directory summary">
+                  <div className="internal-users-summary-strip__item">
+                    <span>Total operators</span>
+                    <strong>{totalUsers}</strong>
+                  </div>
+                  <div className="internal-users-summary-strip__item">
+                    <span>Active</span>
+                    <strong>{activeUsers}</strong>
+                  </div>
+                  <div className="internal-users-summary-strip__item">
+                    <span>Internal admins</span>
+                    <strong>{privilegedUsers}</strong>
+                  </div>
+                </div>
+
                 <div className="internal-users-directory__filters">
                   <label className="session-form__field">
                     <span>Search users</span>
@@ -401,14 +420,17 @@ export function InternalUsersPage() {
                             }}
                             type="button"
                           >
-                            <div className="internal-users-directory__primary">
-                              <strong>{resolvePrimaryIdentity(user)}</strong>
-                              <StatusChip tone={user.enabled ? 'success' : 'muted'}>
-                                {user.enabled ? 'active' : 'inactive'}
-                              </StatusChip>
-                            </div>
-                            <span>{resolvePreferredName(user) || user.username}</span>
-                            <div className="internal-users-role-row">
+                          <div className="internal-users-directory__primary">
+                            <strong>{resolvePrimaryIdentity(user)}</strong>
+                            <StatusChip tone={user.enabled ? 'success' : 'muted'}>
+                              {user.enabled ? 'active' : 'inactive'}
+                            </StatusChip>
+                          </div>
+                          <span>{resolvePreferredName(user) || user.username}</span>
+                          <span className="internal-users-directory__subtext">
+                            Directory status: {user.status}
+                          </span>
+                          <div className="internal-users-role-row">
                               {user.internalRoles.map((role) => (
                                 <StatusChip key={role} tone="info">
                                   {role}

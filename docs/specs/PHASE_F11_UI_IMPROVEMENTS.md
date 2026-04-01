@@ -25,7 +25,7 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Added shared primitives for `SectionHeader`, `ListDetailLayout`, `StatusChip`, and `FormSection`
   - Applied the new primitives to representative org/internal work surfaces to establish the shared system
 
-- [ ] F11-02 Public portal IA, navigation, and visual refresh
+- [x] F11-02 Public portal IA, navigation, and visual refresh
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/47
   Scope:
   - Rework `/` so the primary message is about browsing training providers and courses rather than demo routes
@@ -40,7 +40,7 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Tenant home feels like a real landing page, including safe rich-text rendering for tenant-authored description content
   - Catalog and course detail hierarchy is clearer without changing route structure or API behavior
 
-- [ ] F11-03 Enrollment form and success-state UX polish
+- [x] F11-03 Enrollment form and success-state UX polish
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/48
   Scope:
   - Improve form field rhythm, labels, help text, and required-field treatment
@@ -53,7 +53,7 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Non-happy-path states feel deliberate rather than raw
   - Success state feels like a real completion surface rather than a payload echo
 
-- [ ] F11-04 Organization portal navigation and course-first workspace refresh
+- [x] F11-04 Organization portal navigation and course-first workspace refresh
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/49
   Scope:
   - Rework org navigation around a clearer information architecture centered on `Courses`, `Submissions`, and `Settings`
@@ -67,7 +67,7 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Course authoring feels connected end to end
   - Status and publish/archive actions are easier to understand at a glance
 
-- [ ] F11-05 Internal portal density and drawer UX refinement
+- [x] F11-05 Internal portal density and drawer UX refinement
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/50
   Scope:
   - Tighten information density and hierarchy for tenants and users
