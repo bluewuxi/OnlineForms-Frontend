@@ -115,6 +115,9 @@ export function CourseDetailPage() {
 
           <FormPreview
             courseId={courseId}
+            courseTitle={courseQuery.data.title}
+            enrollmentStatus={courseQuery.data.enrollmentStatus}
+            formAvailable={courseQuery.data.formAvailable}
             schema={formSchema}
             tenantCode={tenantCode}
           />

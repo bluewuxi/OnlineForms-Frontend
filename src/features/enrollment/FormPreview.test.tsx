@@ -63,16 +63,16 @@ describe('FormPreview', () => {
     fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'Alice' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /submit enrollment/i }))
+    fireEvent.click(screen.getByRole('button', { name: /submit enrolment/i }))
 
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: /your application was received/i }),
+        screen.getByRole('heading', { name: /your enrolment has been submitted/i }),
       ).toBeInTheDocument(),
     )
 
     expect(screen.getByText(/intro to ai/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /back to course/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /review course again/i })).toHaveAttribute(
       'href',
       '/acme-training/courses/course-1',
     )

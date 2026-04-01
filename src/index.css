@@ -839,14 +839,73 @@ textarea:focus-visible {
   margin-top: 1.25rem;
 }
 
+.enrollment-form-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(250, 251, 253, 0.9));
+}
+
+.enrollment-form-shell--success {
+  border-color: rgba(52, 122, 76, 0.16);
+}
+
+.enrollment-form-shell__intro {
+  margin-top: 1rem;
+}
+
+.enrollment-form-shell__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.enrollment-form-shell__stats span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(19, 34, 56, 0.06);
+  color: #526279;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .enrollment-form__field {
   display: grid;
   gap: 0.45rem;
 }
 
+.enrollment-form__field--card {
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  border-radius: 1.05rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
 .enrollment-form__field > span {
   color: #334760;
   font-weight: 700;
+}
+
+.enrollment-form__field-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.enrollment-form__field-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  border-radius: 999px;
+  background: rgba(36, 75, 127, 0.08);
+  color: #244b7f;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 .enrollment-form__field input,
@@ -882,12 +941,16 @@ textarea:focus-visible {
   background: rgba(168, 64, 64, 0.08);
   color: #7c3131;
   display: grid;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
 .enrollment-form__actions {
   display: flex;
   justify-content: flex-start;
+}
+
+.editorial-steps--compact {
+  margin-top: 0.5rem;
 }
 
 .course-card {
