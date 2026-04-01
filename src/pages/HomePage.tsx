@@ -18,38 +18,54 @@ export function HomePage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge="Frontend MVP"
-        title="OnlineForms Frontend"
-        description="Tenant-first public entry and internal management access."
-        aside={
-          <div className="hero-card">
-            <p className="hero-card__label">Ready routes</p>
-            <ul className="hero-card__list">
-              <li>Tenant course catalog and detail views</li>
-              <li>Management portal entry</li>
-              <li>Org operational routes</li>
-            </ul>
-          </div>
-        }
+        badge="Public portal"
+        title="Choose a training provider, then enrol with confidence."
+        description="Browse active providers, compare published courses, and move into a clean application flow without losing context."
       />
 
-      <section className="content-card-grid">
-        <Link className="destination-card" to="/">
-          <span className="destination-card__eyebrow">Home</span>
-          <h2>Tenant directory</h2>
-          <p>Choose a tenant card below to browse published courses.</p>
-        </Link>
-        <Link className="destination-card" to="/management">
-          <span className="destination-card__eyebrow">Management</span>
-          <h2>Open management portal</h2>
-          <p>Sign in to manage tenant and organization operations.</p>
-        </Link>
+      <section className="content-panel content-panel--editorial">
+        <div className="section-heading">
+          <p className="section-heading__eyebrow">How it works</p>
+          <h2>Pick a provider, review their courses, then apply.</h2>
+        </div>
+        <div className="editorial-split">
+          <div className="editorial-split__lead">
+            <p>
+              Every provider runs its own public course space. Start with the
+              provider directory, open a tenant page to understand what they
+              offer, then move straight into the published course list.
+            </p>
+          </div>
+          <div className="editorial-steps" aria-label="Public browsing steps">
+            <div className="editorial-step">
+              <span className="editorial-step__index">01</span>
+              <div>
+                <strong>Browse providers</strong>
+                <p>Open the tenant that matches the training offer you want.</p>
+              </div>
+            </div>
+            <div className="editorial-step">
+              <span className="editorial-step__index">02</span>
+              <div>
+                <strong>Review published courses</strong>
+                <p>Compare delivery mode, dates, and enrolment status quickly.</p>
+              </div>
+            </div>
+            <div className="editorial-step">
+              <span className="editorial-step__index">03</span>
+              <div>
+                <strong>Start the application</strong>
+                <p>Move into the course detail page and submit the enrolment form.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="content-panel">
         <div className="section-heading">
-          <p className="section-heading__eyebrow">Tenants</p>
-          <h2>Browse by tenant</h2>
+          <p className="section-heading__eyebrow">Providers</p>
+          <h2>Browse active training providers</h2>
         </div>
 
         {tenantsQuery.isLoading ? (
@@ -68,21 +84,24 @@ export function HomePage() {
 
         {!tenantsQuery.isLoading && !tenantsQuery.isError ? (
           tenantsQuery.data && tenantsQuery.data.length > 0 ? (
-            <div className="course-grid" aria-label="Tenant cards">
+            <div className="tenant-directory-grid" aria-label="Tenant cards">
               {tenantsQuery.data.map((tenant) => (
                 <Link
-                  className="destination-card"
+                  className="tenant-directory-card"
                   key={tenant.tenantCode}
                   to={`/${tenant.tenantCode}`}
                 >
-                  <span className="destination-card__eyebrow">
+                  <span className="tenant-directory-card__eyebrow">
                     {tenant.tenantCode}
                   </span>
                   <h3>{tenant.displayName}</h3>
-                  <p>
+                  <p className="tenant-directory-card__summary">
                     {tenant.description ||
-                      'Open this tenant public catalog and browse courses.'}
+                      'Open this provider page to browse currently published courses.'}
                   </p>
+                  <span className="tenant-directory-card__cta">
+                    Browse provider
+                  </span>
                 </Link>
               ))}
             </div>
@@ -95,25 +114,19 @@ export function HomePage() {
         ) : null}
       </section>
 
-      <section className="content-panel">
+      <section className="content-panel content-panel--cta-strip">
         <div className="section-heading">
-          <p className="section-heading__eyebrow">Global UX states</p>
-          <h2>Reusable patterns ready for data-driven pages</h2>
+          <p className="section-heading__eyebrow">Management</p>
+          <h2>Need the operator side instead?</h2>
         </div>
-        <div className="state-grid">
-          <LoadingState
-            title="Loading page data"
-            message="Use this treatment for page sections while requests are in flight."
-          />
-          <EmptyState
-            title="No matching records"
-            message="Use clear explanations with a single next action."
-            actionLabel="Adjust filters"
-          />
-          <ErrorState
-            title="Something interrupted the request"
-            message="Route-level or panel-level fetch failures can reuse this pattern."
-          />
+        <div className="button-row button-row--spread">
+          <p className="content-panel__body-copy">
+            Management access is separate from the public browsing flow. Use it
+            only when you need the tenant or internal administration portal.
+          </p>
+          <Link className="button button--secondary" to="/management">
+            Open management portal
+          </Link>
         </div>
       </section>
     </div>

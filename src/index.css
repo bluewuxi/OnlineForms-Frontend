@@ -594,6 +594,176 @@ textarea:focus-visible {
   max-width: 36rem;
 }
 
+.content-panel__body-copy--wide {
+  max-width: 44rem;
+}
+
+.content-panel--editorial,
+.content-panel--public-intro,
+.content-panel--catalog-controls,
+.content-panel--cta-strip {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84));
+}
+
+.editorial-split {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.editorial-split__lead {
+  max-width: 34rem;
+}
+
+.editorial-split__lead p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.editorial-steps {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.editorial-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(19, 34, 56, 0.08);
+}
+
+.editorial-step:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.editorial-step__index {
+  color: #6d7d91;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editorial-step strong {
+  display: block;
+  color: #15263c;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.editorial-step p {
+  margin: 0.3rem 0 0;
+}
+
+.tenant-directory-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.tenant-directory-card {
+  display: grid;
+  gap: 0.8rem;
+  min-height: 18rem;
+  padding: 1.4rem;
+  border: 1px solid rgba(19, 34, 56, 0.1);
+  border-radius: 1.4rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 252, 0.94));
+  box-shadow: var(--shadow-surface);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.tenant-directory-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(36, 75, 127, 0.24);
+  box-shadow: 0 24px 48px rgba(18, 33, 56, 0.12);
+}
+
+.tenant-directory-card__eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(19, 34, 56, 0.08);
+  color: #55657a;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tenant-directory-card h3 {
+  margin: 0;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.tenant-directory-card__summary {
+  margin: 0;
+  color: #5b6a80;
+  line-height: 1.65;
+}
+
+.tenant-directory-card__cta {
+  margin-top: auto;
+  color: #244b7f;
+  font-weight: 700;
+}
+
+.button-row--spread {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rich-text {
+  color: var(--color-text-muted);
+}
+
+.rich-text > :first-child {
+  margin-top: 0;
+}
+
+.rich-text > :last-child {
+  margin-bottom: 0;
+}
+
+.rich-text p,
+.rich-text ul,
+.rich-text ol,
+.rich-text blockquote {
+  margin: 0 0 1rem;
+}
+
+.rich-text ul,
+.rich-text ol {
+  padding-left: 1.25rem;
+}
+
+.rich-text h2,
+.rich-text h3,
+.rich-text h4 {
+  margin: 1.4rem 0 0.6rem;
+  color: #15263c;
+  letter-spacing: -0.03em;
+}
+
+.rich-text a {
+  color: #244b7f;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
 .session-form {
   display: grid;
   gap: 1rem;
@@ -1370,6 +1540,10 @@ textarea:focus-visible {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
+  .content-panel--catalog-controls .search-panel {
+    margin-top: 1rem;
+  }
+
   .list-detail-layout,
   .list-detail-layout--internal {
     grid-template-columns: minmax(260px, 0.84fr) minmax(0, 1.16fr);
@@ -1387,6 +1561,11 @@ textarea:focus-visible {
 
   .internal-users-summary {
     grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .editorial-split {
+    grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
     align-items: start;
   }
 }
@@ -1425,6 +1604,15 @@ textarea:focus-visible {
 
   .section-header {
     flex-direction: column;
+  }
+
+  .button-row--spread {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .button-row--spread > * {
+    width: 100%;
   }
 
   .internal-users-console--directory .list-detail-layout__detail {

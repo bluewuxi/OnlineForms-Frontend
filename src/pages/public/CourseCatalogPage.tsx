@@ -97,44 +97,50 @@ export function CourseCatalogPage() {
     <div className="page-stack">
       <PageHero
         badge={tenantCode.replace(/-/g, ' ').toUpperCase()}
-        title="Find your next course"
-        description="Browse published courses, search by keyword, and move into the enrollment flow."
+        title="Published courses ready for enrolment"
+        description="Review current offerings, narrow the list fast, and open a course page when you are ready to apply."
       />
 
-      <form
-        className="search-panel"
-        aria-label="Catalog filters"
-        onSubmit={handleSearchSubmit}
-      >
-        <div className="search-panel__field">
-          <label htmlFor="catalog-query">Search courses</label>
-          <input
-            id="catalog-query"
-            name="catalog-query"
-            placeholder="Search courses..."
-            type="search"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
+      <section className="content-panel content-panel--catalog-controls">
+        <div className="section-heading">
+          <p className="section-heading__eyebrow">Browse courses</p>
+          <h2>Filter by keyword or enrolment status</h2>
         </div>
-        <div className="search-panel__field">
-          <label htmlFor="catalog-status">Status</label>
-          <select
-            id="catalog-status"
-            name="catalog-status"
-            value={statusInput}
-            onChange={(event) => setStatusInput(event.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="open">Open</option>
-            <option value="upcoming">Opening soon</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-        <button className="button button--primary" type="submit">
-          Find courses
-        </button>
-      </form>
+        <form
+          className="search-panel"
+          aria-label="Catalog filters"
+          onSubmit={handleSearchSubmit}
+        >
+          <div className="search-panel__field">
+            <label htmlFor="catalog-query">Search courses</label>
+            <input
+              id="catalog-query"
+              name="catalog-query"
+              placeholder="Search courses..."
+              type="search"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          <div className="search-panel__field">
+            <label htmlFor="catalog-status">Status</label>
+            <select
+              id="catalog-status"
+              name="catalog-status"
+              value={statusInput}
+              onChange={(event) => setStatusInput(event.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="open">Open</option>
+              <option value="upcoming">Opening soon</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <button className="button button--primary" type="submit">
+            Find courses
+          </button>
+        </form>
+      </section>
 
       {courseQuery.isLoading ? (
         <LoadingState
@@ -167,7 +173,7 @@ export function CourseCatalogPage() {
             <section className="course-grid" aria-label="Available courses">
               {courses.map((course) => (
                 <article key={course.id} className="course-card">
-                  <span className="course-card__eyebrow">Available course</span>
+                  <span className="course-card__eyebrow">Published course</span>
                   <h2>{course.title}</h2>
                   <p>{course.summary || 'Course summary coming soon.'}</p>
                   <div className="course-card__meta">
@@ -185,7 +191,7 @@ export function CourseCatalogPage() {
                       className="button button--secondary"
                       to={course.links?.detail || `/${tenantCode}/courses/${course.id}`}
                     >
-                      View details
+                      Review course
                     </Link>
                   </div>
                 </article>

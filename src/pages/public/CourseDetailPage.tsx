@@ -53,16 +53,16 @@ export function CourseDetailPage() {
       {courseQuery.data ? (
         <>
           <PageHero
-            badge="Course detail"
+            badge="Course enrolment"
             title={courseQuery.data.title}
             description={
               courseQuery.data.description ||
               courseQuery.data.summary ||
-              'Review the course information and complete the enrollment form below.'
+              'Review the course information, confirm the enrolment window, and continue into the application form below.'
             }
             aside={
               <div className="hero-card">
-                <p className="hero-card__label">Enrollment window</p>
+                <p className="hero-card__label">Enrolment window</p>
                 <ul className="hero-card__list">
                   <li>Opens: {formatDate(courseQuery.data.enrollmentOpensAt)}</li>
                   <li>Closes: {formatDate(courseQuery.data.enrollmentClosesAt)}</li>
@@ -77,8 +77,8 @@ export function CourseDetailPage() {
 
           <section className="content-panel">
             <div className="section-heading">
-              <p className="section-heading__eyebrow">Course overview</p>
-              <h2>What applicants need to know</h2>
+              <p className="section-heading__eyebrow">Before you apply</p>
+              <h2>Key course facts at a glance</h2>
             </div>
             <div className="detail-summary-grid">
               <div className="field-card">
@@ -102,7 +102,11 @@ export function CourseDetailPage() {
                 <strong>{courseQuery.data.capacity ?? 'Not specified'}</strong>
               </div>
             </div>
-            <div className="button-row">
+            <div className="button-row button-row--spread">
+              <p className="content-panel__body-copy">
+                Use the form below when the enrolment window is open and the
+                course matches your intended intake.
+              </p>
               <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
                 Back to catalog
               </Link>

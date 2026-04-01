@@ -34,7 +34,7 @@ describe('App routing', () => {
     renderRoute('/')
 
     expect(
-      await screen.findByRole('heading', { name: /onlineforms frontend/i }),
+      await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: /^management$/i }),
@@ -170,7 +170,7 @@ describe('App routing', () => {
     renderRoute('/t/acme-training/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /find your next course/i }),
+      await screen.findByRole('heading', { name: /published courses ready for enrolment/i }),
     ).toBeInTheDocument()
   })
 
@@ -190,7 +190,7 @@ describe('App routing', () => {
           data: {
             tenantCode: 'std-school',
             displayName: 'Standard School',
-            description: 'Tenant profile',
+            description: '<p>Tenant <strong>profile</strong> with <a href="/std-school/courses">course links</a>.</p>',
             homePageContent: 'Welcome to Standard School.',
             isActive: true,
             links: {
@@ -207,6 +207,10 @@ describe('App routing', () => {
       expect(
         await screen.findByRole('heading', { name: /standard school/i }),
       ).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /course links/i })).toHaveAttribute(
+        'href',
+        '/std-school/courses',
+      )
     } finally {
       globalThis.fetch = originalFetch
     }
@@ -247,7 +251,7 @@ describe('App routing', () => {
     expect(screen.getByRole('menuitem', { name: /logout/i })).toBeInTheDocument()
     await user.click(screen.getByRole('menuitem', { name: /logout/i }))
     expect(
-      await screen.findByRole('heading', { name: /onlineforms frontend/i }),
+      await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(window.localStorage.getItem(ORG_SESSION_STORAGE_KEY)).toBeNull()
     expect(screen.getByRole('link', { name: /^home$/i })).toHaveAttribute(
@@ -331,7 +335,7 @@ describe('App routing', () => {
     renderRoute('/internal/logout')
 
     expect(
-      await screen.findByRole('heading', { name: /onlineforms frontend/i }),
+      await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(window.localStorage.getItem(ORG_SESSION_STORAGE_KEY)).toBeNull()
   })
