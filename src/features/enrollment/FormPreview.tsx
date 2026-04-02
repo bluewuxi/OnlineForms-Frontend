@@ -140,14 +140,17 @@ export function FormPreview({
   if (enrollmentStatus === 'closed') {
     return (
       <section className="content-panel enrollment-form-shell">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Enrolment unavailable</p>
-          <h2>This intake is currently closed</h2>
+        <div className="enrollment-form-shell__state-card">
+          <span className="enrollment-form-shell__state-icon">✕</span>
+          <strong>Enrolment is closed</strong>
+          <p>
+            This course is visible for reference, but new applications are not
+            being accepted right now.
+          </p>
+          <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
+            Back to course list
+          </Link>
         </div>
-        <p className="content-panel__body-copy">
-          This course is visible for reference, but new applications are not
-          being accepted right now.
-        </p>
       </section>
     )
   }
@@ -155,14 +158,17 @@ export function FormPreview({
   if (enrollmentStatus === 'upcoming') {
     return (
       <section className="content-panel enrollment-form-shell">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Enrolment opening soon</p>
-          <h2>Applications are not open yet</h2>
+        <div className="enrollment-form-shell__state-card">
+          <span className="enrollment-form-shell__state-icon">○</span>
+          <strong>Enrolment opening soon</strong>
+          <p>
+            Check back when this intake opens. Once enrolment begins, the
+            application form will be available on this page.
+          </p>
+          <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
+            Back to course list
+          </Link>
         </div>
-        <p className="content-panel__body-copy">
-          Check back when this intake opens. Once enrolment begins, the form
-          will be available on this page.
-        </p>
       </section>
     )
   }
@@ -170,14 +176,17 @@ export function FormPreview({
   if (formAvailable === false || !schema || schema.fields.length === 0) {
     return (
       <section className="content-panel enrollment-form-shell">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Enrolment form</p>
-          <h2>Application form is not ready yet</h2>
+        <div className="enrollment-form-shell__state-card">
+          <span className="enrollment-form-shell__state-icon">◌</span>
+          <strong>Application form not available</strong>
+          <p>
+            This course does not have an active public application form
+            available for submission yet.
+          </p>
+          <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
+            Back to course list
+          </Link>
         </div>
-        <p className="content-panel__body-copy">
-          This course does not have an active public application form available
-          for submission yet.
-        </p>
       </section>
     )
   }
@@ -189,68 +198,12 @@ export function FormPreview({
   if (enrollmentMutation.isSuccess) {
     return (
       <section className="content-panel enrollment-form-shell enrollment-form-shell--success">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Application received</p>
-          <h2>Your enrolment has been submitted</h2>
-        </div>
-        <p className="content-panel__body-copy">
-          {enrollmentMutation.data.courseTitle || courseTitle ? (
-            <>
-              Your response for{' '}
-              <strong>{enrollmentMutation.data.courseTitle || courseTitle}</strong>{' '}
-              is now in the review queue.
-            </>
-          ) : (
-            'Your response is now in the review queue.'
-          )}
-        </p>
-        <div className="detail-summary-grid">
-          <div className="field-card">
-            <span>Submission ID</span>
-            <strong>{enrollmentMutation.data.submissionId}</strong>
-          </div>
-          <div className="field-card">
-            <span>Status</span>
-            <strong>{enrollmentMutation.data.status}</strong>
-          </div>
-        </div>
-        <div className="editorial-steps editorial-steps--compact" aria-label="What happens next">
-          <div className="editorial-step">
-            <span className="editorial-step__index">01</span>
-            <div>
-              <strong>Save your reference</strong>
-              <p>Keep the submission ID if you need to refer to this application later.</p>
-            </div>
-          </div>
-          <div className="editorial-step">
-            <span className="editorial-step__index">02</span>
-            <div>
-              <strong>Return to the course or provider page</strong>
-              <p>Use the links below if you want to keep browsing or review the course again.</p>
-            </div>
-          </div>
-        </div>
-        <div className="button-row">
-          {enrollmentMutation.data.links?.tenantHome ? (
-            <Link
-              className="button button--primary"
-              to={enrollmentMutation.data.links.tenantHome}
-            >
-              Back to provider
-            </Link>
-          ) : null}
-          {enrollmentMutation.data.links?.course ? (
-            <Link className="button button--secondary" to={enrollmentMutation.data.links.course}>
-              Review course again
-            </Link>
-          ) : null}
-          <button
-            className="button button--ghost"
-            onClick={() => enrollmentMutation.reset()}
-            type="button"
-          >
-            Submit another response
-          </button>
+        <div className="enrollment-form-shell__state-card">
+          <h3>Application submitted</h3>
+          <p>{courseTitle ?? enrollmentMutation.data.courseTitle ?? ''}</p>
+          <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
+            Back to courses
+          </Link>
         </div>
       </section>
     )
@@ -285,7 +238,9 @@ export function FormPreview({
               </span>
               <span>
                 {field.label}
-                {field.required ? ' *' : ''}
+                {field.required ? (
+                  <span className="enrollment-form__required" aria-label="required"> *</span>
+                ) : null}
               </span>
             </div>
             {renderField(field, register)}
@@ -293,7 +248,7 @@ export function FormPreview({
               <small className="enrollment-form__hint">{field.helpText}</small>
             ) : null}
             {errors[field.fieldId] ? (
-              <small className="enrollment-form__error">
+              <small className="enrollment-form__field-error">
                 {getFieldErrorMessage(field)}
               </small>
             ) : null}
@@ -319,7 +274,7 @@ export function FormPreview({
 
         <div className="enrollment-form__actions">
           <button
-            className="button button--primary"
+            className="button button--primary enrollment-form__submit"
             disabled={enrollmentMutation.isPending}
             type="submit"
           >
