@@ -37,7 +37,7 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /^management$/i }),
+      screen.getByRole('link', { name: /management portal/i }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
@@ -117,7 +117,7 @@ describe('App routing', () => {
     renderRoute('/org/submissions')
 
     expect(
-      await screen.findByRole('heading', { name: /submission review queue/i }),
+      await screen.findByRole('heading', { name: /^submissions$/i }),
     ).toBeInTheDocument()
   })
 
@@ -191,7 +191,7 @@ describe('App routing', () => {
     renderRoute('/org/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /courses are the center of tenant operations/i }),
+      await screen.findByRole('heading', { name: /^courses$/i }),
     ).toBeInTheDocument()
   })
 
@@ -211,7 +211,7 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /tenant settings and operational references/i }),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /^settings$/i })).toHaveClass(
-      'site-header__link--active',
+      'portal-sidebar__item--active',
     )
   })
 
@@ -453,7 +453,7 @@ describe('App routing', () => {
       '/internal',
     )
     expect(screen.getByRole('link', { name: /^tenants$/i })).toHaveClass(
-      'site-header__link--active',
+      'portal-sidebar__item--active',
     )
     expect(screen.getByRole('link', { name: /^users$/i })).toHaveAttribute(
       'href',
@@ -728,7 +728,7 @@ describe('App routing', () => {
       await user.click(screen.getByRole('button', { name: /continue to management/i }))
 
       expect(
-        await screen.findByRole('heading', { name: /courses are the center of tenant operations/i }),
+        await screen.findByRole('heading', { name: /^courses$/i }),
       ).toBeInTheDocument()
     } finally {
       globalThis.fetch = originalFetch
