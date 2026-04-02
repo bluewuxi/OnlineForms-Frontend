@@ -345,7 +345,7 @@ describe('App routing', () => {
     }
   })
 
-  it('renders course detail rich text safely', async () => {
+  it('renders course detail rich text safely and shows the public enrollment form when schema is present', async () => {
     const originalFetch = globalThis.fetch
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input)
@@ -366,7 +366,41 @@ describe('App routing', () => {
               enrollmentCloseAt: '2026-03-31T00:00:00Z',
               enrollmentOpenNow: true,
               enrollmentStatus: 'open',
-              formAvailable: false,
+              formAvailable: true,
+              formVersion: 1,
+              formSchema: {
+                version: 1,
+                fields: [
+                  {
+                    fieldId: 'firstname',
+                    type: 'short_text',
+                    label: 'First name',
+                    required: true,
+                    displayOrder: 1,
+                  },
+                  {
+                    fieldId: 'lastname',
+                    type: 'short_text',
+                    label: 'Last name',
+                    required: true,
+                    displayOrder: 2,
+                  },
+                  {
+                    fieldId: 'email',
+                    type: 'email',
+                    label: 'Email address',
+                    required: true,
+                    displayOrder: 3,
+                  },
+                  {
+                    fieldId: 'mobile',
+                    type: 'phone',
+                    label: 'Mobile number',
+                    required: true,
+                    displayOrder: 4,
+                  },
+                ],
+              },
             },
           }),
           { status: 200, headers: { 'content-type': 'application/json' } },
@@ -387,6 +421,13 @@ describe('App routing', () => {
         'href',
         '/std-school/courses',
       )
+      expect(
+        screen.getByRole('heading', { name: /complete your application/i }),
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText(/first name/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/last name/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/mobile number/i)).toBeInTheDocument()
     } finally {
       globalThis.fetch = originalFetch
     }

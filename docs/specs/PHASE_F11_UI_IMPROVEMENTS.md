@@ -145,6 +145,17 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Provider cards on `/` no longer show escaped HTML tags
   - Frontend tests lock both rendering paths
 
+- [x] F11-11 Render public enrollment forms from course-detail schema
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/59
+  Scope:
+  - Map `formVersion` and `formSchema` from public course-detail responses into the frontend `Course` model
+  - Keep the existing `FormPreview` path and empty-state rules
+  - Add regression coverage for a public course detail response that includes a live form schema
+  Acceptance focus:
+  - Public course pages render seeded application forms when backend returns a schema
+  - No extra public API request is required to show the enrollment form
+  - Courses without schema data still show the existing not-ready state
+
 ## Primary References
 
 - `docs/specs/FRONTEND_UI_SPEC.md`

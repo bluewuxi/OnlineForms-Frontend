@@ -7,6 +7,7 @@ import type {
   EnrollmentPayload,
   EnrollmentResponse,
   AuthRoleOption,
+  FormSchema,
   TenantDirectoryItem,
   TenantHome,
 } from './types'
@@ -47,6 +48,8 @@ type BackendPublicCourse = BackendPublicCourseListItem & {
   fullDescription?: string
   capacity?: number | null
   formAvailable?: boolean
+  formVersion?: number | null
+  formSchema?: FormSchema | null
 }
 
 type BackendTenantDirectoryItem = {
@@ -170,8 +173,8 @@ function mapCourse(course: BackendPublicCourse): Course {
     locationText: course.locationText ?? undefined,
     capacity: course.capacity ?? null,
     formAvailable: course.formAvailable ?? false,
-    formVersion: null,
-    formSchema: undefined,
+    formVersion: course.formVersion ?? null,
+    formSchema: course.formSchema ?? undefined,
   }
 }
 
