@@ -1068,6 +1068,137 @@ textarea:focus-visible {
 }
 
 /* === COMPONENTS === */
+
+/* Submissions filter bar */
+.submissions-filter-bar {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(140px, 1fr) minmax(130px, 1fr) minmax(130px, 1fr) auto;
+  align-items: end;
+  margin-top: 0.75rem;
+}
+
+.submissions-filter-bar__field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.submissions-filter-bar__field label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.submissions-filter-bar__field input,
+.submissions-filter-bar__field select {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: #fff;
+  padding: 0.7rem 0.85rem;
+}
+
+.submissions-filter-bar__actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Submissions table clickable rows */
+.submissions-table__row {
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.submissions-table__row:hover {
+  background: var(--color-bg-soft);
+}
+
+.submissions-table__row:focus-visible {
+  outline: 2px solid #244b7f;
+  outline-offset: -2px;
+}
+
+.submissions-table__chevron {
+  color: var(--color-text-soft);
+  font-size: 1.1rem;
+  text-align: right;
+  padding-right: 0.5rem;
+}
+
+/* Submission detail answer list — two-column definition list */
+.submission-answer-list {
+  display: grid;
+  gap: 0;
+  margin: 1rem 0 0;
+}
+
+.submission-answer-list__item {
+  display: grid;
+  grid-template-columns: minmax(8rem, 30%) 1fr;
+  gap: 0.5rem 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--color-border);
+  align-items: baseline;
+}
+
+.submission-answer-list__item:last-child {
+  border-bottom: none;
+}
+
+.submission-answer-list__label {
+  color: var(--color-text-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.submission-answer-list__value {
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* Submission sticky action bar */
+.submission-action-bar {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-drawer);
+}
+
+.submission-action-bar__status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.submission-action-bar__label {
+  color: var(--color-text-soft);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.submission-action-bar__error {
+  width: 100%;
+  margin: 0;
+  color: var(--color-danger-text);
+  font-size: 0.88rem;
+}
+
 .list-detail-layout {
   display: grid;
   gap: var(--space-3);

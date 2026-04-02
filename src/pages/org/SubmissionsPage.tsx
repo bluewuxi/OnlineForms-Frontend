@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { StatusChip } from '../../components/feedback/StatusChip'
 import { PageHero } from '../../components/layout/PageHero'
-import { SectionHeader } from '../../components/layout/SectionHeader'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listSubmissions, type SubmissionStatus } from '../../lib/api'
 
@@ -20,7 +19,7 @@ const statusOptions: Array<{ value: 'all' | SubmissionStatus; label: string }> =
 
 function formatSubmissionDate(value: string) {
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
 }
 
 function submissionTone(status: SubmissionStatus) {
@@ -31,8 +30,15 @@ function submissionTone(status: SubmissionStatus) {
 
 export function SubmissionsPage() {
   const { session } = useOrgSession()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [courseIdInput, setCourseIdInput] = useState(searchParams.get('courseId') ?? '')
+  const [statusInput, setStatusInput] = useState<'all' | SubmissionStatus>(
+    (searchParams.get('status') as 'all' | SubmissionStatus) ?? 'all',
+  )
+  const [submittedFromInput, setSubmittedFromInput] = useState(searchParams.get('submittedFrom') ?? '')
+  const [submittedToInput, setSubmittedToInput] = useState(searchParams.get('submittedTo') ?? '')
+
   const status = (searchParams.get('status') ?? 'all') as 'all' | SubmissionStatus
   const submittedFrom = searchParams.get('submittedFrom') ?? ''
   const submittedTo = searchParams.get('submittedTo') ?? ''
@@ -42,7 +48,7 @@ export function SubmissionsPage() {
     queryKey: [
       'org-submissions',
       session?.tenantId,
-      courseIdInput,
+      searchParams.get('courseId'),
       status,
       submittedFrom,
       submittedTo,
@@ -67,69 +73,64 @@ export function SubmissionsPage() {
     enabled: Boolean(session),
   })
 
-  function updateParams(nextParams: Record<string, string | undefined>) {
-    const merged = new URLSearchParams(searchParams)
-
-    Object.entries(nextParams).forEach(([key, value]) => {
-      if (value) {
-        merged.set(key, value)
-      } else {
-        merged.delete(key)
-      }
-    })
-
-    setSearchParams(merged)
+  function applyFilters() {
+    const next = new URLSearchParams()
+    if (courseIdInput.trim()) next.set('courseId', courseIdInput.trim())
+    if (statusInput !== 'all') next.set('status', statusInput)
+    if (submittedFromInput) next.set('submittedFrom', submittedFromInput)
+    if (submittedToInput) next.set('submittedTo', submittedToInput)
+    setSearchParams(next)
   }
 
   function clearFilters() {
     setCourseIdInput('')
+    setStatusInput('all')
+    setSubmittedFromInput('')
+    setSubmittedToInput('')
     setSearchParams(new URLSearchParams())
+  }
+
+  function updateCursor(nextCursor: string) {
+    const merged = new URLSearchParams(searchParams)
+    merged.set('cursor', nextCursor)
+    setSearchParams(merged)
   }
 
   return (
     <div className="page-stack">
       <PageHero
         badge="Org portal"
-        title="Submission review queue"
-        description="A shared layout for filtered submission review, queue monitoring, and follow-up actions."
+        title="Submissions"
+        description="Review and process enrollment submissions from the public application forms."
       />
 
       <section className="content-panel">
-        <SectionHeader
-          eyebrow="Queue controls"
-          title="Filters and list layout"
-          description="Use the shared filter surface to narrow the review queue without losing list context."
-        />
         <form
-          className="org-filter-grid"
+          className="submissions-filter-bar"
+          aria-label="Submission filters"
           onSubmit={(event) => {
             event.preventDefault()
-            updateParams({
-              courseId: courseIdInput.trim() || undefined,
-              cursor: undefined,
-            })
+            applyFilters()
           }}
         >
-          <label className="session-form__field">
-            <span>Course ID</span>
+          <div className="submissions-filter-bar__field">
+            <label htmlFor="sub-course-id">Course ID</label>
             <input
+              id="sub-course-id"
               onChange={(event) => setCourseIdInput(event.target.value)}
               placeholder="crs_..."
               type="text"
               value={courseIdInput}
             />
-          </label>
-          <label className="session-form__field">
-            <span>Status</span>
+          </div>
+          <div className="submissions-filter-bar__field">
+            <label htmlFor="sub-status">Status</label>
             <select
+              id="sub-status"
               onChange={(event) =>
-                updateParams({
-                  status:
-                    event.target.value === 'all' ? undefined : event.target.value,
-                  cursor: undefined,
-                })
+                setStatusInput(event.target.value as 'all' | SubmissionStatus)
               }
-              value={status}
+              value={statusInput}
             >
               {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -137,36 +138,28 @@ export function SubmissionsPage() {
                 </option>
               ))}
             </select>
-          </label>
-          <label className="session-form__field">
-            <span>Submitted from</span>
+          </div>
+          <div className="submissions-filter-bar__field">
+            <label htmlFor="sub-from">From</label>
             <input
-              onChange={(event) =>
-                updateParams({
-                  submittedFrom: event.target.value || undefined,
-                  cursor: undefined,
-                })
-              }
+              id="sub-from"
+              onChange={(event) => setSubmittedFromInput(event.target.value)}
               type="date"
-              value={submittedFrom}
+              value={submittedFromInput}
             />
-          </label>
-          <label className="session-form__field">
-            <span>Submitted to</span>
+          </div>
+          <div className="submissions-filter-bar__field">
+            <label htmlFor="sub-to">To</label>
             <input
-              onChange={(event) =>
-                updateParams({
-                  submittedTo: event.target.value || undefined,
-                  cursor: undefined,
-                })
-              }
+              id="sub-to"
+              onChange={(event) => setSubmittedToInput(event.target.value)}
               type="date"
-              value={submittedTo}
+              value={submittedToInput}
             />
-          </label>
-          <div className="org-filter-grid__actions">
+          </div>
+          <div className="submissions-filter-bar__actions">
             <button className="button button--primary" type="submit">
-              Apply filters
+              Search
             </button>
             <button
               className="button button--ghost"
@@ -182,14 +175,14 @@ export function SubmissionsPage() {
       {submissionsQuery.isLoading ? (
         <LoadingState
           title="Loading submissions"
-          message="Fetching tenant submissions with the selected review filters."
+          message="Fetching tenant submissions with the selected filters."
         />
       ) : null}
 
       {submissionsQuery.isError ? (
         <ErrorState
-          title="We could not load the review queue"
-          message="The submissions request failed. Check the org session or retry the request."
+          title="Could not load submissions"
+          message="The submissions request failed. Check the org session or retry."
         />
       ) : null}
 
@@ -197,49 +190,53 @@ export function SubmissionsPage() {
         submissionsQuery.data?.items.length ? (
           <>
             <section className="content-panel">
-              <SectionHeader
-                eyebrow="Submission list"
-                title="Current tenant submissions"
-                description="A list-detail review surface built on the shared system primitives."
-              />
+              <div className="section-header">
+                <div className="section-header__copy">
+                  <p className="section-heading__eyebrow">Results</p>
+                  <h2>{submissionsQuery.data.items.length} submission{submissionsQuery.data.items.length !== 1 ? 's' : ''}</h2>
+                </div>
+              </div>
               <div className="responsive-table">
-                <table className="data-table">
+                <table className="data-table submissions-table">
                   <thead>
                     <tr>
                       <th scope="col">Applicant</th>
                       <th scope="col">Course</th>
                       <th scope="col">Status</th>
                       <th scope="col">Submitted</th>
-                      <th scope="col">Action</th>
+                      <th scope="col" aria-label="Open detail" />
                     </tr>
                   </thead>
                   <tbody>
                     {submissionsQuery.data.items.map((submission) => (
-                      <tr key={submission.id}>
+                      <tr
+                        key={submission.id}
+                        className="submissions-table__row"
+                        onClick={() => navigate(`/org/submissions/${submission.id}`)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            navigate(`/org/submissions/${submission.id}`)
+                          }
+                        }}
+                        aria-label={`Open submission from ${submission.applicantName || 'unknown applicant'}`}
+                      >
                         <td>
                           <strong>{submission.applicantName || 'Unknown applicant'}</strong>
-                          <div className="table-subtext">
-                            {submission.applicantEmail || submission.id}
-                          </div>
+                          {submission.applicantEmail ? (
+                            <div className="table-subtext">{submission.applicantEmail}</div>
+                          ) : null}
                         </td>
                         <td>{submission.courseTitle || submission.courseId}</td>
                         <td>
-                          <StatusChip
-                            className={`status-pill status-pill--${submission.status}`}
-                            tone={submissionTone(submission.status)}
-                          >
+                          <StatusChip tone={submissionTone(submission.status)}>
                             {submission.status}
                           </StatusChip>
                         </td>
                         <td>{formatSubmissionDate(submission.submittedAt)}</td>
-                        <td>
-                          <Link
-                            className="button button--secondary"
-                            to={`/org/submissions/${submission.id}`}
-                          >
-                            Open detail
-                          </Link>
-                        </td>
+                        <td className="submissions-table__chevron" aria-hidden="true">›</td>
                       </tr>
                     ))}
                   </tbody>
@@ -248,18 +245,16 @@ export function SubmissionsPage() {
             </section>
 
             <section className="pagination-panel" aria-label="Submission pagination">
-              <p>Showing up to {pageSize} tenant submissions for the active filters.</p>
+              <p>Showing up to {pageSize} submissions.</p>
               {submissionsQuery.data.nextCursor ? (
                 <button
                   className="button button--secondary"
                   onClick={() =>
-                    updateParams({
-                      cursor: submissionsQuery.data?.nextCursor || undefined,
-                    })
+                    updateCursor(submissionsQuery.data?.nextCursor || '')
                   }
                   type="button"
                 >
-                  Load more submissions
+                  Load more
                 </button>
               ) : (
                 <span className="pagination-panel__hint">No more results</span>
@@ -269,7 +264,7 @@ export function SubmissionsPage() {
         ) : (
           <EmptyState
             title="No submissions matched your filters"
-            message="Try widening the review window, clearing the course filter, or checking back after new enrollments are submitted."
+            message="Try widening the date range, clearing the course filter, or checking back after new enrollments are submitted."
             actionLabel="Clear filters"
             onAction={clearFilters}
           />
