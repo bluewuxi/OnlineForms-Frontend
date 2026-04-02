@@ -38,7 +38,7 @@ Implement tasks strictly in order. For each task:
 
 ## Tasks
 
-- [ ] F12-01 Design token and global style foundation
+- [x] F12-01 Design token and global style foundation
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/60
   Scope:
   - Revise CSS custom properties: reduce panel radius to `0.75rem`, control radius to `0.5rem`
@@ -49,7 +49,7 @@ Implement tasks strictly in order. For each task:
   - Refactor `index.css` into clearly labelled sections (Tokens, Reset, Layout, Typography, Buttons, Forms, Components, Portals, Responsive)
   - Ensure all existing class names are preserved so no page regressions occur in this task
 
-- [ ] F12-02 Navigation architecture redesign
+- [x] F12-02 Navigation architecture redesign
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/61
   Scope:
   - **Public header**: remove the `Management` nav link; keep brand name only (or brand + `Home` if on a nested page)
@@ -65,7 +65,7 @@ Implement tasks strictly in order. For each task:
   - Sidebar highlights the active route
   - Mobile: sidebar accessible via hamburger/drawer
 
-- [ ] F12-03 Public portal layout redesign
+- [x] F12-03 Public portal layout redesign
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/62
   Scope:
   - **HomePage**: move "How it works" editorial section below the tenant provider grid, not above it; remove the prominent management CTA section (or reduce to a discreet footer link)
@@ -78,7 +78,7 @@ Implement tasks strictly in order. For each task:
   - Provider directory is the first meaningful content on the home page
   - Enrollment window facts are clearly readable
 
-- [ ] F12-04 Enrollment form UX redesign
+- [x] F12-04 Enrollment form UX redesign
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/63
   Scope:
   - Improve field card visual treatment: cleaner card borders, less aggressive rounded corners
@@ -92,7 +92,7 @@ Implement tasks strictly in order. For each task:
   - Errors are inline, adjacent to their field
   - Success state does not show raw data
 
-- [ ] F12-05 Org course management redesign
+- [x] F12-05 Org course management redesign
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/64
   Scope:
   - **CoursesPage**: replace 7-column table with a card grid (2 columns on desktop, 1 on mobile); each card shows: title, short description, status chip, delivery mode, formatted date range, active form indicator, and two action buttons (Open / Form Designer); remove "Next step" as a column (move to card subtitle or tooltip)
@@ -105,7 +105,7 @@ Implement tasks strictly in order. For each task:
   - No full-page reload on empty-state action
   - Date strings are human-readable
 
-- [ ] F12-06 Org submissions redesign
+- [x] F12-06 Org submissions redesign
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/65
   Scope:
   - **SubmissionsPage**: replace 4-field filter row with an inline compact filter bar (keyword/course input + status select + date pickers in a single row with a search button); improve table columns — drop verbose "Action" column, make each row itself clickable/navigable
@@ -116,7 +116,7 @@ Implement tasks strictly in order. For each task:
   - Submission rows are navigable without a separate action link column
   - Status chip tones match design system
 
-- [ ] F12-07 Internal portal layout and density refinement
+- [x] F12-07 Internal portal layout and density refinement
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/66
   Scope:
   - With the new sidebar shell (from F12-02) in place, tighten the list-detail proportions for both `/internal/tenants` and `/internal/users`
@@ -129,7 +129,7 @@ Implement tasks strictly in order. For each task:
   - Workspace panels are visually tighter without feeling cramped
   - Activity timeline is readable and well-spaced
 
-- [ ] F12-08 Mobile and responsive pass
+- [x] F12-08 Mobile and responsive pass
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/67
   Scope:
   - Verify all redesigned pages at 375px, 768px, and 1280px widths
