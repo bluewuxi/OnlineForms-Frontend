@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
-import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { buildFormSchemaUpsertPayload } from '../../features/form-designer/schemaPayload'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
@@ -679,29 +678,6 @@ export function FormDesignerPage() {
         badge="Form designer"
         title="Course form template"
         description="Stay inside the course workflow while you refine the enrolment schema, save the next version, and return to publish-ready details."
-      />
-
-      <OrgWorkspaceNav
-        eyebrow="Course workflow"
-        title="Form design should stay attached to course authoring"
-        items={[
-          {
-            label: 'Course details',
-            description: 'Return to the linked course record and publish controls.',
-            to: courseId ? `/org/courses/${courseId}` : '/org/courses',
-          },
-          {
-            label: 'Form designer',
-            description: 'Edit fields, validation, and versioning for this intake.',
-            to: courseId ? `/org/courses/${courseId}/form` : undefined,
-            state: 'current',
-          },
-          {
-            label: 'Course list',
-            description: 'Go back to the course workspace and open another intake.',
-            to: '/org/courses',
-          },
-        ]}
       />
 
       {schemaQuery.isLoading ? (

@@ -4,7 +4,6 @@ import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { StatusChip } from '../../components/feedback/StatusChip'
-import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { SectionHeader } from '../../components/layout/SectionHeader'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
@@ -135,29 +134,6 @@ export function BrandingPage() {
         badge="Org settings"
         title="Branding and public identity"
         description="Maintain the tenant logo and the public description shown on the tenant landing page from one settings surface."
-      />
-
-      <OrgWorkspaceNav
-        eyebrow="Settings workspace"
-        title="Settings tools stay grouped together"
-        items={[
-          {
-            label: 'Branding',
-            description: 'Maintain the logo and tenant-facing public description.',
-            to: '/org/branding',
-            state: 'current',
-          },
-          {
-            label: 'Audit',
-            description: 'Inspect recent tenant actions and trace identifiers.',
-            to: '/org/audit',
-          },
-          {
-            label: 'Back to courses',
-            description: 'Return to the course workspace when settings work is done.',
-            to: '/org/courses',
-          },
-        ]}
       />
 
       <section className="content-panel">

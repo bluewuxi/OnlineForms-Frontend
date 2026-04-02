@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
-import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listCourses } from '../../lib/api'
@@ -53,29 +52,6 @@ export function CoursesPage() {
         badge="Org workspace"
         title="Courses are the center of tenant operations"
         description="Create and refine course records first, then move directly into form design, publish readiness, and submission review."
-      />
-
-      <OrgWorkspaceNav
-        eyebrow="Course workflow"
-        title="Move from course record to published intake"
-        items={[
-          {
-            label: 'Course list',
-            description: 'Review current drafts, published intakes, and archived courses.',
-            to: '/org/courses',
-            state: 'current',
-          },
-          {
-            label: 'Create course',
-            description: 'Start a new course record before moving into form design.',
-            to: '/org/courses/new',
-          },
-          {
-            label: 'Settings',
-            description: 'Open tenant branding and audit tools without leaving the org portal.',
-            to: '/org/settings',
-          },
-        ]}
       />
 
       {coursesQuery.isLoading ? (

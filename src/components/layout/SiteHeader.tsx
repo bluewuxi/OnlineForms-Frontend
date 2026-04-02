@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { startCognitoLogout } from '../../features/org-session/cognito'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 
@@ -9,23 +9,10 @@ type SiteHeaderProps = {
 
 const publicLinks = [
   { to: '/', label: 'Home' },
-  { to: '/management', label: 'Management' },
-]
-
-const orgLinks = [
-  { to: '/org/courses', label: 'Courses' },
-  { to: '/org/submissions', label: 'Submissions' },
-  { to: '/org/settings', label: 'Settings' },
 ]
 
 const loginLinks = [
   { to: '/', label: 'Home' },
-]
-
-const internalLinks = [
-  { to: '/internal', label: 'Home' },
-  { to: '/internal/tenants', label: 'Tenants' },
-  { to: '/internal/users', label: 'Users' },
 ]
 
 function isLikelyGuid(value: string | undefined) {
@@ -37,15 +24,12 @@ function isLikelyGuid(value: string | undefined) {
 
 export function SiteHeader({ section }: SiteHeaderProps) {
   const links =
-    section === 'org'
-      ? orgLinks
-      : section === 'login'
-        ? loginLinks
-        : section === 'internal'
-          ? internalLinks
-          : publicLinks
+    section === 'login'
+      ? loginLinks
+      : section === 'org' || section === 'internal'
+        ? null
+        : publicLinks
   const { session, signOut } = useOrgSession()
-  const location = useLocation()
   const navigate = useNavigate()
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
@@ -101,26 +85,21 @@ export function SiteHeader({ section }: SiteHeaderProps) {
         <NavLink className="site-header__brand" to="/">
           OnlineForms
         </NavLink>
-        <nav aria-label="Primary" className="site-header__nav">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                isActive ||
-                (section === 'org' &&
-                  link.to === '/org/settings' &&
-                  (location.pathname.startsWith('/org/settings') ||
-                    location.pathname.startsWith('/org/branding') ||
-                    location.pathname.startsWith('/org/audit')))
-                  ? 'site-header__link site-header__link--active'
-                  : 'site-header__link'
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        {links ? (
+          <nav aria-label="Primary" className="site-header__nav">
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  isActive ? 'site-header__link site-header__link--active' : 'site-header__link'
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        ) : null}
         {showSession && session ? (
           <div className="site-header__session" ref={accountMenuRef}>
             <button
@@ -153,12 +132,6 @@ export function SiteHeader({ section }: SiteHeaderProps) {
                   }
                 }}
               >
-                <button className="site-header__account-item" type="button" role="menuitem" disabled>
-                  Profile (Coming soon)
-                </button>
-                <button className="site-header__account-item" type="button" role="menuitem" disabled>
-                  Settings (Coming soon)
-                </button>
                 <button
                   className="site-header__account-item"
                   type="button"
