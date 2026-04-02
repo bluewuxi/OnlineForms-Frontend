@@ -1,38 +1,34 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { StatusChip } from '../../components/feedback/StatusChip'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listCourses } from '../../lib/api'
 
+function formatLocalDate(value?: string | null) {
+  if (!value) return '—'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
+}
+
 function formatDateRange(startDate: string, endDate: string) {
-  return `${startDate} to ${endDate}`
+  return `${formatLocalDate(startDate)} – ${formatLocalDate(endDate)}`
 }
 
-function formatCourseStatus(status: string) {
-  return status.replace(/_/g, ' ')
-}
-
-function describeNextStep(activeFormVersion: number | null | undefined, status: string) {
-  if (status === 'draft' && !activeFormVersion) {
-    return 'Design the first enrolment form'
-  }
-
-  if (status === 'draft') {
-    return 'Review details, then publish'
-  }
-
-  if (status === 'published') {
-    return 'Monitor submissions and archive when finished'
-  }
-
-  return 'Reopen detail to review archived setup'
+function courseStatusTone(
+  status: string,
+): 'success' | 'warning' | 'muted' {
+  if (status === 'published') return 'success'
+  if (status === 'draft') return 'warning'
+  return 'muted'
 }
 
 export function CoursesPage() {
   const { session } = useOrgSession()
+  const navigate = useNavigate()
   const coursesQuery = useQuery({
     queryKey: ['org-courses', session?.tenantId],
     queryFn: async () => {
@@ -50,106 +46,95 @@ export function CoursesPage() {
     <div className="page-stack">
       <PageHero
         badge="Org workspace"
-        title="Courses are the center of tenant operations"
-        description="Create and refine course records first, then move directly into form design, publish readiness, and submission review."
+        title="Courses"
+        description="Create and manage course records, then move into form design, publishing, and submission review."
       />
 
       {coursesQuery.isLoading ? (
         <LoadingState
-          title="Loading tenant courses"
-          message="Fetching current draft, published, and archived courses for this tenant."
+          title="Loading courses"
+          message="Fetching draft, published, and archived courses for this tenant."
         />
       ) : null}
 
       {coursesQuery.isError ? (
         <ErrorState
-          title="We could not load tenant courses"
-          message="The course list request failed. Check the org session or retry the request."
+          title="Could not load courses"
+          message="The course list request failed. Check the org session or retry."
         />
       ) : null}
 
       {!coursesQuery.isLoading && !coursesQuery.isError ? (
         coursesQuery.data?.items.length ? (
           <section className="content-panel">
-            <div className="section-heading">
-              <p className="section-heading__eyebrow">Course list</p>
-              <h2>Current tenant courses</h2>
+            <div className="section-header">
+              <div className="section-header__copy">
+                <p className="section-heading__eyebrow">Course list</p>
+                <h2>{coursesQuery.data.items.length} course{coursesQuery.data.items.length !== 1 ? 's' : ''}</h2>
+              </div>
+              <div className="section-header__actions">
+                <Link className="button button--primary" to="/org/courses/new">
+                  Create course
+                </Link>
+              </div>
             </div>
-            <div className="responsive-table">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Course</th>
-                    <th scope="col">Form</th>
-                    <th scope="col">Delivery</th>
-                    <th scope="col">Schedule</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Next step</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {coursesQuery.data.items.map((course) => (
-                    <tr key={course.id}>
-                      <td>
-                        <strong>{course.title}</strong>
-                        <div className="table-subtext">
-                          {course.shortDescription}
-                        </div>
-                      </td>
-                      <td>
-                        {course.activeFormVersion ? (
-                          <>
-                            <strong>Version {course.activeFormVersion}</strong>
-                            <div className="table-subtext">Ready for authoring updates</div>
-                          </>
-                        ) : (
-                          <>
-                            <strong>No active form</strong>
-                            <div className="table-subtext">Start in form designer</div>
-                          </>
-                        )}
-                      </td>
-                      <td>{course.deliveryMode}</td>
-                      <td>{formatDateRange(course.startDate, course.endDate)}</td>
-                      <td>
-                        <span
-                          className={`status-pill status-pill--${course.status}`}
-                        >
-                          {formatCourseStatus(course.status)}
-                        </span>
-                      </td>
-                      <td>{describeNextStep(course.activeFormVersion, course.status)}</td>
-                      <td>
-                        <div className="button-row">
-                          <Link
-                            className="button button--secondary"
-                            to={`/org/courses/${course.id}`}
-                          >
-                            Open details
-                          </Link>
-                          <Link
-                            className="button button--ghost"
-                            to={`/org/courses/${course.id}/form`}
-                          >
-                            Form designer
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            <div className="org-course-card-grid">
+              {coursesQuery.data.items.map((course) => (
+                <div key={course.id} className="org-course-card">
+                  <div className="org-course-card__header">
+                    <div className="org-course-card__title-row">
+                      <strong className="org-course-card__title">{course.title}</strong>
+                      <StatusChip tone={courseStatusTone(course.status)}>
+                        {course.status}
+                      </StatusChip>
+                    </div>
+                    {course.shortDescription ? (
+                      <p className="org-course-card__summary">{course.shortDescription}</p>
+                    ) : null}
+                  </div>
+
+                  <div className="org-course-card__meta">
+                    <span className="org-course-card__meta-item">
+                      <span className="org-course-card__meta-label">Delivery</span>
+                      {course.deliveryMode}
+                    </span>
+                    <span className="org-course-card__meta-item">
+                      <span className="org-course-card__meta-label">Dates</span>
+                      {formatDateRange(course.startDate, course.endDate)}
+                    </span>
+                    <span className="org-course-card__meta-item">
+                      <span className="org-course-card__meta-label">Form</span>
+                      {course.activeFormVersion
+                        ? `Version ${course.activeFormVersion}`
+                        : 'No form yet'}
+                    </span>
+                  </div>
+
+                  <div className="org-course-card__actions">
+                    <Link
+                      className="button button--primary"
+                      to={`/org/courses/${course.id}`}
+                    >
+                      Open details
+                    </Link>
+                    <Link
+                      className="button button--ghost"
+                      to={`/org/courses/${course.id}/form`}
+                    >
+                      Form designer
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         ) : (
           <EmptyState
-            title="No courses are available yet"
-            message="Create the first tenant course to begin the publishing and enrollment workflow."
+            title="No courses yet"
+            message="Create the first course to begin the publishing and enrollment workflow."
             actionLabel="Create course"
-            onAction={() => {
-              window.location.assign('/org/courses/new')
-            }}
+            onAction={() => navigate('/org/courses/new')}
           />
         )
       ) : null}

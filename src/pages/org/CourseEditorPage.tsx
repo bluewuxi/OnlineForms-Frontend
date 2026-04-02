@@ -436,53 +436,53 @@ function CourseEditorForm({
           </div>
         ) : null}
 
-        {saveMessage ? (
-          <div className="designer-banner designer-banner--success" role="status">
-            <strong>Course saved successfully.</strong>
-            <span>{saveMessage}</span>
+        <div className="course-editor-save-bar">
+          <div className="course-editor-save-bar__left">
+            {hasUnsavedChanges ? (
+              <span className="course-editor-save-bar__unsaved">Unsaved changes</span>
+            ) : saveMessage ? (
+              <span className="course-editor-save-bar__saved">{saveMessage}</span>
+            ) : null}
           </div>
-        ) : null}
-
-        <div className="button-row">
-          <button
-            className="button button--primary"
-            disabled={isSaving || !hasUnsavedChanges}
-            type="submit"
-          >
-            {isSaving
-              ? 'Saving course...'
-              : isCreateMode
-                ? 'Create course'
-                : 'Save changes'}
-          </button>
-          <Link className="button button--secondary" to="/org/courses">
-            Back to courses
-          </Link>
-          {!isCreateMode && courseId ? (
-            <>
-              <button
-                className="button button--secondary"
-                disabled={isSaving || workflowState.status !== 'draft'}
-                onClick={() => publishMutation.mutate()}
-                type="button"
-              >
-                Publish course
-              </button>
-              <button
-                className="button button--ghost"
-                disabled={isSaving || workflowState.status !== 'published'}
-                onClick={() => archiveMutation.mutate()}
-                type="button"
-              >
-                Archive course
-              </button>
-            </>
-          ) : null}
-          {!isCreateMode && courseId ? (
-            <Link className="button button--ghost" to={`/org/courses/${courseId}/form`}>
-              Open form designer
+          <div className="button-row">
+            <button
+              className="button button--primary"
+              disabled={isSaving || !hasUnsavedChanges}
+              type="submit"
+            >
+              {isSaving
+                ? 'Saving...'
+                : isCreateMode
+                  ? 'Create course'
+                  : 'Save changes'}
+            </button>
+            {!isCreateMode && courseId ? (
+              <>
+                <button
+                  className="button button--secondary"
+                  disabled={isSaving || workflowState.status !== 'draft'}
+                  onClick={() => publishMutation.mutate()}
+                  type="button"
+                >
+                  Publish
+                </button>
+                <button
+                  className="button button--ghost"
+                  disabled={isSaving || workflowState.status !== 'published'}
+                  onClick={() => archiveMutation.mutate()}
+                  type="button"
+                >
+                  Archive
+                </button>
+                <Link className="button button--ghost" to={`/org/courses/${courseId}/form`}>
+                  Form designer
+                </Link>
+              </>
+            ) : null}
+            <Link className="button button--ghost" to="/org/courses">
+              Back
             </Link>
-          ) : null}
+          </div>
         </div>
       </form>
     </section>
