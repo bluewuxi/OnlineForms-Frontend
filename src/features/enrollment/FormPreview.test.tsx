@@ -67,14 +67,14 @@ describe('FormPreview', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: /your enrolment has been submitted/i }),
+        screen.getByRole('heading', { name: /application submitted/i }),
       ).toBeInTheDocument(),
     )
 
     expect(screen.getByText(/intro to ai/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /review course again/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /back to courses/i })).toHaveAttribute(
       'href',
-      '/acme-training/courses/course-1',
+      '/acme-training/courses',
     )
 
     expect(createEnrollmentMock).toHaveBeenCalledWith(
