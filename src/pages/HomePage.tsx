@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { RichText } from '../components/content/RichText'
 import { EmptyState } from '../components/feedback/EmptyState'
 import { ErrorState } from '../components/feedback/ErrorState'
 import { LoadingState } from '../components/feedback/LoadingState'
@@ -95,10 +96,16 @@ export function HomePage() {
                     {tenant.tenantCode}
                   </span>
                   <h3>{tenant.displayName}</h3>
-                  <p className="tenant-directory-card__summary">
-                    {tenant.description ||
-                      'Open this provider page to browse currently published courses.'}
-                  </p>
+                  {tenant.description ? (
+                    <RichText
+                      className="tenant-directory-card__summary rich-text"
+                      html={tenant.description}
+                    />
+                  ) : (
+                    <p className="tenant-directory-card__summary">
+                      Open this provider page to browse currently published courses.
+                    </p>
+                  )}
                   <span className="tenant-directory-card__cta">
                     Browse provider
                   </span>

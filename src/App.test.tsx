@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
@@ -40,6 +40,52 @@ describe('App routing', () => {
       screen.getByRole('link', { name: /^management$/i }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
+  })
+
+  it('renders provider card descriptions as rich text on the landing page', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/public/tenants')) {
+        return new Response(
+          JSON.stringify({
+            data: [
+              {
+                tenantId: 'tenant-123',
+                tenantCode: 'std-school',
+                displayName: 'Standard School',
+                description:
+                  '<p>Explore <strong>studio courses</strong> and <a href=\"/std-school\">meet the provider</a>.</p>',
+                isActive: true,
+              },
+            ],
+            page: {
+              limit: 20,
+              nextCursor: null,
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    }) as typeof fetch
+
+    try {
+      renderRoute('/')
+      const providerCard = await screen.findByRole('link', {
+        name: /standard school/i,
+      })
+      expect(within(providerCard).getByText(/studio courses/i)).toBeInTheDocument()
+      expect(within(providerCard).getByRole('link', { name: /meet the provider/i })).toHaveAttribute(
+        'href',
+        '/std-school',
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+    }
   })
 
   it('redirects org routes to login without a session', async () => {
@@ -262,7 +308,8 @@ describe('App routing', () => {
             tenantCode: 'std-school',
             displayName: 'Standard School',
             description: '<p>Tenant <strong>profile</strong> with <a href="/std-school/courses">course links</a>.</p>',
-            homePageContent: 'Welcome to Standard School.',
+            homePageContent:
+              '<h2>Welcome</h2><p>Explore the <a href="/std-school/courses">latest courses</a>.</p>',
             isActive: true,
             branding: {
               logoUrl: 'https://assets.example.com/std-school-logo.svg',
@@ -286,6 +333,10 @@ describe('App routing', () => {
         'https://assets.example.com/std-school-logo.svg',
       )
       expect(screen.getByRole('link', { name: /course links/i })).toHaveAttribute(
+        'href',
+        '/std-school/courses',
+      )
+      expect(screen.getByRole('link', { name: /latest courses/i })).toHaveAttribute(
         'href',
         '/std-school/courses',
       )

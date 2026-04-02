@@ -75,9 +75,10 @@ export function TenantHomePage() {
                 <p className="section-heading__eyebrow">Before you browse</p>
                 <h2>Start with the essentials</h2>
               </div>
-              <p className="content-panel__body-copy">
-                {tenantQuery.data.homePageContent}
-              </p>
+              <RichText
+                className="rich-text content-panel__body-copy content-panel__body-copy--wide"
+                html={tenantQuery.data.homePageContent}
+              />
             </section>
           ) : null}
 

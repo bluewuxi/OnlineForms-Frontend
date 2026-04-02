@@ -133,6 +133,18 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Public tenant pages render real logo assets when backend returns a resolved `logoUrl`
   - Org branding surfaces stay compatible with resolved backend asset URLs
 
+- [x] F11-10 Fix public tenant rich-text rendering gaps
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/58
+  Scope:
+  - Render tenant `homePageContent` safely on `/:tenantCode`
+  - Render tenant HTML `description` safely in the public home page `Providers` section
+  - Reuse the shared `RichText` renderer instead of plain text output
+  - Add regression coverage for both public surfaces
+  Acceptance focus:
+  - Tenant-authored HTML displays correctly on the tenant home page
+  - Provider cards on `/` no longer show escaped HTML tags
+  - Frontend tests lock both rendering paths
+
 ## Primary References
 
 - `docs/specs/FRONTEND_UI_SPEC.md`
