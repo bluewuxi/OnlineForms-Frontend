@@ -99,6 +99,18 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Keyboard and focus behavior is solid across important flows
   - Remaining placeholder-feeling state treatments are cleaned up
 
+- [x] F11-07 Course full-description rich-text support
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/55
+  Scope:
+  - Treat course `fullDescription` as HTML-authored content in the frontend, matching tenant description handling
+  - Update org course editing to use an HTML-capable editor with safe preview for `fullDescription`
+  - Render public course detail `fullDescription` as safe rich text with deliberate spacing and typography
+  - Keep `shortDescription` plain text
+  Acceptance focus:
+  - Course maintenance supports HTML authoring for long-form course description
+  - Public course detail renders rich course content safely
+  - No backend contract changes are required for the feature
+
 ## Primary References
 
 - `docs/specs/FRONTEND_UI_SPEC.md`

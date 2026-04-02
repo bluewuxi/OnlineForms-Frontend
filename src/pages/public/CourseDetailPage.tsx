@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
+import { RichText } from '../../components/content/RichText'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
@@ -56,7 +57,6 @@ export function CourseDetailPage() {
             badge="Course enrolment"
             title={courseQuery.data.title}
             description={
-              courseQuery.data.description ||
               courseQuery.data.summary ||
               'Review the course information, confirm the enrolment window, and continue into the application form below.'
             }
@@ -112,6 +112,19 @@ export function CourseDetailPage() {
               </Link>
             </div>
           </section>
+
+          {courseQuery.data.description ? (
+            <section className="content-panel">
+              <div className="section-heading">
+                <p className="section-heading__eyebrow">Course overview</p>
+                <h2>What this course covers</h2>
+              </div>
+              <RichText
+                html={courseQuery.data.description}
+                className="rich-text content-panel__body-copy content-panel__body-copy--wide"
+              />
+            </section>
+          ) : null}
 
           <FormPreview
             courseId={courseId}

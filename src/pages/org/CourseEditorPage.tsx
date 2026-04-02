@@ -3,6 +3,7 @@ import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
@@ -317,15 +318,13 @@ function CourseEditorForm({
             value={draft.shortDescription}
           />
         </label>
-        <label className="session-form__field">
-          <span>Full description</span>
-          <textarea
-            className="designer-textarea"
-            onChange={(event) => updateField('fullDescription', event.target.value)}
-            rows={5}
-            value={draft.fullDescription}
-          />
-        </label>
+        <HtmlEditorField
+          label="Full description"
+          hint="Supports safe rich HTML for the public course detail page. Keep short description plain for summaries and lists."
+          value={draft.fullDescription}
+          onChange={(value) => updateField('fullDescription', value)}
+          rows={10}
+        />
         <div className="field-grid field-grid--course-dates">
           <label className="session-form__field">
             <span>Start date</span>

@@ -236,6 +236,53 @@ describe('App routing', () => {
     }
   })
 
+  it('renders course detail rich text safely', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/public/std-school/courses/crs_demo_001')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'crs_demo_001',
+              title: 'Intro to AI',
+              shortDescription: 'Short summary',
+              fullDescription: '<p>Learn <strong>core concepts</strong> and review the <a href=\"/std-school/courses\">course list</a>.</p>',
+              deliveryMode: 'online',
+              startDate: '2026-04-01',
+              endDate: '2026-04-30',
+              locationText: null,
+              capacity: 20,
+              enrollmentOpenAt: '2026-03-01T00:00:00Z',
+              enrollmentCloseAt: '2026-03-31T00:00:00Z',
+              enrollmentOpenNow: true,
+              enrollmentStatus: 'open',
+              formAvailable: false,
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    }) as typeof fetch
+
+    try {
+      renderRoute('/std-school/courses/crs_demo_001')
+      expect(
+        await screen.findByRole('heading', { name: /what this course covers/i }),
+      ).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /course list/i })).toHaveAttribute(
+        'href',
+        '/std-school/courses',
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
   it('renders internal tenant management route when a session exists', async () => {
     window.localStorage.setItem(
       ORG_SESSION_STORAGE_KEY,
