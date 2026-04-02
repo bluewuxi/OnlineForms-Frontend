@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
@@ -37,6 +37,7 @@ export function BrandingPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadedAsset, setUploadedAsset] = useState<OrgAsset | null>(null)
   const [descriptionDraft, setDescriptionDraft] = useState('')
+  const [descriptionDirty, setDescriptionDirty] = useState(false)
   const [brandingResult, setBrandingResult] =
     useState<BrandingUpdateResponse | null>(null)
 
@@ -53,18 +54,13 @@ export function BrandingPage() {
     },
   })
 
-  useEffect(() => {
-    if (!brandingQuery.data) {
-      return
-    }
-
-    setDescriptionDraft(brandingQuery.data.description || '')
-    setBrandingResult((current) => current ?? brandingQuery.data)
-  }, [brandingQuery.data])
-
   const currentBranding = useMemo<BrandingSettings | null>(() => {
     return brandingResult || brandingQuery.data || null
   }, [brandingQuery.data, brandingResult])
+
+  const effectiveDescriptionDraft = descriptionDirty
+    ? descriptionDraft
+    : currentBranding?.description || ''
 
   const uploadMutation = useMutation<
     OrgAsset,
@@ -109,6 +105,7 @@ export function BrandingPage() {
     onSuccess(result) {
       setBrandingResult(result)
       setDescriptionDraft(result.description || '')
+      setDescriptionDirty(false)
       brandingQuery.refetch()
     },
   })
@@ -180,15 +177,15 @@ export function BrandingPage() {
           </div>
           <div className="field-card">
             <span>Description status</span>
-            <strong>{descriptionDraft.trim() ? 'Configured' : 'Missing'}</strong>
+            <strong>{effectiveDescriptionDraft.trim() ? 'Configured' : 'Missing'}</strong>
           </div>
         </div>
         <div className="button-row">
           <StatusChip tone={currentBranding?.logoAssetId ? 'info' : 'warning'}>
             {currentBranding?.logoAssetId ? 'logo ready' : 'logo missing'}
           </StatusChip>
-          <StatusChip tone={descriptionDraft.trim() ? 'success' : 'warning'}>
-            {descriptionDraft.trim() ? 'description ready' : 'description needed'}
+          <StatusChip tone={effectiveDescriptionDraft.trim() ? 'success' : 'warning'}>
+            {effectiveDescriptionDraft.trim() ? 'description ready' : 'description needed'}
           </StatusChip>
         </div>
         {currentBranding?.logoUrl ? (
@@ -214,15 +211,18 @@ export function BrandingPage() {
           onSubmit={(event) => {
             event.preventDefault()
             brandingMutation.mutate({
-              description: descriptionDraft.trim() || null,
+              description: effectiveDescriptionDraft.trim() || null,
               logoAssetId: currentBranding?.logoAssetId ?? null,
             })
           }}
         >
           <HtmlEditorField
             label="Tenant description"
-            value={descriptionDraft}
-            onChange={setDescriptionDraft}
+            value={effectiveDescriptionDraft}
+            onChange={(value) => {
+              setDescriptionDirty(true)
+              setDescriptionDraft(value)
+            }}
           />
           <div className="session-form__actions">
             <button
@@ -331,7 +331,7 @@ export function BrandingPage() {
               onClick={() =>
                 brandingMutation.mutate({
                   logoAssetId: uploadedAsset.id,
-                  description: descriptionDraft.trim() || null,
+                  description: effectiveDescriptionDraft.trim() || null,
                 })
               }
               type="button"
@@ -346,7 +346,7 @@ export function BrandingPage() {
               onClick={() =>
                 brandingMutation.mutate({
                   logoAssetId: null,
-                  description: descriptionDraft.trim() || null,
+                  description: effectiveDescriptionDraft.trim() || null,
                 })
               }
               type="button"

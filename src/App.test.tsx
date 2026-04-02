@@ -55,7 +55,7 @@ describe('App routing', () => {
                 tenantCode: 'std-school',
                 displayName: 'Standard School',
                 description:
-                  '<p>Explore <strong>studio courses</strong> and <a href=\"/std-school\">meet the provider</a>.</p>',
+                  '<p>Explore <strong>studio courses</strong> and <a href="/std-school">meet the provider</a>.</p>',
                 isActive: true,
               },
             ],
@@ -356,7 +356,7 @@ describe('App routing', () => {
               id: 'crs_demo_001',
               title: 'Intro to AI',
               shortDescription: 'Short summary',
-              fullDescription: '<p>Learn <strong>core concepts</strong> and review the <a href=\"/std-school/courses\">course list</a>.</p>',
+              fullDescription: '<p>Learn <strong>core concepts</strong> and review the <a href="/std-school/courses">course list</a>.</p>',
               deliveryMode: 'online',
               startDate: '2026-04-01',
               endDate: '2026-04-30',
