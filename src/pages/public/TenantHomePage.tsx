@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom'
 import { RichText } from '../../components/content/RichText'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
-import { PageHero } from '../../components/layout/PageHero'
 import { getPublicTenantHome } from '../../lib/api'
 import { normalizeTenantCode } from '../../lib/routing/tenantCode'
 
@@ -38,23 +37,20 @@ export function TenantHomePage() {
 
       {tenantQuery.data ? (
         <>
-          <PageHero
-            badge={tenantQuery.data.tenantCode.toUpperCase()}
-            title={tenantQuery.data.displayName}
-            description="Explore published courses, enrol with confidence, and understand the provider before you begin."
-            aside={
-              tenantQuery.data.branding?.logoUrl ? (
-                <div className="hero-card">
-                  <p className="hero-card__label">Provider identity</p>
-                  <img
-                    alt={`${tenantQuery.data.displayName} logo`}
-                    className="tenant-logo"
-                    src={tenantQuery.data.branding.logoUrl}
-                  />
-                </div>
-              ) : undefined
-            }
-          />
+          <section className="page-hero">
+            <div className="page-hero__content">
+              <span className="page-hero__badge">Training Provider</span>
+              <h1>{tenantQuery.data.displayName}</h1>
+              {tenantQuery.data.branding?.logoUrl ? (
+                <img
+                  alt={`${tenantQuery.data.displayName} logo`}
+                  className="tenant-logo"
+                  src={tenantQuery.data.branding.logoUrl}
+                />
+              ) : null}
+              <p>Explore published courses, enrol with confidence, and understand the provider before you begin.</p>
+            </div>
+          </section>
 
           {tenantQuery.data.description ? (
             <section className="content-panel content-panel--public-intro">

@@ -15,7 +15,21 @@ function formatDate(value?: string | null) {
   }
 
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
+}
+
+function normalizeStatusLabel(value?: string) {
+  if (!value) {
+    return 'Open'
+  }
+
+  if (value === 'upcoming') {
+    return 'Opening soon'
+  }
+
+  return value
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
 export function CourseDetailPage() {
@@ -63,14 +77,24 @@ export function CourseDetailPage() {
             aside={
               <div className="hero-card">
                 <p className="hero-card__label">Enrolment window</p>
-                <ul className="hero-card__list">
-                  <li>Opens: {formatDate(courseQuery.data.enrollmentOpensAt)}</li>
-                  <li>Closes: {formatDate(courseQuery.data.enrollmentClosesAt)}</li>
-                  <li>Status: {courseQuery.data.enrollmentStatus || 'Open'}</li>
-                  <li>
-                    Form: {courseQuery.data.formAvailable === false ? 'Unavailable' : 'Available'}
-                  </li>
-                </ul>
+                <div className="enrollment-window">
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Opens</span>
+                    <span className="enrollment-window__value">{formatDate(courseQuery.data.enrollmentOpensAt)}</span>
+                  </div>
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Closes</span>
+                    <span className="enrollment-window__value">{formatDate(courseQuery.data.enrollmentClosesAt)}</span>
+                  </div>
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Status</span>
+                    <span className="enrollment-window__value">{normalizeStatusLabel(courseQuery.data.enrollmentStatus)}</span>
+                  </div>
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Form</span>
+                    <span className="enrollment-window__value">{courseQuery.data.formAvailable === false ? 'Unavailable' : 'Available'}</span>
+                  </div>
+                </div>
               </div>
             }
           />
@@ -88,10 +112,6 @@ export function CourseDetailPage() {
               <div className="field-card">
                 <span>Duration</span>
                 <strong>{courseQuery.data.durationLabel || 'Not specified'}</strong>
-              </div>
-              <div className="field-card">
-                <span>Form version</span>
-                <strong>{courseQuery.data.formVersion ?? formSchema?.version ?? 'N/A'}</strong>
               </div>
               <div className="field-card">
                 <span>Location</span>

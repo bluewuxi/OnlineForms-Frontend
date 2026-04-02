@@ -338,6 +338,46 @@ textarea:focus-visible {
   margin-top: 1rem;
 }
 
+.enrollment-window {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.enrollment-window__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.enrollment-window__label {
+  min-width: 4.5rem;
+  color: var(--color-text-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.enrollment-window__value {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.public-portal-footer {
+  padding: 1.5rem 0 0.5rem;
+  text-align: center;
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
+}
+
+.public-portal-footer a {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
 .content-card-grid,
 .state-grid,
 .course-grid,
