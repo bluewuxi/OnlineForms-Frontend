@@ -190,7 +190,7 @@ describe('App routing', () => {
               displayName: 'Standard School',
               description: '<p>Current tenant description</p>',
               logoAssetId: 'ast_logo_1',
-              logoUrl: 'https://cdn.example.com/assets/ast_logo_1',
+              logoUrl: 'https://assets.example.com/ast_logo_1.svg',
               updatedAt: '2026-04-02T00:00:00Z',
             },
           }),
@@ -209,6 +209,9 @@ describe('App routing', () => {
       expect(
         await screen.findByRole('heading', { name: /branding and public identity/i }),
       ).toBeInTheDocument()
+      expect(
+        await screen.findByRole('img', { name: /standard school current logo/i }),
+      ).toHaveAttribute('src', 'https://assets.example.com/ast_logo_1.svg')
       expect(
         await screen.findByRole('textbox', { name: /tenant description/i }),
       ).toHaveValue('<p>Current tenant description</p>')
@@ -261,6 +264,9 @@ describe('App routing', () => {
             description: '<p>Tenant <strong>profile</strong> with <a href="/std-school/courses">course links</a>.</p>',
             homePageContent: 'Welcome to Standard School.',
             isActive: true,
+            branding: {
+              logoUrl: 'https://assets.example.com/std-school-logo.svg',
+            },
             links: {
               publishedCourses: '/v1/public/std-school/courses',
             },
@@ -275,6 +281,10 @@ describe('App routing', () => {
       expect(
         await screen.findByRole('heading', { name: /standard school/i }),
       ).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: /standard school logo/i })).toHaveAttribute(
+        'src',
+        'https://assets.example.com/std-school-logo.svg',
+      )
       expect(screen.getByRole('link', { name: /course links/i })).toHaveAttribute(
         'href',
         '/std-school/courses',

@@ -191,6 +191,16 @@ export function BrandingPage() {
             {descriptionDraft.trim() ? 'description ready' : 'description needed'}
           </StatusChip>
         </div>
+        {currentBranding?.logoUrl ? (
+          <div className="branding-preview">
+            <span>Current public logo</span>
+            <img
+              alt={`${currentBranding.displayName || 'Tenant'} current logo`}
+              className="tenant-logo"
+              src={currentBranding.logoUrl}
+            />
+          </div>
+        ) : null}
       </section>
 
       <section className="content-panel">

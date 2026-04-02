@@ -123,6 +123,16 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Tenant admins can edit public description content directly from branding
   - Saved description content shows up correctly on the public tenant landing page
 
+- [x] F11-09 Consume backend-resolved branding asset URLs
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/57
+  Scope:
+  - Verify tenant-home and org-branding surfaces use backend-provided `logoUrl` values directly
+  - Add or adjust regression coverage if backend asset resolution changes payload behavior
+  - Avoid any client-side hard-coded asset URL construction
+  Acceptance focus:
+  - Public tenant pages render real logo assets when backend returns a resolved `logoUrl`
+  - Org branding surfaces stay compatible with resolved backend asset URLs
+
 ## Primary References
 
 - `docs/specs/FRONTEND_UI_SPEC.md`
