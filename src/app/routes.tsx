@@ -1,4 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom'
+import { InternalLayout } from '../components/layout/InternalLayout'
+import { OrgLayout } from '../components/layout/OrgLayout'
 import { RootLayout } from '../components/layout/RootLayout'
 import { LegacyTenantRedirect } from '../components/routing/LegacyTenantRedirect'
 import { TenantRouteGuard } from '../components/routing/TenantRouteGuard'
@@ -75,65 +77,75 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: 'internal',
-        element: (
-          <RoleProtectedRoute
-            allowedRoles={['internal_admin', 'platform_admin']}
-          />
-        ),
+        element: <InternalLayout />,
         children: [
           {
-            index: true,
-            element: <InternalHomePage />,
-          },
-          {
-            path: 'tenants',
-            element: <InternalTenantsPage />,
-          },
-          {
-            path: 'users',
-            element: <InternalUsersPage />,
+            element: (
+              <RoleProtectedRoute
+                allowedRoles={['internal_admin', 'platform_admin']}
+              />
+            ),
+            children: [
+              {
+                index: true,
+                element: <InternalHomePage />,
+              },
+              {
+                path: 'tenants',
+                element: <InternalTenantsPage />,
+              },
+              {
+                path: 'users',
+                element: <InternalUsersPage />,
+              },
+            ],
           },
         ],
       },
       {
         path: 'org',
-        element: <OrgProtectedRoute />,
+        element: <OrgLayout />,
         children: [
           {
-            path: 'courses',
-            element: <CoursesPage />,
-          },
-          {
-            path: 'courses/new',
-            element: <CourseEditorPage />,
-          },
-          {
-            path: 'courses/:courseId',
-            element: <CourseEditorPage />,
-          },
-          {
-            path: 'submissions',
-            element: <SubmissionsPage />,
-          },
-          {
-            path: 'settings',
-            element: <OrgSettingsPage />,
-          },
-          {
-            path: 'submissions/:submissionId',
-            element: <SubmissionDetailPage />,
-          },
-          {
-            path: 'audit',
-            element: <AuditPage />,
-          },
-          {
-            path: 'branding',
-            element: <BrandingPage />,
-          },
-          {
-            path: 'courses/:courseId/form',
-            element: <FormDesignerPage />,
+            element: <OrgProtectedRoute />,
+            children: [
+              {
+                path: 'courses',
+                element: <CoursesPage />,
+              },
+              {
+                path: 'courses/new',
+                element: <CourseEditorPage />,
+              },
+              {
+                path: 'courses/:courseId',
+                element: <CourseEditorPage />,
+              },
+              {
+                path: 'submissions',
+                element: <SubmissionsPage />,
+              },
+              {
+                path: 'settings',
+                element: <OrgSettingsPage />,
+              },
+              {
+                path: 'submissions/:submissionId',
+                element: <SubmissionDetailPage />,
+              },
+              {
+                path: 'audit',
+                element: <AuditPage />,
+              },
+              {
+                path: 'branding',
+                element: <BrandingPage />,
+              },
+              {
+                path: 'courses/:courseId/form',
+                element: <FormDesignerPage />,
+              },
+            ],
           },
         ],
       },

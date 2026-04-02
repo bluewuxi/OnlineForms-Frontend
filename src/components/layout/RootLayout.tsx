@@ -8,7 +8,14 @@ export function RootLayout() {
   const isInternalRoute =
     location.pathname === '/internal' || location.pathname.startsWith('/internal/')
   const isOrgRoute = location.pathname.startsWith('/org') && !isLoginRoute
-  const section = isLoginRoute ? 'login' : isInternalRoute ? 'internal' : isOrgRoute ? 'org' : 'public'
+
+  // Org and internal routes have their own layout components with sidebar + header.
+  // RootLayout only provides the shell for public and login routes.
+  if (isOrgRoute || isInternalRoute) {
+    return <Outlet />
+  }
+
+  const section = isLoginRoute ? 'login' : 'public'
 
   return (
     <AppLayout

@@ -24,6 +24,64 @@ export function HomePage() {
         description="Browse active providers, compare published courses, and move into a clean application flow without losing context."
       />
 
+      <section className="content-panel">
+        <div className="section-heading">
+          <p className="section-heading__eyebrow">Providers</p>
+          <h2>Browse active training providers</h2>
+        </div>
+
+        {tenantsQuery.isLoading ? (
+          <LoadingState
+            title="Loading tenant directory"
+            message="Fetching active tenants for public navigation."
+          />
+        ) : null}
+
+        {tenantsQuery.isError ? (
+          <ErrorState
+            title="We could not load tenants"
+            message="Retry in a moment or check API availability."
+          />
+        ) : null}
+
+        {!tenantsQuery.isLoading && !tenantsQuery.isError ? (
+          tenantsQuery.data && tenantsQuery.data.length > 0 ? (
+            <div className="tenant-directory-grid" aria-label="Tenant cards">
+              {tenantsQuery.data.map((tenant) => (
+                <Link
+                  className="tenant-directory-card"
+                  key={tenant.tenantCode}
+                  to={`/${tenant.tenantCode}`}
+                >
+                  <span className="tenant-directory-card__eyebrow">
+                    Training Provider
+                  </span>
+                  <h3>{tenant.displayName}</h3>
+                  {tenant.description ? (
+                    <RichText
+                      className="tenant-directory-card__summary rich-text"
+                      html={tenant.description}
+                    />
+                  ) : (
+                    <p className="tenant-directory-card__summary">
+                      Open this provider page to browse currently published courses.
+                    </p>
+                  )}
+                  <span className="tenant-directory-card__cta">
+                    Browse provider
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No active tenants available"
+              message="No tenant cards can be displayed yet."
+            />
+          )
+        ) : null}
+      </section>
+
       <section className="content-panel content-panel--editorial">
         <div className="section-heading">
           <p className="section-heading__eyebrow">How it works</p>
@@ -63,79 +121,9 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="content-panel">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Providers</p>
-          <h2>Browse active training providers</h2>
-        </div>
-
-        {tenantsQuery.isLoading ? (
-          <LoadingState
-            title="Loading tenant directory"
-            message="Fetching active tenants for public navigation."
-          />
-        ) : null}
-
-        {tenantsQuery.isError ? (
-          <ErrorState
-            title="We could not load tenants"
-            message="Retry in a moment or check API availability."
-          />
-        ) : null}
-
-        {!tenantsQuery.isLoading && !tenantsQuery.isError ? (
-          tenantsQuery.data && tenantsQuery.data.length > 0 ? (
-            <div className="tenant-directory-grid" aria-label="Tenant cards">
-              {tenantsQuery.data.map((tenant) => (
-                <Link
-                  className="tenant-directory-card"
-                  key={tenant.tenantCode}
-                  to={`/${tenant.tenantCode}`}
-                >
-                  <span className="tenant-directory-card__eyebrow">
-                    {tenant.tenantCode}
-                  </span>
-                  <h3>{tenant.displayName}</h3>
-                  {tenant.description ? (
-                    <RichText
-                      className="tenant-directory-card__summary rich-text"
-                      html={tenant.description}
-                    />
-                  ) : (
-                    <p className="tenant-directory-card__summary">
-                      Open this provider page to browse currently published courses.
-                    </p>
-                  )}
-                  <span className="tenant-directory-card__cta">
-                    Browse provider
-                  </span>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              title="No active tenants available"
-              message="No tenant cards can be displayed yet."
-            />
-          )
-        ) : null}
-      </section>
-
-      <section className="content-panel content-panel--cta-strip">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Management</p>
-          <h2>Need the operator side instead?</h2>
-        </div>
-        <div className="button-row button-row--spread">
-          <p className="content-panel__body-copy">
-            Management access is separate from the public browsing flow. Use it
-            only when you need the tenant or internal administration portal.
-          </p>
-          <Link className="button button--secondary" to="/management">
-            Open management portal
-          </Link>
-        </div>
-      </section>
+      <p className="public-portal-footer">
+        <Link to="/management">Management portal</Link>
+      </p>
     </div>
   )
 }

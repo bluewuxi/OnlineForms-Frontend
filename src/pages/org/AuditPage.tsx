@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
-import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listAuditEvents } from '../../lib/api'
@@ -54,29 +53,6 @@ export function AuditPage() {
         badge="Org settings"
         title="Tenant audit activity"
         description="Use the settings workspace for operational traceability without mixing it into the course-authoring navigation."
-      />
-
-      <OrgWorkspaceNav
-        eyebrow="Settings workspace"
-        title="Operational references and configuration"
-        items={[
-          {
-            label: 'Branding',
-            description: 'Update the tenant logo and public-facing brand asset.',
-            to: '/org/branding',
-          },
-          {
-            label: 'Audit',
-            description: 'Review recent actions, actors, and request identifiers.',
-            to: '/org/audit',
-            state: 'current',
-          },
-          {
-            label: 'Back to courses',
-            description: 'Return to course authoring and submission operations.',
-            to: '/org/courses',
-          },
-        ]}
       />
 
       <section className="content-panel">

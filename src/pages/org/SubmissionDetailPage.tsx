@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { StatusChip } from '../../components/feedback/StatusChip'
 import { PageHero } from '../../components/layout/PageHero'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
@@ -9,16 +10,20 @@ import {
   getSubmission,
   updateSubmissionStatus,
   type Submission,
+  type SubmissionStatus,
   type SubmissionStatusUpdatePayload,
 } from '../../lib/api'
 
-function formatDateTime(value?: string | null) {
-  if (!value) {
-    return 'Not available'
-  }
-
+function formatDate(value?: string | null) {
+  if (!value) return 'Not available'
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
+}
+
+function submissionTone(status: SubmissionStatus) {
+  if (status === 'submitted') return 'info' as const
+  if (status === 'reviewed') return 'success' as const
+  return 'muted' as const
 }
 
 function extractApplicantSummary(submission: Submission) {
@@ -115,14 +120,14 @@ export function SubmissionDetailPage() {
     <div className="page-stack">
       {submissionQuery.isLoading ? (
         <LoadingState
-          title="Loading submission detail"
+          title="Loading submission"
           message="Fetching the selected submission and current review state."
         />
       ) : null}
 
       {submissionQuery.isError ? (
         <ErrorState
-          title="We could not load this submission"
+          title="Could not load this submission"
           message="The detail request failed. Check the org session or retry from the submissions list."
         />
       ) : null}
@@ -132,27 +137,38 @@ export function SubmissionDetailPage() {
           <PageHero
             badge="Submission detail"
             title={applicant?.name || submission.id}
-            description="Review applicant responses, inspect timestamps, and apply the next workflow status when allowed."
+            description="Review applicant responses and update the workflow status."
             aside={
               <div className="hero-card">
                 <p className="hero-card__label">Workflow state</p>
-                <ul className="hero-card__list">
-                  <li>Status: {submission.status}</li>
-                  <li>Submitted: {formatDateTime(submission.submittedAt)}</li>
-                  <li>Reviewed: {formatDateTime(submission.reviewedAt)}</li>
-                </ul>
+                <div className="enrollment-window">
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Status</span>
+                    <StatusChip tone={submissionTone(submission.status)}>
+                      {submission.status}
+                    </StatusChip>
+                  </div>
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Submitted</span>
+                    <span className="enrollment-window__value">{formatDate(submission.submittedAt)}</span>
+                  </div>
+                  <div className="enrollment-window__row">
+                    <span className="enrollment-window__label">Reviewed</span>
+                    <span className="enrollment-window__value">{formatDate(submission.reviewedAt)}</span>
+                  </div>
+                </div>
               </div>
             }
           />
 
           <section className="content-panel">
             <div className="section-heading">
-              <p className="section-heading__eyebrow">Applicant summary</p>
-              <h2>Identity and workflow details</h2>
+              <p className="section-heading__eyebrow">Applicant</p>
+              <h2>Identity and course details</h2>
             </div>
             <div className="detail-summary-grid">
               <div className="field-card">
-                <span>Applicant</span>
+                <span>Name</span>
                 <strong>{applicant?.name}</strong>
               </div>
               <div className="field-card">
@@ -168,61 +184,24 @@ export function SubmissionDetailPage() {
                 <strong>{submission.formVersion ?? 'N/A'}</strong>
               </div>
             </div>
-            <div className="button-row">
-              <Link className="button button--secondary" to="/org/submissions">
-                Back to queue
+            <div className="button-row" style={{ marginTop: '1rem' }}>
+              <Link className="button button--ghost" to="/org/submissions">
+                ← Back to queue
               </Link>
             </div>
           </section>
 
           <section className="content-panel">
             <div className="section-heading">
-              <p className="section-heading__eyebrow">Status actions</p>
-              <h2>Allowed transitions from the current state</h2>
-            </div>
-            <div className="button-row">
-              <button
-                className="button button--primary"
-                disabled={
-                  submission.status !== 'submitted' || updateMutation.isPending
-                }
-                onClick={() => updateMutation.mutate({ status: 'reviewed' })}
-                type="button"
-              >
-                Mark reviewed
-              </button>
-              <button
-                className="button button--ghost"
-                disabled={
-                  submission.status !== 'submitted' || updateMutation.isPending
-                }
-                onClick={() => updateMutation.mutate({ status: 'canceled' })}
-                type="button"
-              >
-                Mark canceled
-              </button>
-            </div>
-            {updateMutation.isError ? (
-              <div className="enrollment-form__banner" role="alert">
-                <strong>{updateMutation.error.message}</strong>
-                <span>
-                  The current record state was refreshed after the failed transition.
-                </span>
-              </div>
-            ) : null}
-          </section>
-
-          <section className="content-panel">
-            <div className="section-heading">
               <p className="section-heading__eyebrow">Submitted answers</p>
-              <h2>Response payload</h2>
+              <h2>Application responses</h2>
             </div>
             {submission.answers && Object.keys(submission.answers).length ? (
-              <dl className="answer-list">
+              <dl className="submission-answer-list">
                 {Object.entries(submission.answers).map(([key, value]) => (
-                  <div key={key} className="answer-list__item">
-                    <dt>{key}</dt>
-                    <dd>
+                  <div key={key} className="submission-answer-list__item">
+                    <dt className="submission-answer-list__label">{key}</dt>
+                    <dd className="submission-answer-list__value">
                       {Array.isArray(value)
                         ? value.join(', ')
                         : typeof value === 'boolean'
@@ -238,6 +217,39 @@ export function SubmissionDetailPage() {
               <p>No answer payload is available for this submission.</p>
             )}
           </section>
+
+          {/* Sticky status action bar */}
+          <div className="submission-action-bar">
+            <div className="submission-action-bar__status">
+              <span className="submission-action-bar__label">Current status</span>
+              <StatusChip tone={submissionTone(submission.status)}>
+                {submission.status}
+              </StatusChip>
+            </div>
+            <div className="button-row">
+              <button
+                className="button button--primary"
+                disabled={submission.status !== 'submitted' || updateMutation.isPending}
+                onClick={() => updateMutation.mutate({ status: 'reviewed' })}
+                type="button"
+              >
+                {updateMutation.isPending ? 'Updating...' : 'Mark reviewed'}
+              </button>
+              <button
+                className="button button--ghost"
+                disabled={submission.status !== 'submitted' || updateMutation.isPending}
+                onClick={() => updateMutation.mutate({ status: 'canceled' })}
+                type="button"
+              >
+                Mark canceled
+              </button>
+            </div>
+            {updateMutation.isError ? (
+              <p className="submission-action-bar__error" role="alert">
+                {updateMutation.error.message}
+              </p>
+            ) : null}
+          </div>
         </>
       ) : null}
     </div>

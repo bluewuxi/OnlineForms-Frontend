@@ -96,16 +96,12 @@ export function CourseCatalogPage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge={tenantCode.replace(/-/g, ' ').toUpperCase()}
+        badge="Course Catalog"
         title="Published courses ready for enrolment"
         description="Review current offerings, narrow the list fast, and open a course page when you are ready to apply."
       />
 
       <section className="content-panel content-panel--catalog-controls">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Browse courses</p>
-          <h2>Filter by keyword or enrolment status</h2>
-        </div>
         <form
           className="search-panel"
           aria-label="Catalog filters"
@@ -173,7 +169,6 @@ export function CourseCatalogPage() {
             <section className="course-grid" aria-label="Available courses">
               {courses.map((course) => (
                 <article key={course.id} className="course-card">
-                  <span className="course-card__eyebrow">Published course</span>
                   <h2>{course.title}</h2>
                   <p>{course.summary || 'Course summary coming soon.'}</p>
                   <div className="course-card__meta">
@@ -191,7 +186,7 @@ export function CourseCatalogPage() {
                       className="button button--secondary"
                       to={course.links?.detail || `/${tenantCode}/courses/${course.id}`}
                     >
-                      Review course
+                      {course.enrollmentStatus === 'open' ? 'Apply' : 'View course'}
                     </Link>
                   </div>
                 </article>
