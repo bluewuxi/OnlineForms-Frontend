@@ -335,6 +335,16 @@ export function InternalUsersPage() {
     resetTriggerButtonRef.current?.focus()
   }, [confirmResetOpen])
 
+  useEffect(() => {
+    if (!notice) {
+      return
+    }
+    const timer = setTimeout(() => {
+      setNotice(null)
+    }, 4000)
+    return () => clearTimeout(timer)
+  }, [notice])
+
   return (
     <div className="page-stack">
       <PageHero
@@ -708,7 +718,11 @@ export function InternalUsersPage() {
                       ) : activityQuery.data?.items.length ? (
                         <ol className="internal-users-activity-list">
                           {activityQuery.data.items.map((event) => (
-                            <li key={event.id} className="internal-users-activity-list__item">
+                            <li
+                              key={event.id}
+                              className="internal-users-activity-list__item"
+                              data-event={event.eventType.replace('internal_user.', '')}
+                            >
                               <div className="internal-users-activity-list__meta">
                                 <StatusChip tone={activityTone(event)}>
                                   {event.eventType.replace('internal_user.', '').replaceAll('_', ' ')}
