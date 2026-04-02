@@ -5,6 +5,7 @@ import { useOrgSession } from '../../features/org-session/useOrgSession'
 
 type SiteHeaderProps = {
   section: 'public' | 'org' | 'login' | 'internal'
+  onMenuToggle?: () => void
 }
 
 const publicLinks = [
@@ -22,7 +23,7 @@ function isLikelyGuid(value: string | undefined) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())
 }
 
-export function SiteHeader({ section }: SiteHeaderProps) {
+export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
   const links =
     section === 'login'
       ? loginLinks
@@ -82,6 +83,16 @@ export function SiteHeader({ section }: SiteHeaderProps) {
   return (
     <header className={`site-header site-header--${section}`}>
       <div className="site-header__inner">
+        {onMenuToggle ? (
+          <button
+            className="portal-sidebar-toggle"
+            aria-label="Toggle navigation"
+            type="button"
+            onClick={onMenuToggle}
+          >
+            ☰
+          </button>
+        ) : null}
         <NavLink className="site-header__brand" to="/">
           OnlineForms
         </NavLink>

@@ -1,14 +1,19 @@
 import { Link, NavLink } from 'react-router-dom'
 
+type InternalSidebarProps = {
+  isOpen: boolean
+  onClose: () => void
+}
+
 const navItems = [
   { to: '/internal', label: 'Home', end: true },
   { to: '/internal/tenants', label: 'Tenants' },
   { to: '/internal/users', label: 'Users' },
 ]
 
-export function InternalSidebar() {
+export function InternalSidebar({ isOpen, onClose }: InternalSidebarProps) {
   return (
-    <aside className="portal-sidebar">
+    <aside className={isOpen ? 'portal-sidebar portal-sidebar--open' : 'portal-sidebar'}>
       <Link className="portal-sidebar__brand" to="/">
         OnlineForms
       </Link>
@@ -23,6 +28,7 @@ export function InternalSidebar() {
                 ? 'portal-sidebar__item portal-sidebar__item--active'
                 : 'portal-sidebar__item'
             }
+            onClick={onClose}
           >
             {item.label}
           </NavLink>

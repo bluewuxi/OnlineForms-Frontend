@@ -2318,6 +2318,69 @@ textarea:focus-visible {
 }
 
 /* === RESPONSIVE === */
+@media (max-width: 860px) {
+  /* Sidebar: already has transform-based mobile hide (from F12-02).
+     Ensure portal-shell on mobile stacks correctly. */
+  .portal-shell {
+    flex-direction: column;
+  }
+
+  /* Submissions filter bar stacks on mobile */
+  .submissions-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  /* Org course card grid: 1 column on mobile */
+  .org-course-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sticky save bar on mobile: full-width button row */
+  .course-editor-save-bar {
+    margin: 0 -1rem -1rem;
+  }
+
+  .course-editor-save-bar .button-row {
+    flex-wrap: wrap;
+  }
+
+  .course-editor-save-bar .button-row > .button {
+    flex: 1 1 auto;
+  }
+
+  /* Submission answer list: single column on mobile */
+  .submission-answer-list__item {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+
+  /* Submission action bar: wrap on mobile */
+  .submission-action-bar {
+    bottom: 0;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .enrollment-form-shell__state-card {
+    padding: 1.25rem 1rem;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1024px) {
+  .org-course-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .submissions-filter-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .submissions-filter-bar__actions {
+    grid-column: span 2;
+  }
+}
+
 @media (min-width: 860px) {
   .page-hero {
     grid-template-columns: minmax(0, 1fr) auto;

@@ -1,5 +1,10 @@
 import { Link, NavLink } from 'react-router-dom'
 
+type OrgSidebarProps = {
+  isOpen: boolean
+  onClose: () => void
+}
+
 const navItems = [
   { to: '/org/courses', label: 'Courses' },
   { to: '/org/submissions', label: 'Submissions' },
@@ -8,9 +13,9 @@ const navItems = [
   { to: '/org/settings', label: 'Settings' },
 ]
 
-export function OrgSidebar() {
+export function OrgSidebar({ isOpen, onClose }: OrgSidebarProps) {
   return (
-    <aside className="portal-sidebar">
+    <aside className={isOpen ? 'portal-sidebar portal-sidebar--open' : 'portal-sidebar'}>
       <Link className="portal-sidebar__brand" to="/">
         OnlineForms
       </Link>
@@ -24,6 +29,7 @@ export function OrgSidebar() {
                 ? 'portal-sidebar__item portal-sidebar__item--active'
                 : 'portal-sidebar__item'
             }
+            onClick={onClose}
           >
             {item.label}
           </NavLink>
