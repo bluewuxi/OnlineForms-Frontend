@@ -24,7 +24,7 @@ export function HtmlEditorField({
     <div className="session-form__field">
       <div className="html-editor__header">
         <div>
-          <span>{label}</span>
+          <label htmlFor={id}>{label}</label>
           <p className="html-editor__hint">{hint}</p>
         </div>
         <div className="html-editor__toggle" role="tablist" aria-label={`${label} editor mode`}>

@@ -1,15 +1,20 @@
-import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
+import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
+import { StatusChip } from '../../components/feedback/StatusChip'
 import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
+import { SectionHeader } from '../../components/layout/SectionHeader'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
   createUploadTicket,
   getAsset,
+  getBranding,
   updateBranding,
+  type BrandingSettings,
   type BrandingUpdateResponse,
   type OrgAsset,
   type UploadTicketResponse,
@@ -31,8 +36,35 @@ export function BrandingPage() {
   const { session } = useOrgSession()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadedAsset, setUploadedAsset] = useState<OrgAsset | null>(null)
+  const [descriptionDraft, setDescriptionDraft] = useState('')
   const [brandingResult, setBrandingResult] =
     useState<BrandingUpdateResponse | null>(null)
+
+  const brandingQuery = useQuery({
+    queryKey: ['org-branding', session?.tenantId],
+    enabled: Boolean(session),
+    queryFn: async () => {
+      if (!session) {
+        throw new Error('Missing org session.')
+      }
+
+      const response = await getBranding(session)
+      return response.data
+    },
+  })
+
+  useEffect(() => {
+    if (!brandingQuery.data) {
+      return
+    }
+
+    setDescriptionDraft(brandingQuery.data.description || '')
+    setBrandingResult((current) => current ?? brandingQuery.data)
+  }, [brandingQuery.data])
+
+  const currentBranding = useMemo<BrandingSettings | null>(() => {
+    return brandingResult || brandingQuery.data || null
+  }, [brandingQuery.data, brandingResult])
 
   const uploadMutation = useMutation<
     OrgAsset,
@@ -64,30 +96,48 @@ export function BrandingPage() {
   const brandingMutation = useMutation<
     BrandingUpdateResponse,
     ApiClientError | Error,
-    string | null
+    { logoAssetId?: string | null; description?: string | null }
   >({
-    mutationFn: async (logoAssetId) => {
+    mutationFn: async (payload) => {
       if (!session) {
         throw new Error('Missing org session.')
       }
 
-      const response = await updateBranding(session, {
-        logoAssetId,
-      })
-
+      const response = await updateBranding(session, payload)
       return response.data
     },
     onSuccess(result) {
       setBrandingResult(result)
+      setDescriptionDraft(result.description || '')
+      brandingQuery.refetch()
     },
   })
+
+  if (brandingQuery.isLoading) {
+    return (
+      <LoadingState
+        title="Loading branding settings"
+        message="Fetching the tenant logo state and public description content."
+      />
+    )
+  }
+
+  if (brandingQuery.isError) {
+    return (
+      <ErrorState
+        title="Could not load branding settings"
+        message="The branding workspace could not load the current tenant profile."
+        onRetry={() => void brandingQuery.refetch()}
+      />
+    )
+  }
 
   return (
     <div className="page-stack">
       <PageHero
         badge="Org settings"
         title="Branding and public identity"
-        description="Update the tenant logo from the settings workspace without pulling course authoring out of focus."
+        description="Maintain the tenant logo and the public description shown on the tenant landing page from one settings surface."
       />
 
       <OrgWorkspaceNav
@@ -96,7 +146,7 @@ export function BrandingPage() {
         items={[
           {
             label: 'Branding',
-            description: 'Upload and apply the public logo asset for this tenant.',
+            description: 'Maintain the logo and tenant-facing public description.',
             to: '/org/branding',
             state: 'current',
           },
@@ -112,6 +162,74 @@ export function BrandingPage() {
           },
         ]}
       />
+
+      <section className="content-panel">
+        <SectionHeader
+          eyebrow="Current profile"
+          title="Tenant identity currently in use"
+          description="Logo and description changes here flow through to the public tenant page."
+        />
+        <div className="detail-summary-grid">
+          <div className="field-card">
+            <span>Tenant</span>
+            <strong>{currentBranding?.displayName || session?.tenantId || 'Unknown'}</strong>
+          </div>
+          <div className="field-card">
+            <span>Logo asset ID</span>
+            <strong>{currentBranding?.logoAssetId || 'None'}</strong>
+          </div>
+          <div className="field-card">
+            <span>Description status</span>
+            <strong>{descriptionDraft.trim() ? 'Configured' : 'Missing'}</strong>
+          </div>
+        </div>
+        <div className="button-row">
+          <StatusChip tone={currentBranding?.logoAssetId ? 'info' : 'warning'}>
+            {currentBranding?.logoAssetId ? 'logo ready' : 'logo missing'}
+          </StatusChip>
+          <StatusChip tone={descriptionDraft.trim() ? 'success' : 'warning'}>
+            {descriptionDraft.trim() ? 'description ready' : 'description needed'}
+          </StatusChip>
+        </div>
+      </section>
+
+      <section className="content-panel">
+        <SectionHeader
+          eyebrow="Public copy"
+          title="Tenant description"
+          description="This content renders on the public tenant landing page and supports safe HTML authoring with preview."
+        />
+        <form
+          className="session-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            brandingMutation.mutate({
+              description: descriptionDraft.trim() || null,
+              logoAssetId: currentBranding?.logoAssetId ?? null,
+            })
+          }}
+        >
+          <HtmlEditorField
+            label="Tenant description"
+            value={descriptionDraft}
+            onChange={setDescriptionDraft}
+          />
+          <div className="session-form__actions">
+            <button
+              className="button button--primary"
+              disabled={brandingMutation.isPending}
+              type="submit"
+            >
+              {brandingMutation.isPending ? 'Saving description...' : 'Save description'}
+            </button>
+            {brandingMutation.isError ? (
+              <p className="session-form__error">
+                Failed to save tenant description.
+              </p>
+            ) : null}
+          </div>
+        </form>
+      </section>
 
       <section className="content-panel">
         <div className="section-heading">
@@ -200,17 +318,27 @@ export function BrandingPage() {
             <button
               className="button button--primary"
               disabled={brandingMutation.isPending}
-              onClick={() => brandingMutation.mutate(uploadedAsset.id)}
+              onClick={() =>
+                brandingMutation.mutate({
+                  logoAssetId: uploadedAsset.id,
+                  description: descriptionDraft.trim() || null,
+                })
+              }
               type="button"
             >
               {brandingMutation.isPending
                 ? 'Applying branding...'
-                : 'Apply as org logo'}
+                : 'Apply logo and save branding'}
             </button>
             <button
               className="button button--ghost"
               disabled={brandingMutation.isPending}
-              onClick={() => brandingMutation.mutate(null)}
+              onClick={() =>
+                brandingMutation.mutate({
+                  logoAssetId: null,
+                  description: descriptionDraft.trim() || null,
+                })
+              }
               type="button"
             >
               Clear logo
@@ -236,7 +364,7 @@ export function BrandingPage() {
           <div className="detail-summary-grid">
             <div className="field-card">
               <span>Tenant</span>
-              <strong>{brandingResult.tenantId || session?.tenantId}</strong>
+              <strong>{brandingResult.displayName || brandingResult.tenantId || session?.tenantId}</strong>
             </div>
             <div className="field-card">
               <span>Logo asset ID</span>

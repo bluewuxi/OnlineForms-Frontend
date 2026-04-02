@@ -111,6 +111,18 @@ Phase F11 is dedicated to frontend navigation, layout, and visual refinement wor
   - Public course detail renders rich course content safely
   - No backend contract changes are required for the feature
 
+- [x] F11-08 Org branding page tenant-description editing
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/56
+  Scope:
+  - Extend the org branding settings surface so it loads current tenant branding/profile state
+  - Add an HTML-capable editor for tenant description on `/org/branding`
+  - Keep logo upload/apply behavior on the same page without splitting branding into multiple tools
+  - Save description changes through the org-scoped branding/settings contract and keep the public tenant page in sync
+  Acceptance focus:
+  - Branding page is no longer logo-only
+  - Tenant admins can edit public description content directly from branding
+  - Saved description content shows up correctly on the public tenant landing page
+
 ## Primary References
 
 - `docs/specs/FRONTEND_UI_SPEC.md`

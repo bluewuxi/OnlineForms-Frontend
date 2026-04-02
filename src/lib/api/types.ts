@@ -275,14 +275,22 @@ export type OrgAsset = {
 }
 
 export type BrandingUpdatePayload = {
-  logoAssetId: string | null
+  logoAssetId?: string | null
+  description?: string | null
+  homePageContent?: string | null
 }
 
-export type BrandingUpdateResponse = {
+export type BrandingSettings = {
   tenantId?: string
+  displayName?: string
+  description?: string | null
+  homePageContent?: string | null
   logoAssetId: string | null
+  logoUrl?: string | null
   updatedAt?: string
 }
+
+export type BrandingUpdateResponse = BrandingSettings
 
 export type TenantDirectoryItem = {
   tenantId: string

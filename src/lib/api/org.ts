@@ -2,6 +2,7 @@ import { apiRequest } from './http'
 import type {
   AuditEvent,
   BrandingUpdatePayload,
+  BrandingSettings,
   BrandingUpdateResponse,
   CourseStatus,
   CursorPage,
@@ -548,6 +549,16 @@ export function updateBranding(
     method: 'PATCH',
     session,
     body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function getBranding(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<BrandingSettings>>({
+    path: '/org/branding',
+    session,
   }).then((response) => ({
     ...response,
     data: response.data.data,

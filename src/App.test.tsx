@@ -169,6 +169,54 @@ describe('App routing', () => {
     )
   })
 
+  it('renders org branding with editable tenant description', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'demo-user',
+        tenantId: 'tenant-123',
+        role: 'org_admin',
+      }),
+    )
+
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/org/branding')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              tenantId: 'tenant-123',
+              displayName: 'Standard School',
+              description: '<p>Current tenant description</p>',
+              logoAssetId: 'ast_logo_1',
+              logoUrl: 'https://cdn.example.com/assets/ast_logo_1',
+              updatedAt: '2026-04-02T00:00:00Z',
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        )
+      }
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    }) as typeof fetch
+
+    try {
+      renderRoute('/org/branding')
+
+      expect(
+        await screen.findByRole('heading', { name: /branding and public identity/i }),
+      ).toBeInTheDocument()
+      expect(
+        await screen.findByRole('textbox', { name: /tenant description/i }),
+      ).toHaveValue('<p>Current tenant description</p>')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
   it('renders the form designer route when a session exists', async () => {
     window.localStorage.setItem(
       ORG_SESSION_STORAGE_KEY,
