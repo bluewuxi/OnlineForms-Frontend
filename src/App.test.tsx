@@ -37,7 +37,7 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /management portal/i }),
+      screen.getByRole('link', { name: /^management$/i }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })

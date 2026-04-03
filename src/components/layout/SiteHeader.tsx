@@ -10,6 +10,7 @@ type SiteHeaderProps = {
 
 const publicLinks = [
   { to: '/', label: 'Home' },
+  { to: '/management', label: 'Management' },
 ]
 
 const loginLinks = [

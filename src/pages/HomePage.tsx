@@ -121,9 +121,6 @@ export function HomePage() {
         </div>
       </section>
 
-      <p className="public-portal-footer">
-        <Link to="/management">Management portal</Link>
-      </p>
     </div>
   )
 }
