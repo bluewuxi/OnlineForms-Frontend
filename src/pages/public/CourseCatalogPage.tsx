@@ -96,9 +96,11 @@ export function CourseCatalogPage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge="Course Catalog"
-        title="Published courses ready for enrolment"
-        description="Review current offerings, narrow the list fast, and open a course page when you are ready to apply."
+        badge="Browse Training"
+        badgeOutlined
+        variant="public"
+        title="Discover Your Next Skills Journey"
+        description="Explore our wide range of professional development courses. Find the perfect training to advance your career and start your enrolment today."
       />
 
       <section className="content-panel content-panel--catalog-controls">
@@ -108,7 +110,7 @@ export function CourseCatalogPage() {
           onSubmit={handleSearchSubmit}
         >
           <div className="search-panel__field">
-            <label htmlFor="catalog-query">Search courses</label>
+            <label htmlFor="catalog-query">Keyword search</label>
             <input
               id="catalog-query"
               name="catalog-query"
@@ -119,21 +121,21 @@ export function CourseCatalogPage() {
             />
           </div>
           <div className="search-panel__field">
-            <label htmlFor="catalog-status">Status</label>
+            <label htmlFor="catalog-status">Enrolment status</label>
             <select
               id="catalog-status"
               name="catalog-status"
               value={statusInput}
               onChange={(event) => setStatusInput(event.target.value)}
             >
-              <option value="all">All</option>
-              <option value="open">Open</option>
-              <option value="upcoming">Opening soon</option>
+              <option value="all">All statuses</option>
+              <option value="open">Open for enrolment</option>
+              <option value="upcoming">Starting soon</option>
               <option value="closed">Closed</option>
             </select>
           </div>
           <button className="button button--primary" type="submit">
-            Find courses
+            Filter courses
           </button>
         </form>
       </section>
@@ -172,9 +174,33 @@ export function CourseCatalogPage() {
                   <h2>{course.title}</h2>
                   <p>{course.summary || 'Course summary coming soon.'}</p>
                   <div className="course-card__meta">
-                    {course.deliveryMode ? <span>{course.deliveryMode}</span> : null}
-                    {course.durationLabel ? <span>{course.durationLabel}</span> : null}
-                    {course.locationText ? <span>{course.locationText}</span> : null}
+                    {course.deliveryMode ? (
+                      <span className="course-card__meta-item">
+                        <svg className="course-card__meta-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <rect x="1" y="2" width="14" height="9" rx="1.5" />
+                          <path d="M5 14h6M8 11v3" strokeLinecap="round" />
+                        </svg>
+                        {course.deliveryMode}
+                      </span>
+                    ) : null}
+                    {course.durationLabel ? (
+                      <span className="course-card__meta-item">
+                        <svg className="course-card__meta-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <circle cx="8" cy="8" r="6" />
+                          <path d="M8 5v3l2 2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        {course.durationLabel}
+                      </span>
+                    ) : null}
+                    {course.locationText ? (
+                      <span className="course-card__meta-item">
+                        <svg className="course-card__meta-icon" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M8 1.5A4 4 0 0 1 12 5.5c0 3-4 9-4 9S4 8.5 4 5.5a4 4 0 0 1 4-4z" />
+                          <circle cx="8" cy="5.5" r="1.5" />
+                        </svg>
+                        {course.locationText}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="course-card__footer">
                     <span
@@ -183,10 +209,10 @@ export function CourseCatalogPage() {
                       {normalizeStatusLabel(course.enrollmentStatus)}
                     </span>
                     <Link
-                      className="button button--secondary"
+                      className="button button--outline"
                       to={course.links?.detail || `/${tenantCode}/courses/${course.id}`}
                     >
-                      {course.enrollmentStatus === 'open' ? 'Apply' : 'View course'}
+                      Review course
                     </Link>
                   </div>
                 </article>

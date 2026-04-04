@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 type OrgWorkspaceNavItem = {
@@ -5,6 +6,7 @@ type OrgWorkspaceNavItem = {
   description: string
   to?: string
   state?: 'current' | 'available'
+  icon?: ReactNode
 }
 
 type OrgWorkspaceNavProps = {
@@ -26,13 +28,23 @@ export function OrgWorkspaceNav({
       </div>
       <div className="org-workspace-nav__grid">
         {items.map((item) => {
-          const className =
-            item.state === 'current'
-              ? 'org-workspace-nav__item org-workspace-nav__item--current'
-              : 'org-workspace-nav__item'
+          const isCurrent = item.state === 'current'
+          const className = isCurrent
+            ? 'org-workspace-nav__item org-workspace-nav__item--current'
+            : 'org-workspace-nav__item'
 
           const body = (
             <>
+              <div className="org-workspace-nav__item-top">
+                {item.icon ? (
+                  <span className="org-workspace-nav__item-icon" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                ) : null}
+                {isCurrent ? (
+                  <span className="org-workspace-nav__active-badge">Active</span>
+                ) : null}
+              </div>
               <strong>{item.label}</strong>
               <p>{item.description}</p>
             </>

@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
+import { PublicFooter } from './PublicFooter'
 import { SiteHeader } from './SiteHeader'
 
 export function RootLayout() {
@@ -22,6 +23,7 @@ export function RootLayout() {
       section={section}
       header={<SiteHeader section={section} />}
       notificationSlot={<div aria-live="polite" className="app-notification-slot" />}
+      footer={section === 'public' ? <PublicFooter /> : null}
     >
       <Outlet />
     </AppLayout>
