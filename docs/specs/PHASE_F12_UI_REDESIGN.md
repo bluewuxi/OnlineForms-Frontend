@@ -145,6 +145,40 @@ Implement tasks strictly in order. For each task:
   - Sidebar is accessible via hamburger on mobile
   - All primary actions are reachable at mobile width
 
+- [ ] F12-09 Public portal visual refresh
+  Source: Nano Banana mock screen review — 2026-04-04
+  Scope:
+  - **Hero**: Switch hero content from center-aligned to left-aligned across all public pages; increase headline font size significantly (`clamp(2.2rem, 5vw, 3.5rem)` range); add an outlined eyebrow badge ("BROWSE TRAINING" or tenant display name) above the headline
+  - **Navbar**: Add horizontal nav links (Courses, About Us, Contact) to the public portal header; style the Login entry as a rounded pill outline button
+  - **Filter panel**: Add visible label text ("Keyword search", "Enrollment Status") above each input; change the filter CTA to a filled dark primary button
+  - **Course cards**: Introduce an icon-based metadata row with small inline icons for delivery mode (monitor), duration (clock), and location (pin); change the card CTA ("Review course") to an outline button style; update status pills to filled backgrounds — OPEN=green, LIMITED=amber, CLOSED=gray
+  - **Footer**: Add a multi-column link footer to all public portal pages (columns: Home/Courses/Blog/Events, About/Contact, Login/Training) with a copyright line
+  Acceptance:
+  - Public hero is left-aligned and headline is clearly larger and bolder than body content
+  - Course cards carry icon-based metadata and an outline CTA button
+  - Status pills are filled and color-coded (OPEN / LIMITED / CLOSED)
+  - Public navbar includes nav links and a Login pill button
+  - Multi-column footer appears on all public pages
+  - Layout remains responsive and collapses gracefully on mobile
+
+- [ ] F12-10 Org portal visual refresh
+  Source: Nano Banana mock screen review — 2026-04-04
+  Scope:
+  - **Navbar**: Enrich the org portal top navbar — add a centered global search bar, a notification bell icon with an unread badge dot, and a user avatar thumbnail with display name and dropdown caret on the right; retain the logout button
+  - **Hero banner**: Replace the current org hero with a full-width dark navy banner; content is left-aligned with a circular workspace badge graphic, a large white headline, and a lighter subtitle; add an inline help link next to the subtitle
+  - **Workflow nav cards**: Add a small icon to each workflow nav card (list icon for "Course list", plus icon for "Create course", gear icon for "Settings"); apply an active-state treatment to the current card — colored left border and a small "Active" badge at the top-right corner
+  - **Table status pills**: Refine all table status pills to use filled backgrounds — DRAFT=amber, PUBLISHED=green, ARCHIVED=gray — with appropriate contrast text; no outline-only pills
+  - **Table action buttons**: Apply two distinct visual weights to the Actions column — "Open details" as a blue outline button, "Form designer" as a ghost/teal outline button
+  - **Activity feed sidebar**: Add a right-side contextual activity feed panel to the org course list page; each item shows a small avatar thumbnail, a short message (e.g. "Course X needs review"), and a relative timestamp; the sidebar is scrollable and blends with the page background
+  Acceptance:
+  - Org navbar shows search bar, notification bell, and user identity
+  - Org hero is a dark navy full-width banner with left-aligned white content and circular workspace badge
+  - Workflow nav cards have icons and a clear active state (colored border + "Active" badge)
+  - Table status pills are filled and color-correct for all three states
+  - Table action buttons are visually differentiated by intent
+  - Activity sidebar is visible on the org course list page
+  - Layout remains functional on tablet widths; sidebar collapses on mobile
+
 ## Primary References
 
 - `docs/specs/FRONTEND_UI_SPEC.md`
