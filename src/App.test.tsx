@@ -37,7 +37,7 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /^management$/i }),
+      screen.getByRole('link', { name: /^login$/i }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
@@ -191,7 +191,7 @@ describe('App routing', () => {
     renderRoute('/org/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /^courses$/i }),
+      await screen.findByRole('heading', { name: /manage your organisation/i }),
     ).toBeInTheDocument()
   })
 
@@ -287,7 +287,7 @@ describe('App routing', () => {
     renderRoute('/t/acme-training/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /published courses ready for enrolment/i }),
+      await screen.findByRole('heading', { name: /discover your next skills journey/i }),
     ).toBeInTheDocument()
   })
 
@@ -728,7 +728,7 @@ describe('App routing', () => {
       await user.click(screen.getByRole('button', { name: /continue to management/i }))
 
       expect(
-        await screen.findByRole('heading', { name: /^courses$/i }),
+        await screen.findByRole('heading', { name: /manage your organisation/i }),
       ).toBeInTheDocument()
     } finally {
       globalThis.fetch = originalFetch
