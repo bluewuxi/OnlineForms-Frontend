@@ -2636,3 +2636,280 @@ textarea:focus-visible {
   color: var(--color-text-soft);
   font-size: 0.84rem;
 }
+
+/* === ORG PORTAL ENHANCEMENTS (F12-10) === */
+
+/* Org hero — dark navy banner */
+.page-hero--org {
+  background: linear-gradient(135deg, #1a3a6e 0%, #2a549a 100%);
+  border-radius: var(--radius-panel);
+  color: #fff;
+  padding: var(--space-4);
+}
+
+.page-hero--org h1 {
+  color: #fff;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+}
+
+.page-hero--org .page-hero__content > p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* Circular workspace badge for org hero */
+.page-hero__badge--circle {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* Org status chip — more saturated fills */
+.status-chip--success {
+  background: rgba(40, 97, 60, 0.16);
+  color: #1e6038;
+}
+
+.status-chip--warning {
+  background: rgba(170, 120, 36, 0.2);
+  color: #7a4d0e;
+}
+
+.status-chip--muted {
+  background: rgba(95, 104, 117, 0.18);
+  color: #3e4d5e;
+}
+
+/* Ghost teal button — secondary action in org cards */
+.button--ghost-teal {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.95rem;
+  background: rgba(36, 75, 127, 0.07);
+  color: var(--color-accent);
+  border: 1px solid rgba(36, 75, 127, 0.2);
+}
+
+.button--ghost-teal:hover {
+  background: rgba(36, 75, 127, 0.13);
+}
+
+/* OrgWorkspaceNav card improvements */
+.org-workspace-nav__item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.org-workspace-nav__item-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-accent);
+  opacity: 0.75;
+}
+
+.org-workspace-nav__item--current .org-workspace-nav__item-icon {
+  opacity: 1;
+}
+
+.org-workspace-nav__active-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(52, 122, 76, 0.14);
+  color: #1e6038;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.org-workspace-nav__item--current {
+  border-left: 3px solid var(--color-accent);
+  padding-left: calc(1.05rem - 3px);
+}
+
+/* Org courses two-column shell */
+.org-courses-shell {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) 260px;
+  align-items: start;
+}
+
+.org-courses-shell__main {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .org-courses-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Activity feed sidebar */
+.org-activity-feed {
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-surface);
+}
+
+.org-activity-feed__list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0;
+}
+
+.org-activity-feed__item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.org-activity-feed__item:last-child {
+  border-bottom: none;
+}
+
+.org-activity-feed__avatar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--color-bg-soft);
+  color: var(--color-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.03em;
+}
+
+.org-activity-feed__body {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.org-activity-feed__message {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  line-height: 1.45;
+}
+
+.org-activity-feed__time {
+  font-size: 0.78rem;
+  color: var(--color-text-soft);
+}
+
+/* Enriched org header — search bar */
+.site-header__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.site-header__search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--color-text-soft);
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+}
+
+.site-header__search-input {
+  width: 100%;
+  padding: 0.55rem 0.9rem 0.55rem 2.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.site-header__search-input::placeholder {
+  color: var(--color-text-soft);
+}
+
+/* Notification bell */
+.site-header__bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.site-header__bell:hover {
+  background: var(--color-bg-muted);
+  color: var(--color-text);
+}
+
+.site-header__bell-dot {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: #e05252;
+  border: 1.5px solid #fff;
+}
+
+/* Avatar in account trigger */
+.site-header__avatar {
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-header__account-names {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+/* Flex layout for org account trigger (avatar + text side by side) */
+.site-header--org .site-header__account-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 180px;
+}

@@ -6,7 +6,7 @@ type PageHeroProps = {
   title: string
   description: string
   aside?: ReactNode
-  variant?: 'default' | 'public'
+  variant?: 'default' | 'public' | 'org'
 }
 
 export function PageHero({
@@ -17,10 +17,18 @@ export function PageHero({
   aside,
   variant,
 }: PageHeroProps) {
-  const heroClass = variant === 'public' ? 'page-hero page-hero--public' : 'page-hero'
-  const badgeClass = badgeOutlined
-    ? 'page-hero__badge page-hero__badge--outlined'
-    : 'page-hero__badge'
+  const heroClass =
+    variant === 'public'
+      ? 'page-hero page-hero--public'
+      : variant === 'org'
+        ? 'page-hero page-hero--org'
+        : 'page-hero'
+  const badgeClass =
+    variant === 'org'
+      ? 'page-hero__badge page-hero__badge--circle'
+      : badgeOutlined
+        ? 'page-hero__badge page-hero__badge--outlined'
+        : 'page-hero__badge'
 
   return (
     <section className={heroClass}>

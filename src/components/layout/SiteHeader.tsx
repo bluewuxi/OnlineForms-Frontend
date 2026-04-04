@@ -134,6 +134,44 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
             Login
           </NavLink>
         ) : null}
+        {section === 'org' ? (
+          <div className="site-header__search" role="search">
+            <svg
+              className="site-header__search-icon"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <circle cx="7" cy="7" r="4.5" />
+              <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+            </svg>
+            <input
+              className="site-header__search-input"
+              type="search"
+              placeholder="Search workspace..."
+              aria-label="Search workspace"
+            />
+          </div>
+        ) : null}
+        {section === 'org' ? (
+          <button className="site-header__bell" type="button" aria-label="Notifications">
+            <svg
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              width="18"
+              height="18"
+            >
+              <path d="M8 2a4.5 4.5 0 0 1 4.5 4.5V9l1 1.5H2.5L3.5 9V6.5A4.5 4.5 0 0 1 8 2z" />
+              <path d="M6.5 12.5a1.5 1.5 0 0 0 3 0" strokeLinecap="round" />
+            </svg>
+            <span className="site-header__bell-dot" aria-hidden="true" />
+          </button>
+        ) : null}
         {showSession && session ? (
           <div className="site-header__session" ref={accountMenuRef}>
             <button
@@ -150,9 +188,16 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
                 }
               }}
             >
-              <strong>{sessionLoginName}</strong>
-              <span className="site-header__account-subtext">
-                {sessionSubtext}
+              {section === 'org' ? (
+                <span className="site-header__avatar" aria-hidden="true">
+                  {(sessionLoginName || 'U').charAt(0).toUpperCase()}
+                </span>
+              ) : null}
+              <span className="site-header__account-names">
+                <strong>{sessionLoginName}</strong>
+                <span className="site-header__account-subtext">
+                  {sessionSubtext}
+                </span>
               </span>
             </button>
             {isAccountMenuOpen ? (
