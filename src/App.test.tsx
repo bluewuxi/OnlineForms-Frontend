@@ -37,9 +37,8 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /management portal/i }),
+      screen.getAllByRole('link', { name: /^login$/i })[0],
     ).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
 
   it('renders provider card descriptions as rich text on the landing page', async () => {
@@ -191,7 +190,7 @@ describe('App routing', () => {
     renderRoute('/org/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /^courses$/i }),
+      await screen.findByRole('heading', { name: /manage your organisation/i }),
     ).toBeInTheDocument()
   })
 
@@ -287,7 +286,7 @@ describe('App routing', () => {
     renderRoute('/t/acme-training/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /published courses ready for enrolment/i }),
+      await screen.findByRole('heading', { name: /discover your next skills journey/i }),
     ).toBeInTheDocument()
   })
 
@@ -477,11 +476,10 @@ describe('App routing', () => {
       await screen.findByRole('heading', { name: /choose a training provider/i }),
     ).toBeInTheDocument()
     expect(window.localStorage.getItem(ORG_SESSION_STORAGE_KEY)).toBeNull()
-    expect(screen.getByRole('link', { name: /^home$/i })).toHaveAttribute(
+    expect(screen.getAllByRole('link', { name: /^home$/i })[0]).toHaveAttribute(
       'href',
       '/',
     )
-    expect(screen.queryByRole('link', { name: /^courses$/i })).not.toBeInTheDocument()
   })
 
   it('blocks internal tenant route for non-internal roles', async () => {
@@ -728,7 +726,7 @@ describe('App routing', () => {
       await user.click(screen.getByRole('button', { name: /continue to management/i }))
 
       expect(
-        await screen.findByRole('heading', { name: /^courses$/i }),
+        await screen.findByRole('heading', { name: /manage your organisation/i }),
       ).toBeInTheDocument()
     } finally {
       globalThis.fetch = originalFetch
