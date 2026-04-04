@@ -4,6 +4,7 @@ type AppLayoutProps = {
   header: ReactNode
   children: ReactNode
   notificationSlot?: ReactNode
+  footer?: ReactNode
   section?: 'public' | 'org' | 'login' | 'internal'
 }
 
@@ -11,6 +12,7 @@ export function AppLayout({
   header,
   children,
   notificationSlot,
+  footer,
   section = 'public',
 }: AppLayoutProps) {
   return (
@@ -18,6 +20,7 @@ export function AppLayout({
       {header}
       {notificationSlot}
       <div className="app-frame__body">{children}</div>
+      {footer}
     </div>
   )
 }

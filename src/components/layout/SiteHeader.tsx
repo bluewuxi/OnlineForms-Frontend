@@ -10,7 +10,6 @@ type SiteHeaderProps = {
 
 const publicLinks = [
   { to: '/', label: 'Home' },
-  { to: '/management', label: 'Management' },
 ]
 
 const loginLinks = [
@@ -110,7 +109,30 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
                 {link.label}
               </NavLink>
             ))}
+            {section === 'public' ? (
+              <>
+                <a
+                  href="#"
+                  className="site-header__link"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  About Us
+                </a>
+                <a
+                  href="#"
+                  className="site-header__link"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Contact
+                </a>
+              </>
+            ) : null}
           </nav>
+        ) : null}
+        {section === 'public' ? (
+          <NavLink className="site-header__login-pill" to="/org/login">
+            Login
+          </NavLink>
         ) : null}
         {showSession && session ? (
           <div className="site-header__session" ref={accountMenuRef}>
