@@ -17,8 +17,8 @@ export function PublicFooter() {
           <div className="public-site-footer__col">
             <p className="public-site-footer__heading">Company</p>
             <ul>
-              <li><a href="#" onClick={(e) => e.preventDefault()}>About Us</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()}>Contact</a></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
             </ul>
           </div>
           <div className="public-site-footer__col">
