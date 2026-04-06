@@ -40,14 +40,16 @@ export function TenantHomePage() {
           <section className="page-hero">
             <div className="page-hero__content">
               <span className="page-hero__badge">Training Provider</span>
-              <h1>{tenantQuery.data.displayName}</h1>
-              {tenantQuery.data.branding?.logoUrl ? (
-                <img
-                  alt={`${tenantQuery.data.displayName} logo`}
-                  className="tenant-logo"
-                  src={tenantQuery.data.branding.logoUrl}
-                />
-              ) : null}
+              <div className="tenant-hero-identity">
+                {tenantQuery.data.branding?.logoUrl ? (
+                  <img
+                    alt={`${tenantQuery.data.displayName} logo`}
+                    className="tenant-logo tenant-logo--inline"
+                    src={tenantQuery.data.branding.logoUrl}
+                  />
+                ) : null}
+                <h1>{tenantQuery.data.displayName}</h1>
+              </div>
               <p>Explore published courses, enrol with confidence, and understand the provider before you begin.</p>
             </div>
           </section>

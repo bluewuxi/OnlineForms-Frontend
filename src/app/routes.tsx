@@ -20,6 +20,8 @@ import { ManagementEntryPage } from '../pages/org/ManagementEntryPage'
 import { OrgLoginPage } from '../pages/org/OrgLoginPage'
 import { SubmissionDetailPage } from '../pages/org/SubmissionDetailPage'
 import { SubmissionsPage } from '../pages/org/SubmissionsPage'
+import { AboutUsPage } from '../pages/public/AboutUsPage'
+import { ContactPage } from '../pages/public/ContactPage'
 import { CourseCatalogPage } from '../pages/public/CourseCatalogPage'
 import { CourseDetailPage } from '../pages/public/CourseDetailPage'
 import { TenantHomePage } from '../pages/public/TenantHomePage'
@@ -62,6 +64,14 @@ export const appRoutes: RouteObject[] = [
             element: <CourseDetailPage />,
           },
         ],
+      },
+      {
+        path: 'about',
+        element: <AboutUsPage />,
+      },
+      {
+        path: 'contact',
+        element: <ContactPage />,
       },
       {
         path: 'management',
