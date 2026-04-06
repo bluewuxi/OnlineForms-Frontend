@@ -1,15 +1,25 @@
 import { Link } from 'react-router-dom'
 import { PageHero } from '../../components/layout/PageHero'
 
-const techStack = [
+const frontendStack = [
   { label: 'UI Framework', value: 'React 19 + TypeScript' },
   { label: 'Build Tool', value: 'Vite' },
   { label: 'Routing', value: 'React Router v6' },
   { label: 'Data Fetching', value: 'TanStack Query' },
   { label: 'Styling', value: 'Plain CSS with custom properties' },
-  { label: 'Auth', value: 'AWS Cognito + mock-mode fallback' },
   { label: 'Testing', value: 'Vitest + Testing Library' },
   { label: 'Deployment', value: 'Static build, CDN-ready' },
+]
+
+const backendStack = [
+  { label: 'Runtime', value: 'Node.js + TypeScript' },
+  { label: 'Compute', value: 'AWS Lambda (serverless)' },
+  { label: 'API', value: 'AWS API Gateway (REST)' },
+  { label: 'Database', value: 'AWS DynamoDB (single-table design)' },
+  { label: 'Storage', value: 'AWS S3 (asset uploads)' },
+  { label: 'Auth', value: 'AWS Cognito (JWT)' },
+  { label: 'Infrastructure', value: 'AWS SAM (CloudFormation)' },
+  { label: 'Monitoring', value: 'CloudWatch dashboards + alarms' },
 ]
 
 const team = [
@@ -72,24 +82,37 @@ export function AboutUsPage() {
       <section className="content-panel">
         <h2>Architecture</h2>
         <p>
-          OnlineForms is a single-page application with a clean separation between three
-          portal contexts — <strong>Public</strong> (learners), <strong>Org</strong> (training
-          providers), and <strong>Internal</strong> (platform admins). Each context has its own
-          layout, navigation, and role-based access control.
+          OnlineForms is a full-stack serverless application. The frontend is a single-page
+          app with three portal contexts — <strong>Public</strong> (learners),{' '}
+          <strong>Org</strong> (training providers), and <strong>Internal</strong> (platform
+          admins) — each with its own layout, navigation, and role-based access control. The
+          backend is a serverless REST API deployed on AWS, with DynamoDB as the primary
+          data store and Cognito handling authentication.
         </p>
-        <div className="detail-summary-grid" style={{ marginTop: '1.25rem' }}>
-          {techStack.map((item) => (
+
+        <h3 style={{ marginTop: '1.5rem', marginBottom: '0.25rem', fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Frontend
+        </h3>
+        <div className="detail-summary-grid">
+          {frontendStack.map((item) => (
             <div key={item.label} className="field-card">
               <span>{item.label}</span>
               <strong>{item.value}</strong>
             </div>
           ))}
         </div>
-        <p style={{ marginTop: '1.25rem' }}>
-          The backend exposes a REST API consumed via TanStack Query. Authentication uses
-          AWS Cognito for production and a built-in mock-mode for local development — so the
-          entire app works offline with no external dependencies.
-        </p>
+
+        <h3 style={{ marginTop: '1.5rem', marginBottom: '0.25rem', fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Backend
+        </h3>
+        <div className="detail-summary-grid">
+          {backendStack.map((item) => (
+            <div key={item.label} className="field-card">
+              <span>{item.label}</span>
+              <strong>{item.value}</strong>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* How it was built */}
