@@ -145,7 +145,7 @@ Implement tasks strictly in order. For each task:
   - Sidebar is accessible via hamburger on mobile
   - All primary actions are reachable at mobile width
 
-- [ ] F12-09 Public portal visual refresh
+- [x] F12-09 Public portal visual refresh
   Source: Nano Banana mock screen review — 2026-04-04
   Scope:
   - **Hero**: Switch hero content from center-aligned to left-aligned across all public pages; increase headline font size significantly (`clamp(2.2rem, 5vw, 3.5rem)` range); add an outlined eyebrow badge ("BROWSE TRAINING" or tenant display name) above the headline
@@ -161,7 +161,7 @@ Implement tasks strictly in order. For each task:
   - Multi-column footer appears on all public pages
   - Layout remains responsive and collapses gracefully on mobile
 
-- [ ] F12-10 Org portal visual refresh
+- [x] F12-10 Org portal visual refresh
   Source: Nano Banana mock screen review — 2026-04-04
   Scope:
   - **Navbar**: Enrich the org portal top navbar — add a centered global search bar, a notification bell icon with an unread badge dot, and a user avatar thumbnail with display name and dropdown caret on the right; retain the logout button
