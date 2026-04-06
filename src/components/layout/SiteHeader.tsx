@@ -111,20 +111,22 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
             ))}
             {section === 'public' ? (
               <>
-                <a
-                  href="#"
-                  className="site-header__link"
-                  onClick={(e) => e.preventDefault()}
+                <NavLink
+                  to="/about"
+                  className={({ isActive }) =>
+                    isActive ? 'site-header__link site-header__link--active' : 'site-header__link'
+                  }
                 >
                   About Us
-                </a>
-                <a
-                  href="#"
-                  className="site-header__link"
-                  onClick={(e) => e.preventDefault()}
+                </NavLink>
+                <NavLink
+                  to="/contact"
+                  className={({ isActive }) =>
+                    isActive ? 'site-header__link site-header__link--active' : 'site-header__link'
+                  }
                 >
                   Contact
-                </a>
+                </NavLink>
               </>
             ) : null}
           </nav>
