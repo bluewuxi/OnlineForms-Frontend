@@ -95,3 +95,14 @@ Delivered backend-alignment refinements:
 - [ ] F11-06 Responsive, accessibility, and UI polish pass (#46)
 
 Detailed rollout checklist: `docs/specs/PHASE_F11_UI_IMPROVEMENTS.md`
+
+## Security Hardening Phase
+
+- [x] FS-01 Enrollment form field length constraints — `maxLength` on all text inputs, live counter for textareas (#75)
+- [x] FS-02 Friendly 429 rate-limit error state — distinct banner, no retry button (#76)
+- [x] FS-03 Honeypot field on public enrollment form — silently discards bot submissions (#77)
+- [x] FS-04 CAPTCHA widget integration (Cloudflare Turnstile) — blocks submit until token received (#78)
+- [x] FS-05 XSS hygiene — `noopener noreferrer` on all `target="_blank"` links, ESLint rule (#79)
+- [x] FS-06 Dependency vulnerability scanning — `npm audit` in CI, Dependabot weekly (#80)
+
+Detailed rollout checklist: `docs/specs/PHASE_SECURITY_FRONTEND.md`
