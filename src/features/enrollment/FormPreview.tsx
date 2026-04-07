@@ -1,11 +1,14 @@
+import { Turnstile } from '@marsidev/react-turnstile'
 import { useMutation } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useCallback, useRef, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import {
   ApiClientError,
   createEnrollment,
   type EnrollmentResponse,
   type FormField,
+  type FormFieldType,
   type FormSchema,
 } from '../../lib/api'
 import {
@@ -22,14 +25,31 @@ type FormPreviewProps = {
   formAvailable?: boolean
 }
 
+// FS-01: Default max lengths aligned with backend enforcement (BS-04).
+// short_text → 500, long_text → 5000, email → 254 (RFC 5321).
+const DEFAULT_MAX_LENGTH: Partial<Record<FormFieldType, number>> = {
+  short_text: 500,
+  long_text: 5000,
+  email: 254,
+}
+
+function effectiveMaxLength(field: FormField): number | undefined {
+  return field.validation?.maxLength ?? DEFAULT_MAX_LENGTH[field.type]
+}
+
 function renderField(
   field: FormField,
   register: ReturnType<typeof useForm<Record<string, unknown>>>['register'],
 ) {
+  const maxLength = effectiveMaxLength(field)
   const rules = {
     required: field.required,
     minLength: field.validation?.minLength ?? undefined,
-    maxLength: field.validation?.maxLength ?? undefined,
+    // FS-01: Enforce maxLength with a descriptive message so the error state is helpful.
+    maxLength:
+      maxLength !== undefined
+        ? { value: maxLength, message: `${field.label} must be ${maxLength} characters or fewer.` }
+        : undefined,
     min: field.validation?.min ?? undefined,
     max: field.validation?.max ?? undefined,
     pattern: field.validation?.pattern
@@ -43,13 +63,21 @@ function renderField(
         <textarea
           id={field.fieldId}
           rows={4}
+          maxLength={maxLength}
           {...register(field.fieldId, rules)}
         />
       )
     case 'number':
       return <input id={field.fieldId} type="number" {...register(field.fieldId, rules)} />
     case 'email':
-      return <input id={field.fieldId} type="email" {...register(field.fieldId, rules)} />
+      return (
+        <input
+          id={field.fieldId}
+          type="email"
+          maxLength={maxLength}
+          {...register(field.fieldId, rules)}
+        />
+      )
     case 'phone':
       return <input id={field.fieldId} type="tel" {...register(field.fieldId, rules)} />
     case 'date':
@@ -79,17 +107,31 @@ function renderField(
       return <input id={field.fieldId} type="checkbox" {...register(field.fieldId, rules)} />
     case 'short_text':
     default:
-      return <input id={field.fieldId} type="text" {...register(field.fieldId, rules)} />
+      return (
+        <input
+          id={field.fieldId}
+          type="text"
+          maxLength={maxLength}
+          {...register(field.fieldId, rules)}
+        />
+      )
   }
 }
 
-function getFieldErrorMessage(field: FormField) {
-  if (field.required) {
+function getFieldErrorMessage(field: FormField, errorType?: string) {
+  if (errorType === 'maxLength') {
+    const max = effectiveMaxLength(field)
+    return `${field.label} must be ${max ?? ''} characters or fewer.`
+  }
+  if (field.required && errorType === 'required') {
     return `${field.label} is required.`
   }
-
   return `Enter a valid value for ${field.label}.`
 }
+
+// FS-04: Feature flags read at module load so they are stable across renders.
+const TURNSTILE_ENABLED = import.meta.env.VITE_TURNSTILE_ENABLED !== 'false'
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined
 
 export function FormPreview({
   schema,
@@ -102,9 +144,25 @@ export function FormPreview({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<Record<string, unknown>>()
+
+  // FS-01: Watch all values for live character counters on long_text fields.
+  const watchedValues = useWatch({ control })
+
+  // FS-03: Honeypot field ref — kept outside react-hook-form so it is not
+  // included in the schema answers sent to the API.
+  const honeypotRef = useRef<HTMLInputElement>(null)
+  // FS-03: Fake success state displayed when the honeypot is triggered.
+  // The bot believes the submission succeeded; no API call is made.
+  const [honeypotSuccess, setHoneypotSuccess] = useState(false)
+
+  // FS-04: Turnstile CAPTCHA token state.
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [turnstileLoadError, setTurnstileLoadError] = useState(false)
+
   const enrollmentMutation = useMutation<
     EnrollmentResponse,
     ApiClientError,
@@ -128,6 +186,13 @@ export function FormPreview({
         formVersion: schema.version,
         answers: normalizeEnrollmentAnswers(values),
         meta: createEnrollmentMeta(),
+        // FS-04: Include CAPTCHA token from Turnstile widget when enabled.
+        _captchaToken:
+          TURNSTILE_ENABLED && TURNSTILE_SITE_KEY
+            ? (turnstileToken ?? undefined)
+            : undefined,
+        // FS-03: Honeypot flag — always false for legitimate submissions reaching the API.
+        _hp: false,
       })
 
       return response.data
@@ -136,6 +201,24 @@ export function FormPreview({
       reset()
     },
   })
+
+  // FS-03: Honeypot submit handler — declared before early returns so useCallback
+  // is called unconditionally (Rules of Hooks compliance).
+  const handleFormSubmit = useCallback(
+    (values: Record<string, unknown>) => {
+      // If the hidden honeypot field was filled, a bot is submitting the form.
+      // Silently show the success state without making an API call.
+      if (honeypotRef.current?.value) {
+        setHoneypotSuccess(true)
+        return
+      }
+      enrollmentMutation.mutate(values)
+    },
+    // enrollmentMutation.mutate is stable across renders (react-query guarantee).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [enrollmentMutation.mutate],
+  )
+  const onSubmit = handleSubmit(handleFormSubmit)
 
   if (enrollmentStatus === 'closed') {
     return (
@@ -191,16 +274,20 @@ export function FormPreview({
     )
   }
 
-  const onSubmit = handleSubmit((values) => {
-    enrollmentMutation.mutate(values)
-  })
+  // FS-02: Distinguish 429 rate-limit errors from generic API errors.
+  const isRateLimited = enrollmentMutation.isError && enrollmentMutation.error.status === 429
 
-  if (enrollmentMutation.isSuccess) {
+  // FS-03: Show fake success for bot submissions alongside real success for humans.
+  if (honeypotSuccess || enrollmentMutation.isSuccess) {
     return (
       <section className="content-panel enrollment-form-shell enrollment-form-shell--success">
         <div className="enrollment-form-shell__state-card">
           <h3>Application submitted</h3>
-          <p>{courseTitle ?? enrollmentMutation.data.courseTitle ?? ''}</p>
+          <p>
+            {courseTitle ??
+              (enrollmentMutation.isSuccess ? enrollmentMutation.data.courseTitle : '') ??
+              ''}
+          </p>
           <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
             Back to courses
           </Link>
@@ -210,6 +297,10 @@ export function FormPreview({
   }
 
   const requiredCount = schema.fields.filter((field) => field.required).length
+
+  // FS-04: Disable submit while awaiting a Turnstile token (only when site key is configured).
+  const awaitingCaptcha =
+    TURNSTILE_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken && !turnstileLoadError
 
   return (
     <section className="content-panel enrollment-form-shell">
@@ -230,32 +321,77 @@ export function FormPreview({
       </div>
 
       <form className="enrollment-form" onSubmit={onSubmit}>
-        {schema.fields.map((field, index) => (
-          <label key={field.fieldId} className="enrollment-form__field enrollment-form__field--card">
-            <div className="enrollment-form__field-header">
-              <span className="enrollment-form__field-index">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span>
-                {field.label}
-                {field.required ? (
-                  <span className="enrollment-form__required" aria-label="required"> *</span>
-                ) : null}
-              </span>
-            </div>
-            {renderField(field, register)}
-            {field.helpText ? (
-              <small className="enrollment-form__hint">{field.helpText}</small>
-            ) : null}
-            {errors[field.fieldId] ? (
-              <small className="enrollment-form__field-error">
-                {getFieldErrorMessage(field)}
-              </small>
-            ) : null}
-          </label>
-        ))}
+        {/* FS-03: Hidden honeypot field — invisible to humans, visible to bots that
+            auto-fill all inputs. CSS offscreen positioning is used instead of
+            display:none / visibility:hidden because some bots detect those. */}
+        <input
+          ref={honeypotRef}
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0 }}
+        />
 
-        {enrollmentMutation.isError ? (
+        {schema.fields.map((field, index) => {
+          // FS-01: Compute effective max length for live character counter on textareas.
+          const maxLen = effectiveMaxLength(field)
+          const currentLength =
+            field.type === 'long_text'
+              ? String(watchedValues?.[field.fieldId] ?? '').length
+              : 0
+          // Show counter when ≥ 80% of the character limit is reached.
+          const showCounter =
+            field.type === 'long_text' &&
+            maxLen !== undefined &&
+            currentLength >= Math.floor(maxLen * 0.8)
+
+          return (
+            <label key={field.fieldId} className="enrollment-form__field enrollment-form__field--card">
+              <div className="enrollment-form__field-header">
+                <span className="enrollment-form__field-index">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span>
+                  {field.label}
+                  {field.required ? (
+                    <span className="enrollment-form__required" aria-label="required"> *</span>
+                  ) : null}
+                </span>
+              </div>
+              {renderField(field, register)}
+              {/* FS-01: Live character counter; aria-live announces updates to screen readers. */}
+              {showCounter ? (
+                <small className="enrollment-form__char-count" aria-live="polite">
+                  {currentLength} / {maxLen}
+                </small>
+              ) : null}
+              {field.helpText ? (
+                <small className="enrollment-form__hint">{field.helpText}</small>
+              ) : null}
+              {errors[field.fieldId] ? (
+                <small className="enrollment-form__field-error">
+                  {getFieldErrorMessage(field, errors[field.fieldId]?.type)}
+                </small>
+              ) : null}
+            </label>
+          )
+        })}
+
+        {/* FS-02: Distinct rate-limit error state — no retry button on 429. */}
+        {isRateLimited ? (
+          <div
+            className="enrollment-form__banner enrollment-form__banner--rate-limit"
+            role="alert"
+          >
+            <strong>You&apos;ve submitted too many applications recently</strong>
+            <span>
+              Please wait a while before trying again. If you believe this is an
+              error, contact the training provider.
+            </span>
+          </div>
+        ) : enrollmentMutation.isError ? (
           <div className="enrollment-form__banner" role="alert">
             <strong>{enrollmentMutation.error.message}</strong>
             <span>Check the highlighted answers and try submitting again.</span>
@@ -272,14 +408,47 @@ export function FormPreview({
           </div>
         ) : null}
 
+        {/* FS-04: Cloudflare Turnstile CAPTCHA widget.
+            - Only rendered when VITE_TURNSTILE_ENABLED !== 'false' and VITE_TURNSTILE_SITE_KEY is set.
+            - If the widget fails to load (ad-blocker, network error), we log a warning and
+              allow submission to proceed so legitimate users are never blocked.
+            - Set VITE_TURNSTILE_ENABLED=false in local/test environments to skip the widget. */}
+        {TURNSTILE_ENABLED && TURNSTILE_SITE_KEY ? (
+          <Turnstile
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(token) => {
+              setTurnstileToken(token)
+              setTurnstileLoadError(false)
+            }}
+            onError={() => {
+              console.warn(
+                '[FormPreview] Turnstile failed to load — allowing submission without CAPTCHA token.',
+              )
+              setTurnstileLoadError(true)
+            }}
+            onExpire={() => setTurnstileToken(null)}
+          />
+        ) : null}
+
         <div className="enrollment-form__actions">
-          <button
-            className="button button--primary enrollment-form__submit"
-            disabled={enrollmentMutation.isPending}
-            type="submit"
-          >
-            {enrollmentMutation.isPending ? 'Submitting application...' : 'Submit enrolment'}
-          </button>
+          {/* FS-02: No retry button on 429 — show course navigation instead. */}
+          {isRateLimited ? (
+            <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
+              Back to courses
+            </Link>
+          ) : (
+            <button
+              className="button button--primary enrollment-form__submit"
+              disabled={enrollmentMutation.isPending || awaitingCaptcha}
+              type="submit"
+            >
+              {enrollmentMutation.isPending
+                ? 'Submitting application...'
+                : awaitingCaptcha
+                  ? 'Verifying...'
+                  : 'Submit enrolment'}
+            </button>
+          )}
         </div>
       </form>
     </section>
