@@ -261,6 +261,9 @@ export type UploadTicketResponse = {
   assetId: string
   uploadUrl: string
   method?: string
+  /** Presigned POST form fields — present when method is POST */
+  fields?: Record<string, string>
+  /** Legacy presigned PUT headers — present when method is PUT */
   headers?: Record<string, string>
   expiresAt?: string
   publicUrl?: string

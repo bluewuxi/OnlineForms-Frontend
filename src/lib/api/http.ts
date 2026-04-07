@@ -1,5 +1,5 @@
 import { refreshCognitoSession } from '../../features/org-session/cognito'
-import { getApiBaseUrl, getFrontendCognitoTokenUse } from '../config/env'
+import { getApiBaseUrl, getOrgApiBaseUrl, getFrontendCognitoTokenUse } from '../config/env'
 import {
   notifySessionInvalidated,
   notifySessionRefreshed,
@@ -143,7 +143,9 @@ export async function apiRequest<TResponse>({
   correlationId = createCorrelationId(),
   headers,
 }: ApiRequestOptions): Promise<ApiResult<TResponse>> {
-  const url = joinApiUrl(getApiBaseUrl(), `${path}${buildQueryString(query)}`)
+  const isOrgRoute = path.startsWith('/org/') || path.startsWith('/internal/')
+  const baseUrl = isOrgRoute ? getOrgApiBaseUrl() : getApiBaseUrl()
+  const url = joinApiUrl(baseUrl, `${path}${buildQueryString(query)}`)
   let effectiveSession = session
   if (isCognitoSession(effectiveSession) && isSessionExpiringSoon(effectiveSession)) {
     try {

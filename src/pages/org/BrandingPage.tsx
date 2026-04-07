@@ -20,11 +20,25 @@ import {
 } from '../../lib/api'
 
 async function uploadAssetBinary(ticket: UploadTicketResponse, file: File) {
-  const response = await fetch(ticket.uploadUrl, {
-    method: ticket.method || 'PUT',
-    headers: ticket.headers,
-    body: file,
-  })
+  let response: Response
+
+  if (ticket.method === 'POST' && ticket.fields) {
+    // Presigned POST — S3 requires a multipart/form-data body.
+    // All policy fields must come before the file, and the file field must be last.
+    const form = new FormData()
+    for (const [key, value] of Object.entries(ticket.fields)) {
+      form.append(key, value)
+    }
+    form.append('file', file)
+    response = await fetch(ticket.uploadUrl, { method: 'POST', body: form })
+  } else {
+    // Presigned PUT (legacy path)
+    response = await fetch(ticket.uploadUrl, {
+      method: 'PUT',
+      headers: ticket.headers,
+      body: file,
+    })
+  }
 
   if (!response.ok) {
     throw new Error(`Upload failed with status ${response.status}.`)
