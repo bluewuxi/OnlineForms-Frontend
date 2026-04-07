@@ -293,7 +293,7 @@ export function BrandingPage() {
               <span>Preview URL</span>
               <a
                 href={uploadedAsset.publicUrl || uploadedAsset.url}
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 target="_blank"
               >
                 {uploadedAsset.publicUrl || uploadedAsset.url}

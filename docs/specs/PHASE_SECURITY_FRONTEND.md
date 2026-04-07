@@ -24,8 +24,8 @@ Implement tasks strictly in order. For each task:
 
 ## Tasks
 
-- [ ] FS-01 Enrollment form field length constraints
-  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/TBD
+- [x] FS-01 Enrollment form field length constraints
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/75
   Scope:
   - Add `maxLength` attribute to every `<input type="text">`, `<input type="email">`, and `<textarea>` rendered inside `EnrollmentForm` based on field type:
     - Short text fields: `maxLength={500}`
@@ -39,8 +39,8 @@ Implement tasks strictly in order. For each task:
   - Character counter appears for textarea fields near the limit
   - Exceeding the limit blocks form submission with a clear inline error
 
-- [ ] FS-02 Friendly 429 rate-limit error state
-  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/TBD
+- [x] FS-02 Friendly 429 rate-limit error state
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/76
   Scope:
   - The enrollment form submission handler currently shows a generic error banner on API failure
   - Detect HTTP `429 Too Many Requests` responses from `POST /v1/public/{tenantCode}/courses/{courseId}/enrollments` specifically
@@ -54,8 +54,8 @@ Implement tasks strictly in order. For each task:
   - Other `4xx`/`5xx` errors continue to render the existing generic error state
   - No retry button appears on the `429` state
 
-- [ ] FS-03 Honeypot field on enrollment form
-  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/TBD
+- [x] FS-03 Honeypot field on enrollment form
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/77
   Scope:
   - Add a hidden honeypot `<input>` field to the enrollment form that is invisible to human users but visible to bots that auto-fill all fields
   - Implementation:
@@ -70,8 +70,8 @@ Implement tasks strictly in order. For each task:
   - Success state is shown to fool bots into thinking submission worked
   - Automated test verifies the honeypot field is present but hidden
 
-- [ ] FS-04 CAPTCHA widget integration (Cloudflare Turnstile)
-  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/TBD
+- [x] FS-04 CAPTCHA widget integration (Cloudflare Turnstile)
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/78
   Scope:
   - Integrate Cloudflare Turnstile (invisible mode) into the public enrollment form
   - Why Turnstile: invisible by default (no puzzle), free, privacy-friendly, no Google dependency
@@ -91,8 +91,8 @@ Implement tasks strictly in order. For each task:
   - In test/dev mode (`VITE_TURNSTILE_ENABLED=false`) the form works without a token
   - Existing enrollment form tests continue to pass
 
-- [ ] FS-05 XSS hygiene — external links and rendered content
-  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/TBD
+- [x] FS-05 XSS hygiene — external links and rendered content
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/79
   Scope:
   - Audit all `<a target="_blank">` links across the codebase and add `rel="noopener noreferrer"` to prevent tab-napping attacks (the opened page can otherwise access `window.opener` and redirect the parent tab)
   - Audit the `RichText` component — it renders raw HTML via `dangerouslySetInnerHTML`. Verify that all HTML passed to it originates from the backend (trusted source), not from user-submitted content. Add a code comment documenting this trust assumption.
@@ -103,8 +103,8 @@ Implement tasks strictly in order. For each task:
   - `RichText` is documented as trusted-source only
   - ESLint rule is active and CI enforces it
 
-- [ ] FS-06 Dependency vulnerability scanning
-  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/TBD
+- [x] FS-06 Dependency vulnerability scanning
+  Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/80
   Scope:
   - Add `npm audit --audit-level=high` to the CI pipeline (GitHub Actions or equivalent) so high/critical CVEs fail the build
   - Enable GitHub Dependabot for the `OnlineForms-Frontend` repository:

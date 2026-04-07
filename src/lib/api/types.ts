@@ -199,6 +199,10 @@ export type EnrollmentPayload = {
     locale?: string
     timezone?: string
   }
+  /** FS-04: Cloudflare Turnstile token for server-side CAPTCHA verification. */
+  _captchaToken?: string
+  /** FS-03: Honeypot flag — true if the hidden honeypot field was filled (bot indicator). */
+  _hp?: boolean
 }
 
 export type EnrollmentResponse = {

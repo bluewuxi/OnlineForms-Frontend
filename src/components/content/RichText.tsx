@@ -1,3 +1,7 @@
+// FS-05: Trust assumption — HTML passed to RichText MUST originate from the backend
+// (e.g. tenant description, home page content managed by org admins).
+// Never pass user-submitted form answers through this component; use a plain text
+// renderer for any content sourced from end-user input to prevent XSS.
 const allowedTags = new Set([
   'A',
   'B',
@@ -62,7 +66,9 @@ function sanitizeHtml(html: string) {
 
       if (href.startsWith('http://') || href.startsWith('https://')) {
         node.setAttribute('target', '_blank')
-        node.setAttribute('rel', 'noreferrer')
+        // FS-05: noopener prevents the opened page from accessing window.opener
+        // (tab-napping); noreferrer suppresses the Referer header.
+        node.setAttribute('rel', 'noopener noreferrer')
       } else {
         node.removeAttribute('target')
         node.removeAttribute('rel')
