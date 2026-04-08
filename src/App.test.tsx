@@ -460,7 +460,7 @@ describe('App routing', () => {
     )
     expect(screen.queryByRole('link', { name: /^logout$/i })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /demo-user/i })).toBeInTheDocument()
-    expect(screen.getByText(/internal_admin/i)).toBeInTheDocument()
+    expect(screen.getByText(/internal admin/i)).toBeInTheDocument()
 
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: /demo-user/i }))
@@ -480,6 +480,23 @@ describe('App routing', () => {
       'href',
       '/',
     )
+  })
+
+  it('routes org_viewer session to the org portal', async () => {
+    window.localStorage.setItem(
+      ORG_SESSION_STORAGE_KEY,
+      JSON.stringify({
+        userId: 'viewer-user',
+        tenantId: 'tenant-123',
+        role: 'org_viewer',
+      }),
+    )
+
+    renderRoute('/org/submissions')
+
+    expect(
+      await screen.findByRole('heading', { name: /^submissions$/i }),
+    ).toBeInTheDocument()
   })
 
   it('blocks internal tenant route for non-internal roles', async () => {

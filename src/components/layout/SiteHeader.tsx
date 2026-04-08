@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { startCognitoLogout } from '../../features/org-session/cognito'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
+import { getRoleLabel } from '../../lib/roleLabels'
 
 type SiteHeaderProps = {
   section: 'public' | 'org' | 'login' | 'internal'
@@ -48,7 +49,7 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
     !isLikelyGuid(sessionPreferredName) &&
     sessionPreferredName !== sessionLoginName
       ? sessionPreferredName
-      : '') || session?.role || ''
+      : '') || (session?.role ? getRoleLabel(session.role) : '') || ''
 
   useEffect(() => {
     if (!isAccountMenuOpen) {

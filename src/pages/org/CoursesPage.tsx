@@ -7,6 +7,7 @@ import { StatusChip } from '../../components/feedback/StatusChip'
 import { OrgActivityFeed } from '../../components/layout/OrgActivityFeed'
 import { OrgWorkspaceNav } from '../../components/layout/OrgWorkspaceNav'
 import { PageHero } from '../../components/layout/PageHero'
+import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { listCourses } from '../../lib/api'
 
@@ -50,6 +51,7 @@ function courseStatusTone(
 
 export function CoursesPage() {
   const { session } = useOrgSession()
+  const canWrite = useCanWrite()
   const navigate = useNavigate()
   const coursesQuery = useQuery({
     queryKey: ['org-courses', session?.tenantId],
@@ -86,12 +88,12 @@ export function CoursesPage() {
                 state: 'current',
                 icon: iconCourseList,
               },
-              {
+              ...(canWrite ? [{
                 label: 'Create course',
                 description: 'Start a new course record before moving into form design.',
                 to: '/org/courses/new',
                 icon: iconCreateCourse,
-              },
+              }] : []),
               {
                 label: 'Settings',
                 description: 'Open tenant branding and audit tools.',
@@ -123,11 +125,13 @@ export function CoursesPage() {
                     <p className="section-heading__eyebrow">Course list</p>
                     <h2>{coursesQuery.data.items.length} course{coursesQuery.data.items.length !== 1 ? 's' : ''}</h2>
                   </div>
-                  <div className="section-header__actions">
-                    <Link className="button button--primary" to="/org/courses/new">
-                      Create course
-                    </Link>
-                  </div>
+                  {canWrite ? (
+                    <div className="section-header__actions">
+                      <Link className="button button--primary" to="/org/courses/new">
+                        Create course
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="org-course-card-grid">
@@ -183,9 +187,11 @@ export function CoursesPage() {
             ) : (
               <EmptyState
                 title="No courses yet"
-                message="Create the first course to begin the publishing and enrollment workflow."
-                actionLabel="Create course"
-                onAction={() => navigate('/org/courses/new')}
+                message={canWrite
+                  ? 'Create the first course to begin the publishing and enrollment workflow.'
+                  : 'No courses have been created for this tenant yet.'}
+                actionLabel={canWrite ? 'Create course' : undefined}
+                onAction={canWrite ? () => navigate('/org/courses/new') : undefined}
               />
             )
           ) : null}

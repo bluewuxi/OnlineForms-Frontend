@@ -16,7 +16,7 @@ export function OrgProtectedRoute() {
     )
   }
   const requiresTenantContext =
-    session.role === 'org_admin' || session.role === 'org_editor'
+    session.role === 'org_admin' || session.role === 'org_editor' || session.role === 'org_viewer'
   if (requiresTenantContext && (!session.tenantId || session.tenantId.trim().length === 0)) {
     const returnTo = `${location.pathname}${location.search}`
     return (

@@ -30,14 +30,23 @@ type OrgLoginFormValues = {
 }
 
 const fallbackRoles: AuthRoleOption[] = [
+  { role: 'org_viewer', label: 'Org Viewer', requiresTenant: true },
   { role: 'org_admin', label: 'Org Admin', requiresTenant: true },
   { role: 'org_editor', label: 'Org Editor', requiresTenant: true },
   { role: 'internal_admin', label: 'Internal Admin', requiresTenant: false },
-  { role: 'platform_admin', label: 'Platform Admin', requiresTenant: true },
+  { role: 'platform_support', label: 'Platform Support', requiresTenant: true },
 ]
 
+const ROLE_LABELS: Record<string, string> = {
+  org_viewer: 'Org Viewer',
+  org_editor: 'Org Editor',
+  org_admin: 'Org Admin',
+  internal_admin: 'Internal Admin',
+  platform_support: 'Platform Support',
+}
+
 function hasInternalCapability(role: string | null | undefined) {
-  return role === 'internal_admin' || role === 'platform_admin'
+  return role === 'internal_admin' || role === 'platform_support'
 }
 
 export function OrgLoginPage() {
@@ -417,7 +426,7 @@ export function OrgLoginPage() {
                     <option value="">Select role</option>
                     {cognitoTenantRoleOptions.map((role) => (
                       <option key={role} value={role}>
-                        {role}
+                        {ROLE_LABELS[role] ?? role}
                       </option>
                     ))}
                   </select>

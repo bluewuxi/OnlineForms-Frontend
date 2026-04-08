@@ -5,6 +5,7 @@ import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
 import { buildFormSchemaUpsertPayload } from '../../features/form-designer/schemaPayload'
+import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
@@ -116,6 +117,7 @@ function createInitialEnrollmentFields(): FormField[] {
 }
 
 type FormDesignerEditorProps = {
+  canWrite: boolean
   courseId: string
   formId?: string
   isNewSchema?: boolean
@@ -126,6 +128,7 @@ type FormDesignerEditorProps = {
 }
 
 function FormDesignerEditor({
+  canWrite,
   courseId,
   formId,
   isNewSchema = false,
@@ -303,36 +306,44 @@ function FormDesignerEditor({
             <p className="section-heading__eyebrow">Field list</p>
             <h2>Editor fields</h2>
           </div>
-          <div className="button-row">
-            <button className="button button--primary" onClick={addField} type="button">
-              Add field
-            </button>
-            <button
-              className="button button--ghost"
-              disabled={!selectedField}
-              onClick={() => moveSelectedField('up')}
-              type="button"
-            >
-              Move up
-            </button>
-            <button
-              className="button button--ghost"
-              disabled={!selectedField}
-              onClick={() => moveSelectedField('down')}
-              type="button"
-            >
-              Move down
-            </button>
-            <button
-              className="button button--secondary"
-              disabled={!editableFields.length || !hasUnsavedChanges || saveMutation.isPending}
-              onClick={() => saveMutation.mutate()}
-              type="button"
-            >
-              {saveMutation.isPending ? 'Saving schema...' : 'Save schema'}
-            </button>
-          </div>
-          {hasUnsavedChanges ? (
+          {!canWrite ? (
+            <div className="designer-banner designer-banner--warning" role="status">
+              <strong>You have read-only access to this tenant.</strong>
+              <span>Contact an Org Admin to make changes.</span>
+            </div>
+          ) : null}
+          {canWrite ? (
+            <div className="button-row">
+              <button className="button button--primary" onClick={addField} type="button">
+                Add field
+              </button>
+              <button
+                className="button button--ghost"
+                disabled={!selectedField}
+                onClick={() => moveSelectedField('up')}
+                type="button"
+              >
+                Move up
+              </button>
+              <button
+                className="button button--ghost"
+                disabled={!selectedField}
+                onClick={() => moveSelectedField('down')}
+                type="button"
+              >
+                Move down
+              </button>
+              <button
+                className="button button--secondary"
+                disabled={!editableFields.length || !hasUnsavedChanges || saveMutation.isPending}
+                onClick={() => saveMutation.mutate()}
+                type="button"
+              >
+                {saveMutation.isPending ? 'Saving schema...' : 'Save schema'}
+              </button>
+            </div>
+          ) : null}
+          {canWrite && hasUnsavedChanges ? (
             <div className="designer-banner designer-banner--warning" role="status">
               <strong>Draft has unsaved changes.</strong>
               <span>Save the schema to publish the next form version for this course.</span>
@@ -393,7 +404,7 @@ function FormDesignerEditor({
           )}
         </section>
 
-        <section className="content-panel">
+        {canWrite ? (<section className="content-panel">
           <div className="section-heading">
             <p className="section-heading__eyebrow">Field editor</p>
             <h2>Core field properties</h2>
@@ -628,7 +639,7 @@ function FormDesignerEditor({
               </p>
             </div>
           )}
-        </section>
+        </section>) : null}
       </section>
     </>
   )
@@ -644,6 +655,7 @@ function createEmptyFormSchema(courseId: string): FormSchema {
 
 export function FormDesignerPage() {
   const { session } = useOrgSession()
+  const canWrite = useCanWrite()
   const { courseId = '' } = useParams()
   const schemaQuery = useQuery({
     queryKey: ['org-form-schema', session?.tenantId, courseId],
@@ -697,6 +709,7 @@ export function FormDesignerPage() {
       {!schemaQuery.isLoading && !schemaQuery.isError && session ? (
         <FormDesignerEditor
           key={`${schemaQuery.data?.schema.id || 'draft'}-${schemaQuery.data?.schema.version || 0}-${courseId}`}
+          canWrite={canWrite}
           courseId={schemaQuery.data?.schema.courseId || courseId}
           formId={schemaQuery.data?.schema.id}
           initialFields={schemaQuery.data?.schema.fields ?? []}

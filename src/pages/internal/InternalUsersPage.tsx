@@ -8,6 +8,7 @@ import { ListDetailLayout } from '../../components/layout/ListDetailLayout'
 import { PageHero } from '../../components/layout/PageHero'
 import { SectionHeader } from '../../components/layout/SectionHeader'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
+import { getRoleLabel } from '../../lib/roleLabels'
 import {
   activateInternalAccessUser,
   addInternalAccessUserRole,
@@ -475,7 +476,7 @@ export function InternalUsersPage() {
                           <div className="internal-users-role-row">
                               {user.internalRoles.map((role) => (
                                 <StatusChip key={role} tone="info">
-                                  {role}
+                                  {getRoleLabel(role)}
                                 </StatusChip>
                               ))}
                             </div>
@@ -623,7 +624,7 @@ export function InternalUsersPage() {
                         </StatusChip>
                         {selectedUser.internalRoles.map((role) => (
                           <StatusChip key={role} tone="info">
-                            {role}
+                            {getRoleLabel(role)}
                           </StatusChip>
                         ))}
                       </div>
@@ -761,7 +762,7 @@ export function InternalUsersPage() {
                             <li key={membership.tenantId} className="internal-users-memberships__item">
                               <strong>{membership.tenantId}</strong>
                               <span>{membership.status}</span>
-                              <span>{membership.roles.join(', ') || 'No roles'}</span>
+                              <span>{membership.roles.map(getRoleLabel).join(', ') || 'No roles'}</span>
                             </li>
                           ))}
                         </ul>

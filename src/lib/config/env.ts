@@ -15,6 +15,15 @@ export function getApiBaseUrl() {
   return import.meta.env.VITE_API_BASE_URL?.trim() || defaultApiBaseUrl
 }
 
+/**
+ * Base URL for authenticated org/internal routes. After the BS-05 CORS split
+ * these live on a separate API Gateway endpoint. Falls back to the main API
+ * URL so local dev keeps working without the variable set.
+ */
+export function getOrgApiBaseUrl() {
+  return import.meta.env.VITE_ORG_API_BASE_URL?.trim() || getApiBaseUrl()
+}
+
 export function getFallbackTenantCodes(): string[] {
   const raw = import.meta.env.VITE_PUBLIC_TENANT_CODES?.trim()
   if (!raw) {

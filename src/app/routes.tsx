@@ -12,6 +12,7 @@ import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
 import { OrgSettingsPage } from '../pages/org/OrgSettingsPage'
+import { TeamPage } from '../pages/org/TeamPage'
 import { InternalHomePage } from '../pages/internal/InternalHomePage'
 import { InternalLogoutPage } from '../pages/internal/InternalLogoutPage'
 import { InternalTenantsPage } from '../pages/internal/InternalTenantsPage'
@@ -92,7 +93,7 @@ export const appRoutes: RouteObject[] = [
           {
             element: (
               <RoleProtectedRoute
-                allowedRoles={['internal_admin', 'platform_admin']}
+                allowedRoles={['internal_admin', 'platform_support']}
               />
             ),
             children: [
@@ -154,6 +155,10 @@ export const appRoutes: RouteObject[] = [
               {
                 path: 'courses/:courseId/form',
                 element: <FormDesignerPage />,
+              },
+              {
+                path: 'team',
+                element: <TeamPage />,
               },
             ],
           },
