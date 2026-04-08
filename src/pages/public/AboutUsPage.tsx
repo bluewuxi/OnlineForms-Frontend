@@ -1,6 +1,45 @@
 import { Link } from 'react-router-dom'
 import { PageHero } from '../../components/layout/PageHero'
 
+const portalRoles = [
+  {
+    portal: 'Public',
+    role: 'Guest',
+    description: 'Browse the course catalog, view course details, and submit enrollment applications. No account required.',
+    badge: 'No login required',
+  },
+  {
+    portal: 'Org',
+    role: 'Org Viewer',
+    description: 'Read-only access to all data within a tenant — courses, submissions, branding, and audit history. Suited for auditors and external reviewers.',
+    badge: 'org_viewer',
+  },
+  {
+    portal: 'Org',
+    role: 'Org Editor',
+    description: 'Create and edit courses, design enrollment form schemas, and manage uploaded assets. Cannot change tenant settings or update submission statuses.',
+    badge: 'org_editor',
+  },
+  {
+    portal: 'Org',
+    role: 'Org Admin',
+    description: 'Full org-level control — everything an editor can do, plus updating submission statuses, managing tenant branding and settings, and inviting new team members.',
+    badge: 'org_admin',
+  },
+  {
+    portal: 'Internal',
+    role: 'Platform Support',
+    description: 'Cross-tenant support access. Can read org data within any specific tenant to assist with troubleshooting. Cannot write data or access internal management endpoints.',
+    badge: 'platform_support',
+  },
+  {
+    portal: 'Internal',
+    role: 'Internal Admin',
+    description: 'Platform operator access. Creates and manages tenants, provisions and manages users, assigns roles. Operates without a tenant context.',
+    badge: 'internal_admin',
+  },
+]
+
 const frontendStack = [
   { label: 'UI Framework', value: 'React 19 + TypeScript' },
   { label: 'Build Tool', value: 'Vite' },
@@ -78,16 +117,45 @@ export function AboutUsPage() {
         </div>
       </section>
 
+      {/* Roles & Access */}
+      <section className="content-panel">
+        <h2>Roles &amp; Access</h2>
+        <p>
+          OnlineForms uses a role-based access control system across three portal contexts.
+          Each role carries a precise set of permissions — no role inherits unnecessary
+          write access by default.
+        </p>
+        <div className="content-card-grid" style={{ marginTop: '1.25rem' }}>
+          {portalRoles.map((item) => (
+            <div key={item.badge} className="state-card" style={{ display: 'grid', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <strong style={{ fontSize: '1rem', color: 'var(--color-text)' }}>{item.role}</strong>
+                <span className="page-hero__badge" style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                  {item.badge}
+                </span>
+              </div>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
+                {item.portal} portal
+              </span>
+              <p style={{ margin: 0, color: 'var(--color-text-muted)', lineHeight: '1.65', fontSize: '0.93rem' }}>
+                {item.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Architecture */}
       <section className="content-panel">
         <h2>Architecture</h2>
         <p>
           OnlineForms is a full-stack serverless application. The frontend is a single-page
           app with three portal contexts — <strong>Public</strong> (learners),{' '}
-          <strong>Org</strong> (training providers), and <strong>Internal</strong> (platform
-          admins) — each with its own layout, navigation, and role-based access control. The
-          backend is a serverless REST API deployed on AWS, with DynamoDB as the primary
-          data store and Cognito handling authentication.
+          <strong>Org</strong> (training providers, with viewer / editor / admin roles),
+          and <strong>Internal</strong> (platform operators and support staff) — each with its
+          own layout, navigation, and role-based access control. The backend is a serverless
+          REST API deployed on AWS, with DynamoDB as the primary data store and Cognito
+          handling authentication.
         </p>
 
         <h3 style={{ marginTop: '1.5rem', marginBottom: '0.25rem', fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
