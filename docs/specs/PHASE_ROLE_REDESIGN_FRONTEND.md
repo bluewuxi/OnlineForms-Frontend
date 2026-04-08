@@ -29,7 +29,7 @@ Implement tasks strictly in order. For each task:
 
 ## Tasks
 
-- [ ] FR-01 Rename `platform_admin` to `platform_support` in all frontend code
+- [x] FR-01 Rename `platform_admin` to `platform_support` in all frontend code
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/81
   Scope:
   - Find every string literal, type member, and display label that contains `platform_admin`
@@ -51,7 +51,7 @@ Implement tasks strictly in order. For each task:
   - A user session carrying `role: "platform_support"` routes correctly to the internal portal
   - All existing tests pass
 
-- [ ] FR-02 Add `org_viewer` to frontend role types and session handling
+- [x] FR-02 Add `org_viewer` to frontend role types and session handling
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/82
   Scope:
   - Add `"org_viewer"` to the `AuthRole` (or equivalent) TypeScript union type in `types.ts`
@@ -71,7 +71,7 @@ Implement tasks strictly in order. For each task:
   - `tsc --noEmit` passes
   - All existing tests pass; add a test confirming `org_viewer` satisfies tenant context checks
 
-- [ ] FR-03 Guard org portal write actions behind `org_editor` / `org_admin` role check
+- [x] FR-03 Guard org portal write actions behind `org_editor` / `org_admin` role check
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/83
   Scope:
   - An `org_viewer` session must not see or be able to trigger any write action in the org
@@ -97,7 +97,7 @@ Implement tasks strictly in order. For each task:
   - `org_editor` and `org_admin` sessions are unaffected — all write actions still appear
   - `useCanWrite` (or equivalent) has a unit test covering all three org roles
 
-- [ ] FR-04 Update invite creation UI to offer `org_viewer` as a role option
+- [x] FR-04 Update invite creation UI to offer `org_viewer` as a role option
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/84
   Scope:
   - In the invite creation form (wherever `org_admin` can send a member invite), update the
@@ -119,7 +119,7 @@ Implement tasks strictly in order. For each task:
   - Pending-invites list shows `"Org Viewer"` for invites with that role
   - All existing invite flow tests pass; add a test for the `org_viewer` invite path
 
-- [ ] FR-05 Update role display labels across internal portal user management
+- [x] FR-05 Update role display labels across internal portal user management
   Issue: https://github.com/bluewuxi/OnlineForms-Frontend/issues/85
   Scope:
   - The internal portal user management pages (user list, user detail, role add/remove)

@@ -8,12 +8,12 @@ import {
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 
 function hasInternalCapability(role: string) {
-  return role === 'internal_admin' || role === 'platform_admin'
+  return role === 'internal_admin' || role === 'platform_support'
 }
 
 function hasOrgTenantCapability(role: string, tenantId?: string) {
   return (
-    (role === 'org_admin' || role === 'org_editor') &&
+    (role === 'org_admin' || role === 'org_editor' || role === 'org_viewer') &&
     Boolean(tenantId && tenantId.trim().length > 0)
   )
 }

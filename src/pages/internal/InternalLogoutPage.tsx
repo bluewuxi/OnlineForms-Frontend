@@ -12,7 +12,7 @@ export function InternalLogoutPage() {
 
     async function completeLogout() {
       try {
-        if (session?.accessToken && (session.role === 'internal_admin' || session.role === 'platform_admin')) {
+        if (session?.accessToken && (session.role === 'internal_admin' || session.role === 'platform_support')) {
           await logInternalAccessUserLogout(session)
         }
       } catch {

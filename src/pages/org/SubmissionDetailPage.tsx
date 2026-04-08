@@ -4,6 +4,7 @@ import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { StatusChip } from '../../components/feedback/StatusChip'
 import { PageHero } from '../../components/layout/PageHero'
+import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
@@ -45,6 +46,7 @@ function extractApplicantSummary(submission: Submission) {
 
 export function SubmissionDetailPage() {
   const { session } = useOrgSession()
+  const canWrite = useCanWrite()
   const { submissionId = '' } = useParams()
   const queryClient = useQueryClient()
   const submissionQuery = useQuery({
@@ -226,24 +228,26 @@ export function SubmissionDetailPage() {
                 {submission.status}
               </StatusChip>
             </div>
-            <div className="button-row">
-              <button
-                className="button button--primary"
-                disabled={submission.status !== 'submitted' || updateMutation.isPending}
-                onClick={() => updateMutation.mutate({ status: 'reviewed' })}
-                type="button"
-              >
-                {updateMutation.isPending ? 'Updating...' : 'Mark reviewed'}
-              </button>
-              <button
-                className="button button--ghost"
-                disabled={submission.status !== 'submitted' || updateMutation.isPending}
-                onClick={() => updateMutation.mutate({ status: 'canceled' })}
-                type="button"
-              >
-                Mark canceled
-              </button>
-            </div>
+            {canWrite ? (
+              <div className="button-row">
+                <button
+                  className="button button--primary"
+                  disabled={submission.status !== 'submitted' || updateMutation.isPending}
+                  onClick={() => updateMutation.mutate({ status: 'reviewed' })}
+                  type="button"
+                >
+                  {updateMutation.isPending ? 'Updating...' : 'Mark reviewed'}
+                </button>
+                <button
+                  className="button button--ghost"
+                  disabled={submission.status !== 'submitted' || updateMutation.isPending}
+                  onClick={() => updateMutation.mutate({ status: 'canceled' })}
+                  type="button"
+                >
+                  Mark canceled
+                </button>
+              </div>
+            ) : null}
             {updateMutation.isError ? (
               <p className="submission-action-bar__error" role="alert">
                 {updateMutation.error.message}

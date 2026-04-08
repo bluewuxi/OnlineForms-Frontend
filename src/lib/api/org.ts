@@ -808,3 +808,31 @@ export function validateSessionContext(
     data: response.data.data,
   }))
 }
+
+export function listOrgInvites(session: OrgSessionHeaders) {
+  return apiRequest<BackendListEnvelope<import('./types').OrgInvite>>({
+    path: '/org/invites',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: {
+      items: response.data.data,
+      nextCursor: response.data.page.nextCursor,
+    },
+  }))
+}
+
+export function createOrgInvite(
+  session: OrgSessionHeaders,
+  payload: import('./types').OrgInvitePayload,
+) {
+  return apiRequest<BackendItemEnvelope<import('./types').OrgInvite>>({
+    path: '/org/invites',
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}

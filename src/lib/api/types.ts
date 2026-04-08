@@ -380,7 +380,7 @@ export type InternalUserMembership = {
   roles: string[]
 }
 
-export type InternalRole = 'internal_admin' | 'platform_admin'
+export type InternalRole = 'internal_admin' | 'platform_support'
 
 export type InternalAccessUserDetail = InternalAccessUser & {
   memberships: InternalUserMembership[]
@@ -429,4 +429,30 @@ export type InternalUserActivityEvent = {
 
 export type InternalUserActivityPage = CursorPage<InternalUserActivityEvent> & {
   sourceStatus: 'ok' | 'unavailable'
+}
+
+export type OrgRole = 'org_viewer' | 'org_editor' | 'org_admin'
+
+export type OrgMember = {
+  userId: string
+  email?: string | null
+  preferredName?: string | null
+  role: OrgRole
+  status: 'active' | 'invited' | 'suspended'
+  invitedAt?: string | null
+  joinedAt?: string | null
+}
+
+export type OrgInvitePayload = {
+  email: string
+  role: OrgRole
+}
+
+export type OrgInvite = {
+  inviteId: string
+  email: string
+  role: OrgRole
+  status: 'pending' | 'accepted' | 'expired'
+  invitedAt: string
+  expiresAt?: string | null
 }

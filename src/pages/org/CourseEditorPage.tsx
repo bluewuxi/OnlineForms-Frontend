@@ -5,6 +5,7 @@ import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { PageHero } from '../../components/layout/PageHero'
+import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
@@ -46,6 +47,7 @@ type CourseEditorFormProps = {
   initialDraft: CourseFormState
   isCreateMode: boolean
   session: OrgSessionHeaders
+  canWrite: boolean
 }
 
 const defaultCourseFormState: CourseFormState = {
@@ -138,6 +140,7 @@ function CourseEditorForm({
   initialDraft,
   isCreateMode,
   session,
+  canWrite,
 }: CourseEditorFormProps) {
   const navigate = useNavigate()
   const [draft, setDraft] = useState<CourseFormState>(initialDraft)
@@ -422,7 +425,14 @@ function CourseEditorForm({
           </label>
         ) : null}
 
-        {hasUnsavedChanges ? (
+        {!canWrite ? (
+          <div className="designer-banner designer-banner--warning" role="status">
+            <strong>You have read-only access to this tenant.</strong>
+            <span>Contact an Org Admin to make changes.</span>
+          </div>
+        ) : null}
+
+        {canWrite && hasUnsavedChanges ? (
           <div className="designer-banner designer-banner--warning" role="status">
             <strong>Course draft has unsaved changes.</strong>
             <span>Save the course before moving on to publish or form design tasks.</span>
@@ -438,25 +448,27 @@ function CourseEditorForm({
 
         <div className="course-editor-save-bar">
           <div className="course-editor-save-bar__left">
-            {hasUnsavedChanges ? (
+            {canWrite && hasUnsavedChanges ? (
               <span className="course-editor-save-bar__unsaved">Unsaved changes</span>
             ) : saveMessage ? (
               <span className="course-editor-save-bar__saved">{saveMessage}</span>
             ) : null}
           </div>
           <div className="button-row">
-            <button
-              className="button button--primary"
-              disabled={isSaving || !hasUnsavedChanges}
-              type="submit"
-            >
-              {isSaving
-                ? 'Saving...'
-                : isCreateMode
-                  ? 'Create course'
-                  : 'Save changes'}
-            </button>
-            {!isCreateMode && courseId ? (
+            {canWrite ? (
+              <button
+                className="button button--primary"
+                disabled={isSaving || !hasUnsavedChanges}
+                type="submit"
+              >
+                {isSaving
+                  ? 'Saving...'
+                  : isCreateMode
+                    ? 'Create course'
+                    : 'Save changes'}
+              </button>
+            ) : null}
+            {canWrite && !isCreateMode && courseId ? (
               <>
                 <button
                   className="button button--secondary"
@@ -474,10 +486,12 @@ function CourseEditorForm({
                 >
                   Archive
                 </button>
-                <Link className="button button--ghost" to={`/org/courses/${courseId}/form`}>
-                  Form designer
-                </Link>
               </>
+            ) : null}
+            {!isCreateMode && courseId ? (
+              <Link className="button button--ghost" to={`/org/courses/${courseId}/form`}>
+                Form designer
+              </Link>
             ) : null}
             <Link className="button button--ghost" to="/org/courses">
               Back
@@ -491,6 +505,7 @@ function CourseEditorForm({
 
 export function CourseEditorPage() {
   const { session } = useOrgSession()
+  const canWrite = useCanWrite()
   const { courseId } = useParams()
   const isCreateMode = !courseId || courseId === 'new'
 
@@ -546,6 +561,7 @@ export function CourseEditorPage() {
       {(isCreateMode || (!courseQuery.isLoading && !courseQuery.isError)) && session ? (
         <CourseEditorForm
           key={`${courseId || 'new'}-${courseQuery.data?.updatedAt || 'draft'}`}
+          canWrite={canWrite}
           courseId={courseId}
           initialCourse={courseQuery.data}
           initialDraft={initialDraft}

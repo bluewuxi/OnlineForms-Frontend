@@ -6,6 +6,7 @@ import { LoadingState } from '../../components/feedback/LoadingState'
 import { StatusChip } from '../../components/feedback/StatusChip'
 import { PageHero } from '../../components/layout/PageHero'
 import { SectionHeader } from '../../components/layout/SectionHeader'
+import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
@@ -47,6 +48,7 @@ async function uploadAssetBinary(ticket: UploadTicketResponse, file: File) {
 
 export function BrandingPage() {
   const { session } = useOrgSession()
+  const canWrite = useCanWrite()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadedAsset, setUploadedAsset] = useState<OrgAsset | null>(null)
   const [descriptionDraft, setDescriptionDraft] = useState('')
@@ -190,82 +192,95 @@ export function BrandingPage() {
         ) : null}
       </section>
 
-      <section className="content-panel">
-        <SectionHeader
-          eyebrow="Public copy"
-          title="Tenant description"
-          description="This content renders on the public tenant landing page and supports safe HTML authoring with preview."
-        />
-        <form
-          className="session-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            brandingMutation.mutate({
-              description: effectiveDescriptionDraft.trim() || null,
-              logoAssetId: currentBranding?.logoAssetId ?? null,
-            })
-          }}
-        >
-          <HtmlEditorField
-            label="Tenant description"
-            value={effectiveDescriptionDraft}
-            onChange={(value) => {
-              setDescriptionDirty(true)
-              setDescriptionDraft(value)
-            }}
-          />
-          <div className="session-form__actions">
-            <button
-              className="button button--primary"
-              disabled={brandingMutation.isPending}
-              type="submit"
-            >
-              {brandingMutation.isPending ? 'Saving description...' : 'Save description'}
-            </button>
-            {brandingMutation.isError ? (
-              <p className="session-form__error">
-                Failed to save tenant description.
-              </p>
-            ) : null}
+      {!canWrite ? (
+        <section className="content-panel content-panel--narrow">
+          <div className="designer-banner designer-banner--warning" role="status">
+            <strong>You have read-only access to this tenant.</strong>
+            <span>Contact an Org Admin to make changes.</span>
           </div>
-        </form>
-      </section>
+        </section>
+      ) : null}
 
-      <section className="content-panel">
-        <div className="section-heading">
-          <p className="section-heading__eyebrow">Upload a logo</p>
-          <h2>Request a ticket and upload directly to storage</h2>
-        </div>
-        <div className="branding-grid">
-          <label className="session-form__field">
-            <span>Logo file</span>
-            <input
-              accept="image/png,image/jpeg,image/webp"
-              onChange={(event) =>
-                setSelectedFile(event.target.files?.[0] || null)
-              }
-              type="file"
-            />
-          </label>
-          <div className="branding-grid__actions">
-            <button
-              className="button button--primary"
-              disabled={!selectedFile || uploadMutation.isPending}
-              onClick={() => {
-                if (selectedFile) {
-                  uploadMutation.mutate(selectedFile)
-                }
+      {canWrite ? (
+        <section className="content-panel">
+          <SectionHeader
+            eyebrow="Public copy"
+            title="Tenant description"
+            description="This content renders on the public tenant landing page and supports safe HTML authoring with preview."
+          />
+          <form
+            className="session-form"
+            onSubmit={(event) => {
+              event.preventDefault()
+              brandingMutation.mutate({
+                description: effectiveDescriptionDraft.trim() || null,
+                logoAssetId: currentBranding?.logoAssetId ?? null,
+              })
+            }}
+          >
+            <HtmlEditorField
+              label="Tenant description"
+              value={effectiveDescriptionDraft}
+              onChange={(value) => {
+                setDescriptionDirty(true)
+                setDescriptionDraft(value)
               }}
-              type="button"
-            >
-              {uploadMutation.isPending ? 'Uploading...' : 'Upload logo'}
-            </button>
+            />
+            <div className="session-form__actions">
+              <button
+                className="button button--primary"
+                disabled={brandingMutation.isPending}
+                type="submit"
+              >
+                {brandingMutation.isPending ? 'Saving description...' : 'Save description'}
+              </button>
+              {brandingMutation.isError ? (
+                <p className="session-form__error">
+                  Failed to save tenant description.
+                </p>
+              ) : null}
+            </div>
+          </form>
+        </section>
+      ) : null}
+
+      {canWrite ? (
+        <section className="content-panel">
+          <div className="section-heading">
+            <p className="section-heading__eyebrow">Upload a logo</p>
+            <h2>Request a ticket and upload directly to storage</h2>
           </div>
-        </div>
-        <p className="content-panel__body-copy">
-          Accepted types: PNG, JPEG, or WebP. Maximum size: 5 MB.
-        </p>
-      </section>
+          <div className="branding-grid">
+            <label className="session-form__field">
+              <span>Logo file</span>
+              <input
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(event) =>
+                  setSelectedFile(event.target.files?.[0] || null)
+                }
+                type="file"
+              />
+            </label>
+            <div className="branding-grid__actions">
+              <button
+                className="button button--primary"
+                disabled={!selectedFile || uploadMutation.isPending}
+                onClick={() => {
+                  if (selectedFile) {
+                    uploadMutation.mutate(selectedFile)
+                  }
+                }}
+                type="button"
+              >
+                {uploadMutation.isPending ? 'Uploading...' : 'Upload logo'}
+              </button>
+            </div>
+          </div>
+          <p className="content-panel__body-copy">
+            Accepted types: PNG, JPEG, or WebP. Maximum size: 5 MB.
+          </p>
+        </section>
+      ) : null}
 
       {uploadMutation.isPending ? (
         <LoadingState
