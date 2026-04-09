@@ -66,8 +66,8 @@ function formatDate(value?: string | null) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
 }
 
-function buildInviteLink(inviteId: string) {
-  return `${window.location.origin}/org/accept-invite?inviteId=${encodeURIComponent(inviteId)}`
+function buildInviteLink(inviteId: string, tenantId: string) {
+  return `${window.location.origin}/org/accept-invite?inviteId=${encodeURIComponent(inviteId)}&tenantId=${encodeURIComponent(tenantId)}`
 }
 
 export function TeamPage() {
@@ -143,7 +143,7 @@ export function TeamPage() {
   })
 
   const copyInviteLink = useCallback((invite: OrgInvite) => {
-    const link = buildInviteLink(invite.inviteId)
+    const link = buildInviteLink(invite.inviteId, session?.tenantId ?? '')
     void navigator.clipboard.writeText(link).then(() => {
       setCopiedInviteId(invite.inviteId)
       setTimeout(() => setCopiedInviteId((prev) => (prev === invite.inviteId ? null : prev)), 2000)
@@ -333,7 +333,7 @@ export function TeamPage() {
                 <p className="content-panel__body-copy">{successMessage}</p>
                 <div className="invite-link-row">
                   <code className="invite-link-row__url">
-                    {buildInviteLink(lastCreatedInvite.inviteId)}
+                    {buildInviteLink(lastCreatedInvite.inviteId, session?.tenantId ?? '')}
                   </code>
                   <button
                     className="button button--ghost button--small"

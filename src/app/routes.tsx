@@ -12,6 +12,7 @@ import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
 import { OrgSettingsPage } from '../pages/org/OrgSettingsPage'
+import { AcceptInvitePage } from '../pages/org/AcceptInvitePage'
 import { TeamPage } from '../pages/org/TeamPage'
 import { InternalHomePage } from '../pages/internal/InternalHomePage'
 import { InternalLogoutPage } from '../pages/internal/InternalLogoutPage'
@@ -81,6 +82,10 @@ export const appRoutes: RouteObject[] = [
       {
         path: 'org/login',
         element: <OrgLoginPage />,
+      },
+      {
+        path: 'org/accept-invite',
+        element: <AcceptInvitePage />,
       },
       {
         path: 'internal/logout',
