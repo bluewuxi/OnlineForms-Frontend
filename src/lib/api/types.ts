@@ -439,12 +439,10 @@ export type OrgRole = 'org_viewer' | 'org_editor' | 'org_admin'
 
 export type OrgMember = {
   userId: string
-  email?: string | null
-  preferredName?: string | null
   role: OrgRole
   status: 'active' | 'invited' | 'suspended'
-  invitedAt?: string | null
-  joinedAt?: string | null
+  activatedAt?: string | null
+  createdAt?: string
 }
 
 export type OrgInvitePayload = {
@@ -456,7 +454,8 @@ export type OrgInvite = {
   inviteId: string
   email: string
   role: OrgRole
-  status: 'pending' | 'accepted' | 'expired'
-  invitedAt: string
+  status: 'pending' | 'accepted'
+  createdAt: string
   expiresAt?: string | null
+  acceptedAt?: string | null
 }

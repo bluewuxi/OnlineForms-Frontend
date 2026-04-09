@@ -809,16 +809,50 @@ export function validateSessionContext(
   }))
 }
 
-export function listOrgInvites(session: OrgSessionHeaders) {
-  return apiRequest<BackendListEnvelope<import('./types').OrgInvite>>({
-    path: '/org/invites',
+export function listOrgMembers(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<import('./types').OrgMember[]>>({
+    path: `/org/tenants/${session.tenantId}/members`,
     session,
   }).then((response) => ({
     ...response,
-    data: {
-      items: response.data.data,
-      nextCursor: response.data.page.nextCursor,
-    },
+    data: response.data.data,
+  }))
+}
+
+export function removeOrgMember(session: OrgSessionHeaders, userId: string) {
+  return apiRequest<BackendItemEnvelope<{ removed: boolean; userId: string }>>({
+    path: `/org/tenants/${session.tenantId}/members/${userId}`,
+    method: 'DELETE',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function updateOrgMemberRole(
+  session: OrgSessionHeaders,
+  userId: string,
+  role: import('./types').OrgRole,
+) {
+  return apiRequest<BackendItemEnvelope<import('./types').OrgMember>>({
+    path: `/org/tenants/${session.tenantId}/members/${userId}`,
+    method: 'PATCH',
+    session,
+    body: { role },
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function listOrgInvites(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<import('./types').OrgInvite[]>>({
+    path: `/org/tenants/${session.tenantId}/invites`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
   }))
 }
 
@@ -827,7 +861,7 @@ export function createOrgInvite(
   payload: import('./types').OrgInvitePayload,
 ) {
   return apiRequest<BackendItemEnvelope<import('./types').OrgInvite>>({
-    path: '/org/invites',
+    path: `/org/tenants/${session.tenantId}/invites`,
     method: 'POST',
     session,
     body: payload,
