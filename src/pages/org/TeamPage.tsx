@@ -148,7 +148,7 @@ export function TeamPage() {
       setCopiedInviteId(invite.inviteId)
       setTimeout(() => setCopiedInviteId((prev) => (prev === invite.inviteId ? null : prev)), 2000)
     })
-  }, [])
+  }, [session?.tenantId])
 
   function handleInviteSubmit(event: React.FormEvent) {
     event.preventDefault()
