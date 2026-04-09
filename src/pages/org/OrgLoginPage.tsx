@@ -165,8 +165,14 @@ export function OrgLoginPage() {
     callbackHandledRef.current = true
     setPendingCognitoSession(cognitoCallbackQuery.data.session)
     signIn(cognitoCallbackQuery.data.session)
-    setPostLoginReturnTo(cognitoCallbackQuery.data.requestedReturnTo || requestedReturnTo)
-  }, [cognitoCallbackQuery.data, isCognitoMode, requestedReturnTo, signIn])
+    const resolvedReturnTo = cognitoCallbackQuery.data.requestedReturnTo || requestedReturnTo
+    setPostLoginReturnTo(resolvedReturnTo)
+    // Fast-track: invite acceptance does not require context selection — the
+    // accept endpoint only needs a valid bearer token, not a tenant membership.
+    if (resolvedReturnTo?.startsWith('/org/accept-invite')) {
+      navigate(resolvedReturnTo, { replace: true })
+    }
+  }, [cognitoCallbackQuery.data, isCognitoMode, navigate, requestedReturnTo, signIn])
 
   useEffect(() => {
     if (!isCognitoMode || !sessionContextsQuery.data) {

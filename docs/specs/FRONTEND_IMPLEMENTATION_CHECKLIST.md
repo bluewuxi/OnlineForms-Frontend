@@ -101,7 +101,7 @@ Detailed rollout checklist: `docs/specs/PHASE_F11_UI_IMPROVEMENTS.md`
 - [x] FU-01 Org member and invite API functions with correct tenant-scoped paths (#86)
 - [x] FU-02 Users page: member list with remove action and role-based access control (#87)
 - [x] FU-03 Copy invitation link from post-create success state and pending invites table (#88)
-- [ ] FU-04 Invite acceptance page at `/org/accept-invite` (#89)
+- [x] FU-04 Invite acceptance page at `/org/accept-invite` (#90)
 
 Detailed rollout checklist: `docs/specs/PHASE_USER_MANAGEMENT_FRONTEND.md`
 
