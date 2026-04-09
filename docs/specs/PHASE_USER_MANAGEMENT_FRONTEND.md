@@ -73,27 +73,38 @@ Backend safety guardrails:
 - [x] FU-03 Copy invitation link
   Scope:
   - After creating an invite (success state), show the full invite link and a "Copy link" button
-  - Invite link format: `{origin}/org/accept-invite?inviteId={inviteId}`
+  - Invite link format: `{origin}/org/accept-invite?inviteId={inviteId}&tenantId={tenantId}`
   - In the pending invites table, each row has a "Copy link" button (available to all roles)
   - Button shows "Copied!" for 2 s after clicking, then reverts
-  - Note: the `/org/accept-invite` frontend route and acceptance page are not yet built —
-    the link can be copied now but cannot be followed until FU-04 is implemented
   Acceptance:
   - `navigator.clipboard.writeText` is called with the correct URL
   - "Copied!" feedback appears and clears after 2 s
   - Button is present on both the post-create success state and each pending invite row
 
-- [ ] FU-04 Invite acceptance page at `/org/accept-invite`
+- [x] FU-04 Invite acceptance page at `/org/accept-invite`
   Scope:
-  - Public or semi-public route that displays invite details (email, role, tenant)
-  - If user is not authenticated, redirect to Cognito login with returnTo preserved
-  - After login, call `POST /org/tenants/{tenantId}/invites/{inviteId}/accept`
-  - On success, create a session for the new membership and redirect to `/org/submissions`
-  - Handle errors: expired invite, email mismatch, already accepted
+  - Route `/org/accept-invite?inviteId={id}&tenantId={tid}` — outside `OrgProtectedRoute`,
+    no tenant membership required
+  - Reads `inviteId` and `tenantId` from URL query params; shows a clear error if either is missing
+  - Cognito mode, no session: "Sign in to accept" button calls `startCognitoLogin` with the
+    full accept-invite URL as `requestedReturnTo`
+  - `OrgLoginPage` fast-track: when the Cognito callback's `requestedReturnTo` starts with
+    `/org/accept-invite`, navigate there immediately after `signIn` — skip context selection
+    (the user has no membership to select until after they accept)
+  - On landing with a bearer token, the page auto-calls the accept endpoint, then calls
+    `POST /org/session-context` (`validateSessionContext`) to build a valid tenant session,
+    then `signIn` and navigates to `/org/submissions`
+  - Error states: 404 (not found / cancelled), 409 (expired or already accepted),
+    403 (email mismatch — with "sign in with a different account" CTA)
+  - Mock-mode banner: Cognito required; mock sessions lack the email claim
+  - `buildInviteLink` updated to include both `inviteId` and `tenantId` params
   Acceptance:
-  - An unauthenticated user following the invite link is redirected to login then returned
-  - A matching authenticated user can accept the invite and land in the org portal
-  - Error states are shown for expired, mismatched, and already-accepted invites
+  - Unauthenticated user follows invite link → Cognito login → auto-returned to accept page
+    → invite accepted → lands on `/org/submissions`
+  - Email-mismatch path shows 403 banner with switch-account CTA
+  - Expired/already-accepted path shows 409 banner with no retry
+  - Missing params renders a clear error page
+  - `tsc --noEmit` passes; all existing tests pass
 
 ## Status Legend
 

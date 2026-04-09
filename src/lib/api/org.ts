@@ -809,6 +809,26 @@ export function validateSessionContext(
   }))
 }
 
+export function acceptOrgInvite(
+  session: OrgSessionHeaders,
+  tenantId: string,
+  inviteId: string,
+) {
+  return apiRequest<BackendItemEnvelope<{
+    tenantId: string
+    userId: string
+    role: import('./types').OrgRole
+    activatedAt: string
+  }>>({
+    path: `/org/tenants/${tenantId}/invites/${inviteId}/accept`,
+    method: 'POST',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
 export function listOrgMembers(session: OrgSessionHeaders) {
   return apiRequest<BackendItemEnvelope<import('./types').OrgMember[]>>({
     path: `/org/tenants/${session.tenantId}/members`,
