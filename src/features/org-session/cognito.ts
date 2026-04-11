@@ -114,7 +114,9 @@ function pickRole(...claimSets: Array<Record<string, unknown> | undefined>) {
       return role
     }
   }
-  throw new Error('Authenticated token does not contain a supported role claim.')
+  // No role claim present — acceptable for new users going through the invite
+  // acceptance flow. The real role is assigned after acceptTenantInvite succeeds.
+  return ''
 }
 
 export function isCognitoAuthEnabled() {
