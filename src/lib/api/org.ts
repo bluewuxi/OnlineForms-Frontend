@@ -165,10 +165,17 @@ type BackendUserSessionContext = {
   roles: string[]
 }
 
+type BackendSuggestedContext = {
+  tenantId: string | null
+  role: string
+  portal: 'org' | 'internal'
+}
+
 type BackendSessionContextsResponse = {
   userId: string
   tokenRole: string
   canAccessInternalPortal?: boolean
+  suggestedContext?: BackendSuggestedContext | null
   contexts: BackendUserSessionContext[]
 }
 
@@ -789,6 +796,7 @@ export function listSessionContexts(session: OrgSessionHeaders) {
       userId: response.data.data.userId,
       tokenRole: response.data.data.tokenRole,
       canAccessInternalPortal: Boolean(response.data.data.canAccessInternalPortal),
+      suggestedContext: response.data.data.suggestedContext ?? null,
       contexts: (response.data.data.contexts || []).map(mapUserSessionContext),
     },
   }))
@@ -885,6 +893,17 @@ export function createOrgInvite(
     method: 'POST',
     session,
     body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function revokeOrgInvite(session: OrgSessionHeaders, inviteId: string) {
+  return apiRequest<BackendItemEnvelope<{ revoked: boolean; inviteId: string }>>({
+    path: `/org/tenants/${session.tenantId}/invites/${inviteId}`,
+    method: 'DELETE',
+    session,
   }).then((response) => ({
     ...response,
     data: response.data.data,

@@ -17,6 +17,7 @@ import {
   listSessionContexts,
   type AuthRoleOption,
   validateSessionContext,
+  type SuggestedContext,
 } from '../../lib/api'
 import type { OrgSessionHeaders } from '../../lib/api'
 import {
@@ -120,6 +121,7 @@ export function OrgLoginPage() {
           userId: '',
           tokenRole: '',
           canAccessInternalPortal: false,
+          suggestedContext: null,
           contexts: [],
         }
       }
@@ -222,6 +224,45 @@ export function OrgLoginPage() {
     selectedCognitoRole,
     selectedCognitoTenantId,
     sessionContextsQuery.data,
+  ])
+
+  // Auto-apply when there is exactly one unambiguous context (suggestedContext from backend).
+  // This covers the post-invite-acceptance flow where the user has a single tenant+role.
+  const autoAppliedRef = useRef(false)
+  useEffect(() => {
+    if (!isCognitoMode || !activeCognitoSession) return
+    if (autoAppliedRef.current) return
+    const suggested: SuggestedContext | null = sessionContextsQuery.data?.suggestedContext ?? null
+    if (!suggested) return
+    autoAppliedRef.current = true
+    setCognitoContextError(null)
+    setIsApplyingCognitoContext(true)
+    validateSessionContext(activeCognitoSession, {
+      tenantId: suggested.tenantId,
+      role: suggested.role,
+    })
+      .then((response) => {
+        signIn({
+          ...activeCognitoSession,
+          tenantId: response.data.tenantId ?? undefined,
+          role: response.data.role,
+        })
+        navigate(resolvePostLoginPath(response.data.role, postLoginReturnTo || requestedReturnTo), {
+          replace: true,
+        })
+      })
+      .catch(() => {
+        autoAppliedRef.current = false
+        setIsApplyingCognitoContext(false)
+      })
+  }, [
+    isCognitoMode,
+    activeCognitoSession,
+    sessionContextsQuery.data,
+    navigate,
+    postLoginReturnTo,
+    requestedReturnTo,
+    signIn,
   ])
 
   const onSubmit = handleSubmit((values) => {

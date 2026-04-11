@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { startCognitoLogout } from '../../features/org-session/cognito'
+import { isSessionUsable } from '../../features/org-session/storage'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import { getRoleLabel } from '../../lib/roleLabels'
 
@@ -38,6 +39,11 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
   const accountTriggerRef = useRef<HTMLButtonElement | null>(null)
   const logoutButtonRef = useRef<HTMLButtonElement | null>(null)
   const showSession = section === 'org' || section === 'internal'
+  const publicSessionUsable = section === 'public' && isSessionUsable(session)
+  const publicHasTenantPortal = publicSessionUsable && Boolean(session?.tenantId)
+  const publicHasInternalPortal =
+    publicSessionUsable &&
+    (session?.role === 'internal_admin' || session?.role === 'platform_support')
   const sessionUsername = session?.username?.trim()
   const sessionPreferredName = session?.preferredName?.trim()
   const sessionLoginName =
@@ -132,10 +138,105 @@ export function SiteHeader({ section, onMenuToggle }: SiteHeaderProps) {
             ) : null}
           </nav>
         ) : null}
-        {section === 'public' ? (
+        {section === 'public' && !publicSessionUsable ? (
           <NavLink className="site-header__login-pill" to="/org/login">
             Login
           </NavLink>
+        ) : null}
+        {publicSessionUsable ? (
+          <div className="site-header__session" ref={accountMenuRef}>
+            <button
+              className="site-header__account-trigger"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={isAccountMenuOpen}
+              ref={accountTriggerRef}
+              onClick={() => setIsAccountMenuOpen((open) => !open)}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown' && !isAccountMenuOpen) {
+                  event.preventDefault()
+                  setIsAccountMenuOpen(true)
+                }
+              }}
+            >
+              <span className="site-header__account-names">
+                <strong>{sessionLoginName || session?.userId}</strong>
+                <span className="site-header__account-subtext">
+                  {session?.role ? getRoleLabel(session.role) : ''}
+                </span>
+              </span>
+            </button>
+            {isAccountMenuOpen ? (
+              <div
+                className="site-header__account-menu"
+                role="menu"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    event.preventDefault()
+                    closeAccountMenu()
+                  }
+                }}
+              >
+                {publicHasTenantPortal ? (
+                  <button
+                    className="site-header__account-item"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsAccountMenuOpen(false)
+                      navigate('/org/courses')
+                    }}
+                  >
+                    Tenant Portal
+                  </button>
+                ) : null}
+                {publicHasInternalPortal ? (
+                  <button
+                    className="site-header__account-item"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsAccountMenuOpen(false)
+                      navigate('/internal/tenants')
+                    }}
+                  >
+                    Internal Portal
+                  </button>
+                ) : null}
+                {!publicHasTenantPortal && !publicHasInternalPortal ? (
+                  <button
+                    className="site-header__account-item"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsAccountMenuOpen(false)
+                      navigate('/org/login')
+                    }}
+                  >
+                    Management Login
+                  </button>
+                ) : null}
+                <button
+                  className="site-header__account-item"
+                  type="button"
+                  role="menuitem"
+                  ref={logoutButtonRef}
+                  onClick={() => {
+                    setIsAccountMenuOpen(false)
+                    if (session?.authProvider === 'cognito') {
+                      signOut()
+                      startCognitoLogout()
+                      return
+                    }
+                    navigate('/', { replace: true })
+                    window.setTimeout(() => { signOut() }, 0)
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : null}
+          </div>
         ) : null}
         {section === 'org' ? (
           <div className="site-header__search" role="search">

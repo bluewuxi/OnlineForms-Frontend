@@ -343,6 +343,12 @@ export type UserSessionContext = {
   roles: string[]
 }
 
+export type SuggestedContext = {
+  tenantId: string | null
+  role: string
+  portal: 'org' | 'internal'
+}
+
 export type InternalTenantProfile = {
   tenantId: string
   tenantCode: string
@@ -439,6 +445,7 @@ export type OrgRole = 'org_viewer' | 'org_editor' | 'org_admin'
 
 export type OrgMember = {
   userId: string
+  email?: string | null
   role: OrgRole
   status: 'active' | 'invited' | 'suspended'
   activatedAt?: string | null

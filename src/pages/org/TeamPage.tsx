@@ -14,6 +14,7 @@ import {
   listOrgInvites,
   listOrgMembers,
   removeOrgMember,
+  revokeOrgInvite,
   type OrgInvite,
   type OrgMember,
   type OrgRole,
@@ -82,6 +83,7 @@ export function TeamPage() {
   const [lastCreatedInvite, setLastCreatedInvite] = useState<OrgInvite | null>(null)
 
   const [pendingRemoveUserId, setPendingRemoveUserId] = useState<string | null>(null)
+  const [pendingRevokeInviteId, setPendingRevokeInviteId] = useState<string | null>(null)
   const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null)
 
   const membersQuery = useQuery({
@@ -142,6 +144,18 @@ export function TeamPage() {
     },
   })
 
+  const revokeInviteMutation = useMutation({
+    mutationFn: async (inviteId: string) => {
+      if (!session) throw new Error('Missing org session.')
+      await revokeOrgInvite(session, inviteId)
+      return inviteId
+    },
+    onSuccess: () => {
+      setPendingRevokeInviteId(null)
+      void queryClient.invalidateQueries({ queryKey: ['org-invites', session?.tenantId] })
+    },
+  })
+
   const copyInviteLink = useCallback((invite: OrgInvite) => {
     const link = buildInviteLink(invite.inviteId, session?.tenantId ?? '')
     void navigator.clipboard.writeText(link).then(() => {
@@ -163,7 +177,7 @@ export function TeamPage() {
     createInviteMutation.mutate()
   }
 
-  const pendingInvites = (invitesQuery.data ?? []).filter((i) => i.status === 'pending')
+  const allInvites = invitesQuery.data ?? []
 
   return (
     <div className="page-stack">
@@ -208,6 +222,7 @@ export function TeamPage() {
               <table className="data-table">
                 <thead>
                   <tr>
+                    <th scope="col">Email</th>
                     <th scope="col">User ID</th>
                     <th scope="col">Role</th>
                     <th scope="col">Status</th>
@@ -220,6 +235,7 @@ export function TeamPage() {
                     const isPendingRemove = pendingRemoveUserId === member.userId
                     return (
                       <tr key={member.userId}>
+                        <td>{member.email ?? '—'}</td>
                         <td>{member.userId}</td>
                         <td>{ROLE_LABELS[member.role]}</td>
                         <td>
@@ -349,18 +365,18 @@ export function TeamPage() {
         </section>
       ) : null}
 
-      {/* Pending invites */}
+      {/* Sent invites */}
       <section className="content-panel">
         <SectionHeader
-          eyebrow="Pending invites"
+          eyebrow="Invites"
           title="Sent invites"
-          description="Invites waiting for the recipient to accept."
+          description="All invites sent to team members, including pending and accepted."
         />
 
         {invitesQuery.isLoading ? (
           <LoadingState
             title="Loading invites"
-            message="Fetching pending invites for this tenant."
+            message="Fetching invites for this tenant."
           />
         ) : null}
 
@@ -373,7 +389,7 @@ export function TeamPage() {
         ) : null}
 
         {!invitesQuery.isLoading && !invitesQuery.isError ? (
-          pendingInvites.length ? (
+          allInvites.length ? (
             <div className="responsive-table">
               <table className="data-table">
                 <thead>
@@ -386,33 +402,70 @@ export function TeamPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pendingInvites.map((invite) => (
-                    <tr key={invite.inviteId}>
-                      <td>{invite.email}</td>
-                      <td>{ROLE_LABELS[invite.role]}</td>
-                      <td>
-                        <StatusChip tone={inviteStatusTone(invite.status)}>
-                          {invite.status}
-                        </StatusChip>
-                      </td>
-                      <td>{formatDate(invite.createdAt)}</td>
-                      <td className="data-table__actions">
-                        <button
-                          className="button button--ghost button--small"
-                          type="button"
-                          onClick={() => copyInviteLink(invite)}
-                        >
-                          {copiedInviteId === invite.inviteId ? 'Copied!' : 'Copy link'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {allInvites.map((invite) => {
+                    const isPendingRevoke = pendingRevokeInviteId === invite.inviteId
+                    return (
+                      <tr key={invite.inviteId}>
+                        <td>{invite.email}</td>
+                        <td>{ROLE_LABELS[invite.role]}</td>
+                        <td>
+                          <StatusChip tone={inviteStatusTone(invite.status)}>
+                            {invite.status}
+                          </StatusChip>
+                        </td>
+                        <td>{formatDate(invite.createdAt)}</td>
+                        <td className="data-table__actions">
+                          {invite.status === 'pending' ? (
+                            isPendingRevoke ? (
+                              <span className="data-table__confirm-row">
+                                <span>Revoke this invite?</span>
+                                <button
+                                  className="button button--danger button--small"
+                                  type="button"
+                                  disabled={revokeInviteMutation.isPending}
+                                  onClick={() => revokeInviteMutation.mutate(invite.inviteId)}
+                                >
+                                  {revokeInviteMutation.isPending ? 'Revoking…' : 'Confirm'}
+                                </button>
+                                <button
+                                  className="button button--ghost button--small"
+                                  type="button"
+                                  onClick={() => setPendingRevokeInviteId(null)}
+                                >
+                                  Cancel
+                                </button>
+                              </span>
+                            ) : (
+                              <span className="data-table__actions">
+                                <button
+                                  className="button button--ghost button--small"
+                                  type="button"
+                                  onClick={() => copyInviteLink(invite)}
+                                >
+                                  {copiedInviteId === invite.inviteId ? 'Copied!' : 'Copy link'}
+                                </button>
+                                {isAdmin ? (
+                                  <button
+                                    className="button button--ghost button--small"
+                                    type="button"
+                                    onClick={() => setPendingRevokeInviteId(invite.inviteId)}
+                                  >
+                                    Revoke
+                                  </button>
+                                ) : null}
+                              </span>
+                            )
+                          ) : null}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
           ) : (
             <EmptyState
-              title="No pending invites"
+              title="No invites sent"
               message="Invites sent to team members will appear here."
             />
           )
