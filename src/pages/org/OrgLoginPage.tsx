@@ -6,6 +6,7 @@ import { PageHero } from '../../components/layout/PageHero'
 import {
   completeCognitoLoginFromUrl,
   consumePostLogoutHomeFlag,
+  consumeReloginReturnTo,
   isCognitoAuthEnabled,
   startCognitoLogin,
 } from '../../features/org-session/cognito'
@@ -140,6 +141,13 @@ export function OrgLoginPage() {
     }
     if (consumePostLogoutHomeFlag()) {
       navigate('/', { replace: true })
+      return
+    }
+    // After a "switch account" logout, immediately start a fresh Cognito login
+    // so the user does not have to click "Continue with Cognito" manually.
+    const reloginReturnTo = consumeReloginReturnTo()
+    if (reloginReturnTo) {
+      startCognitoLogin(reloginReturnTo).catch(console.error)
     }
   }, [hasCognitoCallbackCode, isCognitoMode, navigate])
 

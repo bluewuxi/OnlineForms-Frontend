@@ -6,6 +6,7 @@ import {
 
 const COGNITO_LOGIN_STORAGE_KEY = 'onlineforms.cognito.login'
 const COGNITO_POST_LOGOUT_HOME_KEY = 'onlineforms.cognito.post-logout-home'
+const COGNITO_RELOGIN_RETURN_TO_KEY = 'onlineforms.cognito.relogin-return-to'
 
 type StoredCognitoLoginState = {
   state: string
@@ -150,6 +151,36 @@ export async function startCognitoLogin(requestedReturnTo?: string) {
   )
 
   window.location.assign(authorizeUrl.toString())
+}
+
+/**
+ * Logs out of Cognito (clears the SSO cookie) then automatically starts a
+ * fresh login redirecting back to `returnTo` after the user signs in.
+ * Use this for "switch account" flows where the caller's local session has
+ * already been cleared via signOut().
+ */
+export function startCognitoRelogin(returnTo: string) {
+  if (!isCognitoAuthEnabled()) {
+    throw new Error('Cognito login flow is disabled.')
+  }
+  const config = getCognitoAuthConfig()
+  // Persist the returnTo across the logout redirect so OrgLoginPage can
+  // pick it up and immediately start a new Cognito login.
+  window.sessionStorage.setItem(COGNITO_RELOGIN_RETURN_TO_KEY, returnTo)
+  clearStoredLoginState()
+  const logoutUrl = new URL('/logout', config.domain)
+  logoutUrl.searchParams.set('client_id', config.clientId)
+  logoutUrl.searchParams.set('logout_uri', config.redirectUri)
+  window.location.assign(logoutUrl.toString())
+}
+
+export function consumeReloginReturnTo(): string | null {
+  if (typeof window === 'undefined') return null
+  const value = window.sessionStorage.getItem(COGNITO_RELOGIN_RETURN_TO_KEY)
+  if (value) {
+    window.sessionStorage.removeItem(COGNITO_RELOGIN_RETURN_TO_KEY)
+  }
+  return value ?? null
 }
 
 export function startCognitoLogout() {

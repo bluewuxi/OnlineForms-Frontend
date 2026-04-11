@@ -4,6 +4,7 @@ import { PageHero } from '../../components/layout/PageHero'
 import {
   isCognitoAuthEnabled,
   startCognitoLogin,
+  startCognitoRelogin,
 } from '../../features/org-session/cognito'
 import { isSessionUsable } from '../../features/org-session/storage'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
@@ -36,7 +37,7 @@ function friendlyError(error: unknown): { message: string; code?: string } {
 export function AcceptInvitePage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { session, signIn } = useOrgSession()
+  const { session, signIn, signOut } = useOrgSession()
 
   const inviteId = searchParams.get('inviteId') ?? ''
   const tenantId = searchParams.get('tenantId') ?? ''
@@ -91,10 +92,23 @@ export function AcceptInvitePage() {
     }
   }
 
+  function inviteReturnTo() {
+    return `/org/accept-invite?inviteId=${encodeURIComponent(inviteId)}&tenantId=${encodeURIComponent(tenantId)}`
+  }
+
   function startLogin() {
-    const returnTo = `/org/accept-invite?inviteId=${encodeURIComponent(inviteId)}&tenantId=${encodeURIComponent(tenantId)}`
     setIsStartingLogin(true)
-    startCognitoLogin(returnTo).catch(() => setIsStartingLogin(false))
+    startCognitoLogin(inviteReturnTo()).catch(() => setIsStartingLogin(false))
+  }
+
+  function switchAccount() {
+    setIsStartingLogin(true)
+    signOut()
+    try {
+      startCognitoRelogin(inviteReturnTo())
+    } catch {
+      setIsStartingLogin(false)
+    }
   }
 
   // ── Render helpers ────────────────────────────────────────────────────────
@@ -210,7 +224,7 @@ export function AcceptInvitePage() {
                     className="button button--ghost"
                     type="button"
                     disabled={isStartingLogin}
-                    onClick={startLogin}
+                    onClick={switchAccount}
                   >
                     {isStartingLogin ? 'Redirecting…' : 'Sign in with a different account'}
                   </button>
