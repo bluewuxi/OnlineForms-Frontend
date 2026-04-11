@@ -7,6 +7,7 @@ type HtmlEditorFieldProps = {
   onChange: (value: string) => void
   hint?: string
   rows?: number
+  disabled?: boolean
 }
 
 export function HtmlEditorField({
@@ -15,6 +16,7 @@ export function HtmlEditorField({
   onChange,
   hint = 'Allowed HTML: paragraphs, headings, lists, emphasis, links, blockquotes, and rules.',
   rows = 8,
+  disabled = false,
 }: HtmlEditorFieldProps) {
   const [mode, setMode] = useState<'html' | 'preview'>('html')
   const id = useId()
@@ -57,6 +59,7 @@ export function HtmlEditorField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           rows={rows}
+          disabled={disabled}
         />
       ) : (
         <div id={previewId} className="html-editor__preview" role="tabpanel">

@@ -64,6 +64,7 @@ export function OrgLoginPage() {
   const [cognitoContextError, setCognitoContextError] = useState<string | null>(null)
   const [isApplyingCognitoContext, setIsApplyingCognitoContext] = useState(false)
   const [postLoginReturnTo, setPostLoginReturnTo] = useState<string | null>(null)
+  const [isPostLogoutRedirect] = useState(() => consumePostLogoutHomeFlag())
   const callbackHandledRef = useRef(false)
   const requestedReturnTo = new URLSearchParams(location.search).get('returnTo')
   const hasCognitoCallbackCode = new URLSearchParams(location.search).has('code')
@@ -141,7 +142,7 @@ export function OrgLoginPage() {
     if (!isCognitoMode || hasCognitoCallbackCode) {
       return
     }
-    if (consumePostLogoutHomeFlag()) {
+    if (isPostLogoutRedirect) {
       navigate('/', { replace: true })
       return
     }
@@ -151,7 +152,7 @@ export function OrgLoginPage() {
     if (reloginReturnTo) {
       startCognitoLogin(reloginReturnTo).catch(console.error)
     }
-  }, [hasCognitoCallbackCode, isCognitoMode, navigate])
+  }, [hasCognitoCallbackCode, isCognitoMode, isPostLogoutRedirect, navigate])
 
   function resolvePostLoginPath(role: string, returnTo: string | null | undefined) {
     const isInternalRole = role === 'internal_admin'
@@ -386,6 +387,10 @@ export function OrgLoginPage() {
     startCognitoLogin(requestedReturnTo || undefined).catch(() => {
       setIsRedirectingToCognito(false)
     })
+  }
+
+  if (isPostLogoutRedirect) {
+    return null
   }
 
   return (

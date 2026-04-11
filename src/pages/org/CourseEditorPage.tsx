@@ -306,6 +306,7 @@ function CourseEditorForm({
         <label className="session-form__field">
           <span>Title</span>
           <input
+            disabled={!canWrite}
             onChange={(event) => updateField('title', event.target.value)}
             type="text"
             value={draft.title}
@@ -315,6 +316,7 @@ function CourseEditorForm({
           <span>Short description</span>
           <textarea
             className="designer-textarea"
+            disabled={!canWrite}
             onChange={(event) => updateField('shortDescription', event.target.value)}
             rows={3}
             value={draft.shortDescription}
@@ -326,11 +328,13 @@ function CourseEditorForm({
           value={draft.fullDescription}
           onChange={(value) => updateField('fullDescription', value)}
           rows={10}
+          disabled={!canWrite}
         />
         <div className="field-grid field-grid--course-dates">
           <label className="session-form__field">
             <span>Start date</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('startDate', event.target.value)}
               type="date"
               value={draft.startDate}
@@ -339,6 +343,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>End date</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('endDate', event.target.value)}
               type="date"
               value={draft.endDate}
@@ -347,6 +352,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>Enrollment opens</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('enrollmentOpenAt', event.target.value)}
               type="datetime-local"
               value={draft.enrollmentOpenAt}
@@ -355,6 +361,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>Enrollment closes</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('enrollmentCloseAt', event.target.value)}
               type="datetime-local"
               value={draft.enrollmentCloseAt}
@@ -366,6 +373,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>Delivery mode</span>
             <select
+              disabled={!canWrite}
               onChange={(event) =>
                 updateField('deliveryMode', event.target.value as DeliveryMode)
               }
@@ -379,6 +387,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>Pricing mode</span>
             <select
+              disabled={!canWrite}
               onChange={(event) =>
                 updateField('pricingMode', event.target.value as PricingMode)
               }
@@ -391,6 +400,7 @@ function CourseEditorForm({
           <label className="session-form__field session-form__field--wide">
             <span>Location</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('locationText', event.target.value)}
               type="text"
               value={draft.locationText}
@@ -399,6 +409,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>Capacity</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('capacity', event.target.value)}
               type="number"
               value={draft.capacity}
@@ -407,6 +418,7 @@ function CourseEditorForm({
           <label className="session-form__field">
             <span>Image asset ID</span>
             <input
+              disabled={!canWrite}
               onChange={(event) => updateField('imageAssetId', event.target.value)}
               type="text"
               value={draft.imageAssetId}
@@ -418,6 +430,7 @@ function CourseEditorForm({
           <label className="designer-checkbox-row">
             <input
               checked={draft.publicVisible}
+              disabled={!canWrite}
               onChange={(event) => updateField('publicVisible', event.target.checked)}
               type="checkbox"
             />
