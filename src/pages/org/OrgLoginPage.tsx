@@ -102,6 +102,11 @@ export function OrgLoginPage() {
     cognitoCallbackQuery.error instanceof Error
       ? toLoginDiagnosticMessage('callback', cognitoCallbackQuery.error.message)
       : toLoginDiagnosticMessage('callback', undefined)
+  const isInviteReturnTo = [
+    postLoginReturnTo,
+    requestedReturnTo,
+    cognitoCallbackQuery.data?.requestedReturnTo ?? null,
+  ].some((r) => r?.startsWith('/org/accept-invite'))
   const sessionContextsQuery = useQuery({
     queryKey: [
       'org-session-contexts',
@@ -120,7 +125,9 @@ export function OrgLoginPage() {
       const response = await listSessionContexts(activeCognitoSession)
       return response.data
     },
-    enabled: isCognitoMode && Boolean(activeCognitoSession),
+    // Skip the session-contexts call when fast-tracking to invite acceptance —
+    // the user has no role claim and the endpoint would return 403.
+    enabled: isCognitoMode && Boolean(activeCognitoSession) && !isInviteReturnTo,
   })
   const sessionContextsErrorMessage =
     sessionContextsQuery.error instanceof Error
