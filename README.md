@@ -7,6 +7,9 @@ OnlineForms is a multi-tenant SaaS application for education and training provid
 
 It was built as an AI-first engineering project to demonstrate how production-style software can be created through structured human + AI collaboration. The entire codebase was generated with Codex through an iterative workflow of requirement shaping, design and engineering review, implementation, bug fixing, code review, shipping, deployment verification, and documentation updates. The work was informed by prior real production experience, so the project reflects practical SaaS architecture, admin workflows, authentication patterns, and CI/CD practices rather than a toy prototype.
 
+To try online demo, browse https://form.kidrawer.com
+login as rickysbit-nz@yahoo.com with password Bhtcywo51x (readonly permission) for accessing tenant portal
+
 ## Purpose
 
 This repository contains the customer-facing and organization-facing UI for OnlineForms, including:
