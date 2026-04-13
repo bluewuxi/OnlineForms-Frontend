@@ -187,6 +187,30 @@ export type FormSchemaUpsertPayload = {
   fields: FormField[]
 }
 
+export type FormTemplate = {
+  templateId: string
+  tenantId: string
+  name: string
+  description: string | null
+  fields: FormField[]
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+  updatedBy: string
+}
+
+export type FormTemplateCreatePayload = {
+  name: string
+  description?: string | null
+  fields: FormField[]
+}
+
+export type FormTemplateUpdatePayload = {
+  name?: string
+  description?: string | null
+  fields?: FormField[]
+}
+
 export type FormSchemaUpsertResponse = {
   formId: string
   version: number

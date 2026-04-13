@@ -11,6 +11,8 @@ import { BrandingPage } from '../pages/org/BrandingPage'
 import { CourseEditorPage } from '../pages/org/CourseEditorPage'
 import { CoursesPage } from '../pages/org/CoursesPage'
 import { FormDesignerPage } from '../pages/org/FormDesignerPage'
+import { FormTemplatesPage } from '../pages/org/FormTemplatesPage'
+import { FormTemplateEditorPage } from '../pages/org/FormTemplateEditorPage'
 import { OrgSettingsPage } from '../pages/org/OrgSettingsPage'
 import { AcceptInvitePage } from '../pages/org/AcceptInvitePage'
 import { TeamPage } from '../pages/org/TeamPage'
@@ -164,6 +166,14 @@ export const appRoutes: RouteObject[] = [
               {
                 path: 'team',
                 element: <TeamPage />,
+              },
+              {
+                path: 'form-templates',
+                element: <FormTemplatesPage />,
+              },
+              {
+                path: 'form-templates/:templateId',
+                element: <FormTemplateEditorPage />,
               },
             ],
           },

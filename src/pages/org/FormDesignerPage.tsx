@@ -10,10 +10,12 @@ import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
   getLatestFormSchema,
+  listFormTemplates,
   type FormField,
   type FormFieldType,
   type FormSchema,
   type FormSchemaUpsertResponse,
+  type FormTemplate,
   type OrgSessionHeaders,
   upsertFormSchema,
 } from '../../lib/api'
@@ -125,6 +127,7 @@ type FormDesignerEditorProps = {
   initialFields: FormField[]
   queryKey: string[]
   session: OrgSessionHeaders
+  availableTemplates?: FormTemplate[]
 }
 
 function FormDesignerEditor({
@@ -136,6 +139,7 @@ function FormDesignerEditor({
   initialFields,
   queryKey,
   session,
+  availableTemplates = [],
 }: FormDesignerEditorProps) {
   const queryClient = useQueryClient()
   const [editableFields, setEditableFields] =
@@ -144,6 +148,8 @@ function FormDesignerEditor({
     initialFields[0]?.fieldId ?? null,
   )
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [templateApplied, setTemplateApplied] = useState(false)
+  const [selectedTemplateId, setSelectedTemplateId] = useState('')
 
   const initialPayload = useMemo(
     () => buildFormSchemaUpsertPayload(initialFields),
@@ -278,7 +284,50 @@ function FormDesignerEditor({
           <p className="section-heading__eyebrow">Schema summary</p>
           <h2>Version {version ?? 'Draft'}</h2>
         </div>
-        {isNewSchema ? (
+        {isNewSchema && !templateApplied && availableTemplates.length > 0 ? (
+          <div className="designer-banner designer-banner--warning" role="status">
+            <strong>Start from a template?</strong>
+            <span>Pre-populate the field list from a saved template, or skip to begin with the default fields.</span>
+            <div className="button-row" style={{ marginTop: '0.5rem' }}>
+              <select
+                value={selectedTemplateId}
+                onChange={(event) => setSelectedTemplateId(event.target.value)}
+                style={{ flexShrink: 0 }}
+              >
+                <option value="">— choose a template —</option>
+                {availableTemplates.map((tpl) => (
+                  <option key={tpl.templateId} value={tpl.templateId}>
+                    {tpl.name} ({tpl.fields.length} field{tpl.fields.length !== 1 ? 's' : ''})
+                  </option>
+                ))}
+              </select>
+              <button
+                className="button button--primary"
+                disabled={!selectedTemplateId}
+                onClick={() => {
+                  const tpl = availableTemplates.find((t) => t.templateId === selectedTemplateId)
+                  if (tpl) {
+                    const reindexed = withDisplayOrder(tpl.fields)
+                    setEditableFields(reindexed)
+                    setSelectedFieldId(reindexed[0]?.fieldId ?? null)
+                  }
+                  setTemplateApplied(true)
+                }}
+                type="button"
+              >
+                Apply template
+              </button>
+              <button
+                className="button button--ghost"
+                onClick={() => setTemplateApplied(true)}
+                type="button"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        ) : null}
+        {isNewSchema && (templateApplied || availableTemplates.length === 0) ? (
           <div className="designer-banner designer-banner--warning" role="status">
             <strong>No form template exists yet.</strong>
             <span>Add fields and save to create the first enrollment form version for this course.</span>
@@ -657,6 +706,17 @@ export function FormDesignerPage() {
   const { session } = useOrgSession()
   const canWrite = useCanWrite()
   const { courseId = '' } = useParams()
+
+  const templatesQuery = useQuery({
+    queryKey: ['org-form-templates', session?.tenantId],
+    queryFn: async () => {
+      if (!session) return []
+      const response = await listFormTemplates(session)
+      return response.data
+    },
+    enabled: Boolean(session),
+  })
+
   const schemaQuery = useQuery({
     queryKey: ['org-form-schema', session?.tenantId, courseId],
     queryFn: async () => {
@@ -717,6 +777,7 @@ export function FormDesignerPage() {
           queryKey={['org-form-schema', session?.tenantId || '', courseId]}
           session={session}
           version={schemaQuery.data?.schema.version}
+          availableTemplates={templatesQuery.data ?? []}
         />
       ) : null}
 
