@@ -16,6 +16,12 @@ import {
   type FormTemplate,
 } from '../../lib/api'
 
+const FIELD_ID_REGEX = /^[a-z][a-z0-9_]{1,63}$/
+
+function isValidFieldId(fieldId: string): boolean {
+  return FIELD_ID_REGEX.test(fieldId)
+}
+
 const fieldTypeOptions: Array<{ value: FormFieldType; label: string }> = [
   { value: 'short_text', label: 'Short text' },
   { value: 'long_text', label: 'Long text' },
@@ -90,9 +96,15 @@ function TemplateEditor({
     name !== initialName ||
     description !== initialDescription ||
     JSON.stringify(initialPayload) !== JSON.stringify(draftPayload)
+  const hasInvalidFieldIds = editableFields.some((f) => !isValidFieldId(f.fieldId))
 
   const selectedField =
     editableFields.find((field) => field.fieldId === selectedFieldId) ?? null
+
+  const selectedFieldIdError =
+    selectedField && !isValidFieldId(selectedField.fieldId)
+      ? 'Must start with a lowercase letter, then lowercase letters, digits, or underscores only (e.g. first_name). Max 64 chars.'
+      : null
 
   const saveMutation = useMutation<FormTemplate, Error, void>({
     mutationFn: async () => {
@@ -259,6 +271,7 @@ function TemplateEditor({
                   !name.trim() ||
                   !editableFields.length ||
                   !hasUnsavedChanges ||
+                  hasInvalidFieldIds ||
                   saveMutation.isPending
                 }
                 onClick={() => saveMutation.mutate()}
@@ -329,14 +342,22 @@ function TemplateEditor({
             </div>
             {selectedField ? (
               <div className="designer-editor-grid">
-                <label className="session-form__field">
-                  <span>Field ID</span>
+                <div className="session-form__field">
+                  <label htmlFor="template-field-id">Field ID</label>
                   <input
+                    id="template-field-id"
                     onChange={(event) => handleFieldIdChange(event.target.value)}
                     type="text"
                     value={selectedField.fieldId}
+                    aria-describedby={selectedFieldIdError ? 'template-field-id-error' : undefined}
+                    aria-invalid={selectedFieldIdError ? true : undefined}
                   />
-                </label>
+                  {selectedFieldIdError ? (
+                    <span id="template-field-id-error" className="form-field-error" role="alert">
+                      {selectedFieldIdError}
+                    </span>
+                  ) : null}
+                </div>
                 <label className="session-form__field">
                   <span>Label</span>
                   <input

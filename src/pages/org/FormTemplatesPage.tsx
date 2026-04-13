@@ -7,7 +7,7 @@ import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
 import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
-import { deleteFormTemplate, listFormTemplates } from '../../lib/api'
+import { createFormTemplate, deleteFormTemplate, listFormTemplates } from '../../lib/api'
 
 function formatLocalDate(value?: string | null) {
   if (!value) return '—'
@@ -21,6 +21,7 @@ export function FormTemplatesPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
 
   const templatesQuery = useQuery({
     queryKey: ['org-form-templates', session?.tenantId],
@@ -30,6 +31,25 @@ export function FormTemplatesPage() {
       return response.data
     },
     enabled: Boolean(session),
+  })
+
+  const duplicateMutation = useMutation({
+    mutationFn: async (templateId: string) => {
+      if (!session) throw new Error('Missing session.')
+      const source = templatesQuery.data?.find((t) => t.templateId === templateId)
+      if (!source) throw new Error('Template not found.')
+      const response = await createFormTemplate(session, {
+        name: `Copy of ${source.name}`,
+        description: source.description,
+        fields: source.fields,
+      })
+      return response.data
+    },
+    onSuccess: (newTemplate) => {
+      queryClient.invalidateQueries({ queryKey: ['org-form-templates', session?.tenantId] })
+      setDuplicatingId(null)
+      navigate(`/org/form-templates/${newTemplate.templateId}`)
+    },
   })
 
   const deleteMutation = useMutation({
@@ -117,6 +137,19 @@ export function FormTemplatesPage() {
                       >
                         Edit
                       </Link>
+                    ) : null}
+                    {canWrite ? (
+                      <button
+                        className="button button--ghost"
+                        disabled={duplicatingId === template.templateId}
+                        onClick={() => {
+                          setDuplicatingId(template.templateId)
+                          duplicateMutation.mutate(template.templateId)
+                        }}
+                        type="button"
+                      >
+                        {duplicatingId === template.templateId ? 'Duplicating...' : 'Duplicate'}
+                      </button>
                     ) : null}
 
                     {canWrite && confirmDeleteId === template.templateId ? (
