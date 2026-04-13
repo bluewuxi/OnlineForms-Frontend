@@ -154,8 +154,8 @@ function FormDesignerEditor({
     initialFields[0]?.fieldId ?? null,
   )
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
-  const [templateApplied, setTemplateApplied] = useState(false)
   const [selectedTemplateId, setSelectedTemplateId] = useState('')
+  const [pendingTemplateApply, setPendingTemplateApply] = useState(false)
 
   const initialPayload = useMemo(
     () => buildFormSchemaUpsertPayload(initialFields),
@@ -295,52 +295,9 @@ function FormDesignerEditor({
           <p className="section-heading__eyebrow">Schema summary</p>
           <h2>Version {version ?? 'Draft'}</h2>
         </div>
-        {isNewSchema && !templateApplied && availableTemplates.length > 0 ? (
+        {isNewSchema ? (
           <div className="designer-banner designer-banner--warning" role="status">
-            <strong>Start from a template?</strong>
-            <span>Pre-populate the field list from a saved template, or skip to begin with the default fields.</span>
-            <div className="button-row" style={{ marginTop: '0.5rem' }}>
-              <select
-                value={selectedTemplateId}
-                onChange={(event) => setSelectedTemplateId(event.target.value)}
-                style={{ flexShrink: 0 }}
-              >
-                <option value="">— choose a template —</option>
-                {availableTemplates.map((tpl) => (
-                  <option key={tpl.templateId} value={tpl.templateId}>
-                    {tpl.name} ({tpl.fields.length} field{tpl.fields.length !== 1 ? 's' : ''})
-                  </option>
-                ))}
-              </select>
-              <button
-                className="button button--primary"
-                disabled={!selectedTemplateId}
-                onClick={() => {
-                  const tpl = availableTemplates.find((t) => t.templateId === selectedTemplateId)
-                  if (tpl) {
-                    const reindexed = withDisplayOrder(tpl.fields)
-                    setEditableFields(reindexed)
-                    setSelectedFieldId(reindexed[0]?.fieldId ?? null)
-                  }
-                  setTemplateApplied(true)
-                }}
-                type="button"
-              >
-                Apply template
-              </button>
-              <button
-                className="button button--ghost"
-                onClick={() => setTemplateApplied(true)}
-                type="button"
-              >
-                Skip
-              </button>
-            </div>
-          </div>
-        ) : null}
-        {isNewSchema && (templateApplied || availableTemplates.length === 0) ? (
-          <div className="designer-banner designer-banner--warning" role="status">
-            <strong>No form template exists yet.</strong>
+            <strong>No form schema exists yet.</strong>
             <span>Add fields and save to create the first enrollment form version for this course.</span>
           </div>
         ) : null}
@@ -401,6 +358,63 @@ function FormDesignerEditor({
               >
                 {saveMutation.isPending ? 'Saving schema...' : 'Save schema'}
               </button>
+              {availableTemplates.length > 0 ? (
+                <button
+                  className="button button--ghost"
+                  onClick={() => setPendingTemplateApply((prev) => !prev)}
+                  type="button"
+                >
+                  Apply template
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+          {canWrite && pendingTemplateApply && availableTemplates.length > 0 ? (
+            <div className="designer-banner designer-banner--warning" role="status">
+              <strong>Apply a template</strong>
+              {editableFields.length > 0 ? (
+                <span>This will replace all {editableFields.length} current field{editableFields.length !== 1 ? 's' : ''} with the template fields. Save first if you want to keep a version of the current schema.</span>
+              ) : (
+                <span>Select a template to pre-populate the field list.</span>
+              )}
+              <div className="button-row" style={{ marginTop: '0.5rem' }}>
+                <select
+                  value={selectedTemplateId}
+                  onChange={(event) => setSelectedTemplateId(event.target.value)}
+                  style={{ flexShrink: 0 }}
+                >
+                  <option value="">— choose a template —</option>
+                  {availableTemplates.map((tpl) => (
+                    <option key={tpl.templateId} value={tpl.templateId}>
+                      {tpl.name} ({tpl.fields.length} field{tpl.fields.length !== 1 ? 's' : ''})
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="button button--primary"
+                  disabled={!selectedTemplateId}
+                  onClick={() => {
+                    const tpl = availableTemplates.find((t) => t.templateId === selectedTemplateId)
+                    if (tpl) {
+                      const reindexed = withDisplayOrder(tpl.fields)
+                      setEditableFields(reindexed)
+                      setSelectedFieldId(reindexed[0]?.fieldId ?? null)
+                    }
+                    setSelectedTemplateId('')
+                    setPendingTemplateApply(false)
+                  }}
+                  type="button"
+                >
+                  Apply
+                </button>
+                <button
+                  className="button button--ghost"
+                  onClick={() => { setSelectedTemplateId(''); setPendingTemplateApply(false) }}
+                  type="button"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           ) : null}
           {canWrite && hasUnsavedChanges ? (
