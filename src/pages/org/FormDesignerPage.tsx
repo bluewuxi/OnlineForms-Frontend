@@ -32,6 +32,12 @@ const fieldTypeOptions: Array<{ value: FormFieldType; label: string }> = [
   { value: 'date', label: 'Date' },
 ]
 
+const FIELD_ID_REGEX = /^[a-z][a-z0-9_]{1,63}$/
+
+function isValidFieldId(fieldId: string): boolean {
+  return FIELD_ID_REGEX.test(fieldId)
+}
+
 function createDraftField(position: number): FormField {
   return {
     fieldId: `field_${position + 1}`,
@@ -161,6 +167,11 @@ function FormDesignerEditor({
   )
   const hasUnsavedChanges =
     JSON.stringify(initialPayload) !== JSON.stringify(draftPayload)
+  const hasInvalidFieldIds = editableFields.some((f) => !isValidFieldId(f.fieldId))
+  const selectedFieldIdError =
+    selectedField && !isValidFieldId(selectedField.fieldId)
+      ? 'Must start with a lowercase letter, then lowercase letters, digits, or underscores only (e.g. first_name). Max 64 chars.'
+      : null
 
   const selectedField =
     editableFields.find((field) => field.fieldId === selectedFieldId) ?? null
@@ -384,7 +395,7 @@ function FormDesignerEditor({
               </button>
               <button
                 className="button button--secondary"
-                disabled={!editableFields.length || !hasUnsavedChanges || saveMutation.isPending}
+                disabled={!editableFields.length || !hasUnsavedChanges || hasInvalidFieldIds || saveMutation.isPending}
                 onClick={() => saveMutation.mutate()}
                 type="button"
               >
@@ -460,14 +471,22 @@ function FormDesignerEditor({
           </div>
           {selectedField ? (
             <div className="designer-editor-grid">
-              <label className="session-form__field">
-                <span>Field ID</span>
+              <div className="session-form__field">
+                <label htmlFor="designer-field-id">Field ID</label>
                 <input
+                  id="designer-field-id"
                   onChange={(event) => handleFieldIdChange(event.target.value)}
                   type="text"
                   value={selectedField.fieldId}
+                  aria-describedby={selectedFieldIdError ? 'designer-field-id-error' : undefined}
+                  aria-invalid={selectedFieldIdError ? true : undefined}
                 />
-              </label>
+                {selectedFieldIdError ? (
+                  <span id="designer-field-id-error" className="form-field-error" role="alert">
+                    {selectedFieldIdError}
+                  </span>
+                ) : null}
+              </div>
               <label className="session-form__field">
                 <span>Label</span>
                 <input

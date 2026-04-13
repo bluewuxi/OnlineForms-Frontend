@@ -733,6 +733,12 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
+.form-field-error {
+  color: #7c3131;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
 .session-form__field input,
 .session-form__field select,
 .session-form__field textarea,
@@ -743,6 +749,11 @@ textarea:focus-visible {
   border-radius: var(--radius-control);
   background: #fff;
   padding: 0.95rem 1rem;
+}
+
+.session-form__field input[aria-invalid="true"] {
+  border-color: #a84040;
+  outline-color: #a84040;
 }
 
 .session-form__field textarea,
