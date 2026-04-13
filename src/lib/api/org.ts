@@ -37,6 +37,9 @@ import type {
   UserSessionContext,
   UploadTicketRequest,
   UploadTicketResponse,
+  FormTemplate,
+  FormTemplateCreatePayload,
+  FormTemplateUpdatePayload,
 } from './types'
 
 type BackendPage = {
@@ -902,6 +905,65 @@ export function createOrgInvite(
 export function revokeOrgInvite(session: OrgSessionHeaders, inviteId: string) {
   return apiRequest<BackendItemEnvelope<{ revoked: boolean; inviteId: string }>>({
     path: `/org/tenants/${session.tenantId}/invites/${inviteId}`,
+    method: 'DELETE',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function listFormTemplates(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<FormTemplate[]>>({
+    path: '/org/form-templates',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function getFormTemplate(session: OrgSessionHeaders, templateId: string) {
+  return apiRequest<BackendItemEnvelope<FormTemplate>>({
+    path: `/org/form-templates/${templateId}`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function createFormTemplate(session: OrgSessionHeaders, payload: FormTemplateCreatePayload) {
+  return apiRequest<BackendItemEnvelope<FormTemplate>>({
+    path: '/org/form-templates',
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function updateFormTemplate(
+  session: OrgSessionHeaders,
+  templateId: string,
+  payload: FormTemplateUpdatePayload,
+) {
+  return apiRequest<BackendItemEnvelope<FormTemplate>>({
+    path: `/org/form-templates/${templateId}`,
+    method: 'PATCH',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function deleteFormTemplate(session: OrgSessionHeaders, templateId: string) {
+  return apiRequest<BackendItemEnvelope<{ deleted: boolean; templateId: string }>>({
+    path: `/org/form-templates/${templateId}`,
     method: 'DELETE',
     session,
   }).then((response) => ({

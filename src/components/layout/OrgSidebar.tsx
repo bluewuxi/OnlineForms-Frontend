@@ -7,6 +7,7 @@ type OrgSidebarProps = {
 
 const navItems = [
   { to: '/org/courses', label: 'Courses' },
+  { to: '/org/form-templates', label: 'Form Templates' },
   { to: '/org/submissions', label: 'Submissions' },
   { to: '/org/team', label: 'Users' },
   { to: '/org/branding', label: 'Branding' },
