@@ -168,13 +168,14 @@ function FormDesignerEditor({
   const hasUnsavedChanges =
     JSON.stringify(initialPayload) !== JSON.stringify(draftPayload)
   const hasInvalidFieldIds = editableFields.some((f) => !isValidFieldId(f.fieldId))
+
+  const selectedField =
+    editableFields.find((field) => field.fieldId === selectedFieldId) ?? null
+
   const selectedFieldIdError =
     selectedField && !isValidFieldId(selectedField.fieldId)
       ? 'Must start with a lowercase letter, then lowercase letters, digits, or underscores only (e.g. first_name). Max 64 chars.'
       : null
-
-  const selectedField =
-    editableFields.find((field) => field.fieldId === selectedFieldId) ?? null
 
   const saveMutation = useMutation<
     FormSchemaUpsertResponse,
