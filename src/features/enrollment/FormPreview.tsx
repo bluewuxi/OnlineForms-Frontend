@@ -23,6 +23,8 @@ type FormPreviewProps = {
   courseTitle?: string
   enrollmentStatus?: 'upcoming' | 'open' | 'closed'
   formAvailable?: boolean
+  variantId?: string | null
+  variantRequired?: boolean
 }
 
 // FS-01: Default max lengths aligned with backend enforcement (BS-04).
@@ -140,6 +142,8 @@ export function FormPreview({
   courseTitle,
   enrollmentStatus,
   formAvailable,
+  variantId,
+  variantRequired,
 }: FormPreviewProps) {
   const {
     register,
@@ -186,6 +190,7 @@ export function FormPreview({
         formVersion: schema.version,
         answers: normalizeEnrollmentAnswers(values),
         meta: createEnrollmentMeta(),
+        variantId: variantId ?? null,
         // FS-04: Include CAPTCHA token from Turnstile widget when enabled.
         _captchaToken:
           TURNSTILE_ENABLED && TURNSTILE_SITE_KEY
@@ -251,6 +256,18 @@ export function FormPreview({
           <Link className="button button--secondary" to={`/${tenantCode}/courses`}>
             Back to course list
           </Link>
+        </div>
+      </section>
+    )
+  }
+
+  if (variantRequired && !variantId) {
+    return (
+      <section className="content-panel enrollment-form-shell">
+        <div className="enrollment-form-shell__state-card">
+          <span className="enrollment-form-shell__state-icon">○</span>
+          <strong>Select an option above to continue</strong>
+          <p>Choose your preferred variant to reveal the application form.</p>
         </div>
       </section>
     )

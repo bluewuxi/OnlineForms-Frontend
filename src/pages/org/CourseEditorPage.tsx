@@ -5,6 +5,7 @@ import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { HtmlEditorField } from '../../components/forms/HtmlEditorField'
 import { PageHero } from '../../components/layout/PageHero'
+import { VariantsManager } from '../../features/courses/VariantsManager'
 import { useCanWrite } from '../../features/org-session/useCanWrite'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
@@ -581,6 +582,10 @@ export function CourseEditorPage() {
           isCreateMode={isCreateMode}
           session={session}
         />
+      ) : null}
+
+      {!isCreateMode && courseId && session && !courseQuery.isLoading && !courseQuery.isError ? (
+        <VariantsManager courseId={courseId} session={session} canWrite={canWrite} />
       ) : null}
     </div>
   )

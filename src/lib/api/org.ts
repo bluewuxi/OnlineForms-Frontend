@@ -5,6 +5,9 @@ import type {
   BrandingSettings,
   BrandingUpdateResponse,
   CourseStatus,
+  CourseVariant,
+  CourseVariantCreatePayload,
+  CourseVariantUpdatePayload,
   CursorPage,
   DeliveryMode,
   FormField,
@@ -13,7 +16,7 @@ import type {
   OrgAsset,
   OrgCourseCreateResponse,
   OrgCourseStatusResponse,
-  OrgCourse,
+  OrgCourseWithVariants,
   OrgCourseSummary,
   OrgCourseUpdatePayload,
   OrgCourseUpsertPayload,
@@ -114,6 +117,7 @@ type BackendOrgCourse = {
   activeFormVersion?: number | null
   createdAt: string
   updatedAt: string
+  variants?: CourseVariant[]
 }
 
 type BackendInternalTenant = {
@@ -229,7 +233,7 @@ function mapFormSchema(schema: BackendFormSchema) {
   }
 }
 
-function mapOrgCourse(course: BackendOrgCourse): OrgCourse {
+function mapOrgCourse(course: BackendOrgCourse): OrgCourseWithVariants {
   return {
     id: course.id,
     title: course.title,
@@ -251,6 +255,7 @@ function mapOrgCourse(course: BackendOrgCourse): OrgCourse {
     activeFormVersion: course.activeFormVersion,
     createdAt: course.createdAt,
     updatedAt: course.updatedAt,
+    variants: course.variants ?? [],
   }
 }
 
@@ -376,7 +381,7 @@ export function getCourse(session: OrgSessionHeaders, courseId: string) {
     session,
   }).then((response) => ({
     ...response,
-    data: mapOrgCourse(response.data.data),
+    data: mapOrgCourse(response.data.data) as OrgCourseWithVariants,
   }))
 }
 
@@ -431,6 +436,61 @@ export function archiveCourse(session: OrgSessionHeaders, courseId: string) {
     ...response,
     data: response.data.data,
   }))
+}
+
+export function listCourseVariants(session: OrgSessionHeaders, courseId: string) {
+  return apiRequest<BackendItemEnvelope<CourseVariant[]>>({
+    path: `/org/courses/${courseId}/variants`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function createCourseVariant(
+  session: OrgSessionHeaders,
+  courseId: string,
+  payload: CourseVariantCreatePayload,
+) {
+  return apiRequest<BackendItemEnvelope<CourseVariant>>({
+    path: `/org/courses/${courseId}/variants`,
+    method: 'POST',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function updateCourseVariant(
+  session: OrgSessionHeaders,
+  courseId: string,
+  variantId: string,
+  payload: CourseVariantUpdatePayload,
+) {
+  return apiRequest<BackendItemEnvelope<CourseVariant>>({
+    path: `/org/courses/${courseId}/variants/${variantId}`,
+    method: 'PATCH',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function deleteCourseVariant(
+  session: OrgSessionHeaders,
+  courseId: string,
+  variantId: string,
+) {
+  return apiRequest<Record<string, never>>({
+    path: `/org/courses/${courseId}/variants/${variantId}`,
+    method: 'DELETE',
+    session,
+  })
 }
 
 export function listSubmissions(
