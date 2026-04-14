@@ -3,6 +3,7 @@ import { ApiClientError, apiRequest, createIdempotencyKey } from './http'
 import type {
   Course,
   CourseListItem,
+  CourseVariant,
   CursorPage,
   EnrollmentPayload,
   EnrollmentResponse,
@@ -50,6 +51,7 @@ type BackendPublicCourse = BackendPublicCourseListItem & {
   formAvailable?: boolean
   formVersion?: number | null
   formSchema?: FormSchema | null
+  variants?: CourseVariant[]
 }
 
 type BackendTenantDirectoryItem = {
@@ -175,6 +177,7 @@ function mapCourse(course: BackendPublicCourse): Course {
     formAvailable: course.formAvailable ?? false,
     formVersion: course.formVersion ?? null,
     formSchema: course.formSchema ?? undefined,
+    variants: course.variants ?? [],
   }
 }
 

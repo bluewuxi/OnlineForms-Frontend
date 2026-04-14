@@ -72,7 +72,39 @@ export type Course = CourseListItem & {
   formAvailable?: boolean
   formVersion?: number | null
   formSchema?: FormSchema | Record<string, unknown>
+  variants?: CourseVariant[]
 }
+
+export type CourseVariant = {
+  id: string
+  courseId?: string
+  tenantId?: string
+  title: string
+  description?: string | null
+  startDate: string
+  endDate: string
+  deliveryMode: DeliveryMode
+  locationText?: string | null
+  capacity?: number | null
+  price?: number | null
+  displayOrder: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type CourseVariantCreatePayload = {
+  title: string
+  description?: string | null
+  startDate: string
+  endDate: string
+  deliveryMode: DeliveryMode
+  locationText?: string | null
+  capacity?: number | null
+  price?: number | null
+  displayOrder?: number
+}
+
+export type CourseVariantUpdatePayload = Partial<CourseVariantCreatePayload>
 
 export type OrgCourse = {
   id: string
@@ -95,6 +127,10 @@ export type OrgCourse = {
   activeFormVersion?: number | null
   createdAt: string
   updatedAt: string
+}
+
+export type OrgCourseWithVariants = OrgCourse & {
+  variants: CourseVariant[]
 }
 
 export type OrgCourseSummary = Pick<
@@ -223,6 +259,7 @@ export type EnrollmentPayload = {
     locale?: string
     timezone?: string
   }
+  variantId?: string | null
   /** FS-04: Cloudflare Turnstile token for server-side CAPTCHA verification. */
   _captchaToken?: string
   /** FS-03: Honeypot flag — true if the hidden honeypot field was filled (bot indicator). */

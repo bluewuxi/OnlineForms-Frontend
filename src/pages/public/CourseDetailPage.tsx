@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { RichText } from '../../components/content/RichText'
 import { ErrorState } from '../../components/feedback/ErrorState'
@@ -6,6 +7,7 @@ import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
 import { FormPreview } from '../../features/enrollment/FormPreview'
 import { parseFormSchema } from '../../features/enrollment/formSchema'
+import { VariantSelector } from '../../features/enrollment/VariantSelector'
 import { getPublicCourse } from '../../lib/api'
 import { normalizeTenantCode } from '../../lib/routing/tenantCode'
 
@@ -35,6 +37,8 @@ function normalizeStatusLabel(value?: string) {
 export function CourseDetailPage() {
   const { tenantCode: tenantCodeParam, courseId = '' } = useParams()
   const tenantCode = normalizeTenantCode(tenantCodeParam ?? '')
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null)
+
   const courseQuery = useQuery({
     queryKey: ['public-course', tenantCode, courseId],
     queryFn: async () => {
@@ -48,6 +52,12 @@ export function CourseDetailPage() {
     courseQuery.data?.formSchema,
     courseQuery.data?.formVersion,
   )
+
+  const variants = courseQuery.data?.variants ?? []
+  const hasVariants = variants.length > 0
+  const selectedVariant = hasVariants
+    ? variants.find((v) => v.id === selectedVariantId) ?? null
+    : null
 
   return (
     <div className="page-stack">
@@ -133,17 +143,32 @@ export function CourseDetailPage() {
             </div>
           </section>
 
-          {courseQuery.data.description ? (
+          {courseQuery.data.description || selectedVariant?.description ? (
             <section className="content-panel">
               <div className="section-heading">
                 <p className="section-heading__eyebrow">Course overview</p>
                 <h2>What this course covers</h2>
               </div>
-              <RichText
-                html={courseQuery.data.description}
-                className="rich-text content-panel__body-copy content-panel__body-copy--wide"
-              />
+              {courseQuery.data.description ? (
+                <RichText
+                  html={courseQuery.data.description}
+                  className="rich-text content-panel__body-copy content-panel__body-copy--wide"
+                />
+              ) : null}
+              {selectedVariant?.description ? (
+                <p className="content-panel__body-copy" style={{ marginTop: '1rem' }}>
+                  {selectedVariant.description}
+                </p>
+              ) : null}
             </section>
+          ) : null}
+
+          {hasVariants ? (
+            <VariantSelector
+              variants={variants}
+              selectedVariantId={selectedVariantId}
+              onSelect={setSelectedVariantId}
+            />
           ) : null}
 
           <FormPreview
@@ -153,6 +178,8 @@ export function CourseDetailPage() {
             formAvailable={courseQuery.data.formAvailable}
             schema={formSchema}
             tenantCode={tenantCode}
+            variantId={selectedVariantId}
+            variantRequired={hasVariants}
           />
         </>
       ) : null}
