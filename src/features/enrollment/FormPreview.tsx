@@ -1,3 +1,5 @@
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
@@ -6,15 +8,22 @@ import { Link } from 'react-router-dom'
 import {
   ApiClientError,
   createEnrollment,
+  createPaymentIntent,
   type EnrollmentResponse,
   type FormField,
   type FormFieldType,
   type FormSchema,
+  type PaymentIntentResponse,
 } from '../../lib/api'
 import {
   createEnrollmentMeta,
   normalizeEnrollmentAnswers,
 } from './submission'
+import { PaymentStep } from './PaymentStep'
+
+// Lazy-load Stripe once — null if public key is not configured.
+const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined
+const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null
 
 type FormPreviewProps = {
   schema: FormSchema | null
@@ -25,6 +34,8 @@ type FormPreviewProps = {
   formAvailable?: boolean
   variantId?: string | null
   variantRequired?: boolean
+  /** Price in minor units (cents) for the selected variant. null/0 = free. */
+  variantPrice?: number | null
 }
 
 // FS-01: Default max lengths aligned with backend enforcement (BS-04).
@@ -135,6 +146,13 @@ function getFieldErrorMessage(field: FormField, errorType?: string) {
 const TURNSTILE_ENABLED = import.meta.env.VITE_TURNSTILE_ENABLED !== 'false'
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined
 
+/** Phase of the two-step paid enrollment flow. */
+type EnrollmentPhase =
+  | 'form'        // filling out the application form
+  | 'payment'     // Stripe Elements rendered, awaiting card confirmation
+  | 'enrolling'   // calling /enrollments after payment succeeded
+  | 'done'        // enrollment confirmed
+
 export function FormPreview({
   schema,
   tenantCode,
@@ -144,6 +162,7 @@ export function FormPreview({
   formAvailable,
   variantId,
   variantRequired,
+  variantPrice,
 }: FormPreviewProps) {
   const {
     register,
@@ -167,12 +186,40 @@ export function FormPreview({
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [turnstileLoadError, setTurnstileLoadError] = useState(false)
 
+  // Payment phase tracking and payment intent state.
+  const [phase, setPhase] = useState<EnrollmentPhase>('form')
+  const [paymentIntent, setPaymentIntent] = useState<PaymentIntentResponse | null>(null)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
+  const [savedAnswers, setSavedAnswers] = useState<Record<string, unknown> | null>(null)
+
+  const isPaidVariant = typeof variantPrice === 'number' && variantPrice > 0
+
+  // Mutation: create Stripe PaymentIntent (paid flow — step 1 of 2)
+  const paymentIntentMutation = useMutation<PaymentIntentResponse, ApiClientError, Record<string, unknown>>({
+    mutationFn: async (values) => {
+      if (!schema) throw new ApiClientError(400, { error: { code: 'form_schema_missing', message: 'No form schema.' } }, 'No form schema.')
+      if (!variantId) throw new ApiClientError(400, { error: { code: 'variant_required', message: 'No variant selected.' } }, 'No variant selected.')
+      const response = await createPaymentIntent(tenantCode, courseId, {
+        variantId,
+        formVersion: schema.version,
+        answers: normalizeEnrollmentAnswers(values),
+      })
+      return response.data
+    },
+    onSuccess(pi, values) {
+      setSavedAnswers(values)
+      setPaymentIntent(pi)
+      setPhase('payment')
+    },
+  })
+
+  // Mutation: create enrollment (free flow OR after payment confirmed)
   const enrollmentMutation = useMutation<
     EnrollmentResponse,
     ApiClientError,
-    Record<string, unknown>
+    { values: Record<string, unknown>; paymentIntentId?: string }
   >({
-    mutationFn: async (values) => {
+    mutationFn: async ({ values, paymentIntentId }) => {
       if (!schema) {
         throw new ApiClientError(
           400,
@@ -191,6 +238,7 @@ export function FormPreview({
         answers: normalizeEnrollmentAnswers(values),
         meta: createEnrollmentMeta(),
         variantId: variantId ?? null,
+        paymentIntentId: paymentIntentId ?? null,
         // FS-04: Include CAPTCHA token from Turnstile widget when enabled.
         _captchaToken:
           TURNSTILE_ENABLED && TURNSTILE_SITE_KEY
@@ -204,26 +252,45 @@ export function FormPreview({
     },
     onSuccess() {
       reset()
+      setPhase('done')
     },
   })
 
-  // FS-03: Honeypot submit handler — declared before early returns so useCallback
-  // is called unconditionally (Rules of Hooks compliance).
+  // Callback for free-flow form submit (or initiating the payment PI step for paid).
   const handleFormSubmit = useCallback(
     (values: Record<string, unknown>) => {
       // If the hidden honeypot field was filled, a bot is submitting the form.
-      // Silently show the success state without making an API call.
       if (honeypotRef.current?.value) {
         setHoneypotSuccess(true)
         return
       }
-      enrollmentMutation.mutate(values)
+
+      if (isPaidVariant) {
+        // Paid flow: create PaymentIntent first, then show Stripe Elements.
+        paymentIntentMutation.mutate(values)
+      } else {
+        // Free flow: enroll directly.
+        enrollmentMutation.mutate({ values })
+      }
     },
-    // enrollmentMutation.mutate is stable across renders (react-query guarantee).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [enrollmentMutation.mutate],
+    [isPaidVariant, paymentIntentMutation.mutate, enrollmentMutation.mutate],
   )
   const onSubmit = handleSubmit(handleFormSubmit)
+
+  // Callback fired by PaymentStep on card confirmation success.
+  function handlePaymentSuccess(confirmedPaymentIntentId: string) {
+    setPaymentError(null)
+    setPhase('enrolling')
+    enrollmentMutation.mutate({ values: savedAnswers ?? {}, paymentIntentId: confirmedPaymentIntentId })
+  }
+
+  // Callback fired by PaymentStep on card decline / Stripe error.
+  function handlePaymentError(message: string) {
+    setPaymentError(message)
+  }
+
+  // ---- Early return guards ----
 
   if (enrollmentStatus === 'closed') {
     return (
@@ -291,11 +358,8 @@ export function FormPreview({
     )
   }
 
-  // FS-02: Distinguish 429 rate-limit errors from generic API errors.
-  const isRateLimited = enrollmentMutation.isError && enrollmentMutation.error.status === 429
-
   // FS-03: Show fake success for bot submissions alongside real success for humans.
-  if (honeypotSuccess || enrollmentMutation.isSuccess) {
+  if (honeypotSuccess || phase === 'done' || enrollmentMutation.isSuccess) {
     return (
       <section className="content-panel enrollment-form-shell enrollment-form-shell--success">
         <div className="enrollment-form-shell__state-card">
@@ -313,22 +377,89 @@ export function FormPreview({
     )
   }
 
+  // ---- Payment phase: render Stripe Elements ----
+
+  if (phase === 'payment' && paymentIntent && stripePromise) {
+    return (
+      <section className="content-panel enrollment-form-shell">
+        <div className="section-heading">
+          <p className="section-heading__eyebrow">Step 2 of 2 — Payment</p>
+          <h2>Complete your payment</h2>
+        </div>
+        <p className="content-panel__body-copy">
+          Enter your card details below to complete the enrollment.
+        </p>
+
+        {paymentError ? (
+          <div className="enrollment-form__banner" role="alert">
+            <strong>Payment failed</strong>
+            <span>{paymentError}</span>
+          </div>
+        ) : null}
+
+        {enrollmentMutation.isError ? (
+          <div className="enrollment-form__banner" role="alert">
+            <strong>{enrollmentMutation.error.message}</strong>
+            <span>Your payment was taken but the enrollment could not be recorded. Please contact support with your payment reference.</span>
+          </div>
+        ) : null}
+
+        <Elements
+          stripe={stripePromise}
+          options={{ clientSecret: paymentIntent.clientSecret }}
+        >
+          <PaymentStep
+            amount={paymentIntent.amount}
+            currency={paymentIntent.currency}
+            disabled={phase === 'enrolling' || enrollmentMutation.isPending}
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+          />
+        </Elements>
+
+        <div style={{ marginTop: '1rem' }}>
+          <button
+            className="button button--ghost"
+            onClick={() => {
+              setPhase('form')
+              setPaymentIntent(null)
+              setPaymentError(null)
+            }}
+            type="button"
+          >
+            ← Back to form
+          </button>
+        </div>
+      </section>
+    )
+  }
+
+  // ---- Form phase ----
+
+  // FS-02: Distinguish 429 rate-limit errors from generic API errors.
+  const isRateLimited =
+    (enrollmentMutation.isError && enrollmentMutation.error.status === 429) ||
+    (paymentIntentMutation.isError && paymentIntentMutation.error.status === 429)
+
   const requiredCount = schema.fields.filter((field) => field.required).length
 
   // FS-04: Disable submit while awaiting a Turnstile token (only when site key is configured).
   const awaitingCaptcha =
-    TURNSTILE_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken && !turnstileLoadError
+    !isPaidVariant && TURNSTILE_ENABLED && !!TURNSTILE_SITE_KEY && !turnstileToken && !turnstileLoadError
+
+  const isSubmitting = enrollmentMutation.isPending || paymentIntentMutation.isPending
 
   return (
     <section className="content-panel enrollment-form-shell">
       <div className="section-heading">
-        <p className="section-heading__eyebrow">Enrolment form</p>
+        <p className="section-heading__eyebrow">{isPaidVariant ? 'Step 1 of 2 — Application' : 'Enrolment form'}</p>
         <h2>Complete your application</h2>
       </div>
       <div className="button-row button-row--spread enrollment-form-shell__intro">
         <p className="content-panel__body-copy">
-          Complete the required questions below, then submit your response in one
-          step.
+          {isPaidVariant
+            ? 'Complete the form below, then proceed to payment to confirm your enrolment.'
+            : 'Complete the required questions below, then submit your response in one step.'}
         </p>
         <div className="enrollment-form-shell__stats" aria-label="Form summary">
           <span>{schema.fields.length} questions</span>
@@ -408,29 +539,22 @@ export function FormPreview({
               error, contact the training provider.
             </span>
           </div>
-        ) : enrollmentMutation.isError ? (
+        ) : enrollmentMutation.isError || paymentIntentMutation.isError ? (
           <div className="enrollment-form__banner" role="alert">
-            <strong>{enrollmentMutation.error.message}</strong>
+            <strong>{(enrollmentMutation.error ?? paymentIntentMutation.error)?.message}</strong>
             <span>Check the highlighted answers and try submitting again.</span>
             {import.meta.env.DEV ? (
               <span>
-                {enrollmentMutation.error.code
-                  ? ` (${enrollmentMutation.error.code})`
-                  : ''}
-                {enrollmentMutation.error.correlationId
-                  ? ` correlation ${enrollmentMutation.error.correlationId}`
+                {(enrollmentMutation.error ?? paymentIntentMutation.error)?.code
+                  ? ` (${(enrollmentMutation.error ?? paymentIntentMutation.error)?.code})`
                   : ''}
               </span>
             ) : null}
           </div>
         ) : null}
 
-        {/* FS-04: Cloudflare Turnstile CAPTCHA widget.
-            - Only rendered when VITE_TURNSTILE_ENABLED !== 'false' and VITE_TURNSTILE_SITE_KEY is set.
-            - If the widget fails to load (ad-blocker, network error), we log a warning and
-              allow submission to proceed so legitimate users are never blocked.
-            - Set VITE_TURNSTILE_ENABLED=false in local/test environments to skip the widget. */}
-        {TURNSTILE_ENABLED && TURNSTILE_SITE_KEY ? (
+        {/* FS-04: Cloudflare Turnstile CAPTCHA widget — only for free flow. */}
+        {!isPaidVariant && TURNSTILE_ENABLED && TURNSTILE_SITE_KEY ? (
           <Turnstile
             siteKey={TURNSTILE_SITE_KEY}
             onSuccess={(token) => {
@@ -456,14 +580,18 @@ export function FormPreview({
           ) : (
             <button
               className="button button--primary enrollment-form__submit"
-              disabled={enrollmentMutation.isPending || awaitingCaptcha}
+              disabled={isSubmitting || awaitingCaptcha}
               type="submit"
             >
-              {enrollmentMutation.isPending
-                ? 'Submitting application...'
+              {isSubmitting
+                ? isPaidVariant
+                  ? 'Preparing payment...'
+                  : 'Submitting application...'
                 : awaitingCaptcha
                   ? 'Verifying...'
-                  : 'Submit enrolment'}
+                  : isPaidVariant
+                    ? 'Continue to payment'
+                    : 'Submit enrolment'}
             </button>
           )}
         </div>

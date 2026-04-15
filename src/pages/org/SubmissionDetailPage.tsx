@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
@@ -9,7 +10,9 @@ import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
   ApiClientError,
   getSubmission,
+  refundSubmission,
   updateSubmissionStatus,
+  type RefundResponse,
   type Submission,
   type SubmissionStatus,
   type SubmissionStatusUpdatePayload,
@@ -49,6 +52,8 @@ export function SubmissionDetailPage() {
   const canWrite = useCanWrite()
   const { submissionId = '' } = useParams()
   const queryClient = useQueryClient()
+  const [refundConfirm, setRefundConfirm] = useState(false)
+  const [refundResult, setRefundResult] = useState<RefundResponse | null>(null)
   const submissionQuery = useQuery({
     queryKey: ['org-submission', session?.tenantId, submissionId],
     queryFn: async () => {
@@ -112,6 +117,18 @@ export function SubmissionDetailPage() {
         ['org-submission', session?.tenantId, submissionId],
         submission,
       )
+    },
+  })
+
+  const refundMutation = useMutation<RefundResponse, ApiClientError>({
+    mutationFn: async () => {
+      if (!session) throw new Error('Missing org session.')
+      const response = await refundSubmission(session, submissionId)
+      return response.data
+    },
+    onSuccess: (result) => {
+      setRefundConfirm(false)
+      setRefundResult(result)
     },
   })
 
@@ -246,6 +263,14 @@ export function SubmissionDetailPage() {
                 >
                   Mark canceled
                 </button>
+                <button
+                  className="button button--ghost"
+                  disabled={refundMutation.isPending}
+                  onClick={() => setRefundConfirm(true)}
+                  type="button"
+                >
+                  Refund
+                </button>
               </div>
             ) : null}
             {updateMutation.isError ? (
@@ -254,6 +279,66 @@ export function SubmissionDetailPage() {
               </p>
             ) : null}
           </div>
+
+          {/* Refund confirmation dialog */}
+          {refundConfirm ? (
+            <section className="content-panel content-panel--narrow">
+              <div className="section-heading">
+                <p className="section-heading__eyebrow">Confirm refund</p>
+                <h2>Issue a refund for this enrollment?</h2>
+              </div>
+              <p className="content-panel__body-copy">
+                This will initiate a full refund via Stripe. The action cannot be undone.
+              </p>
+              <div className="button-row" style={{ marginTop: '1rem' }}>
+                <button
+                  className="button button--primary"
+                  disabled={refundMutation.isPending}
+                  onClick={() => refundMutation.mutate()}
+                  type="button"
+                >
+                  {refundMutation.isPending ? 'Processing refund...' : 'Confirm refund'}
+                </button>
+                <button
+                  className="button button--ghost"
+                  disabled={refundMutation.isPending}
+                  onClick={() => setRefundConfirm(false)}
+                  type="button"
+                >
+                  Cancel
+                </button>
+              </div>
+              {refundMutation.isError ? (
+                <p className="submission-action-bar__error" role="alert">
+                  {refundMutation.error.message}
+                </p>
+              ) : null}
+            </section>
+          ) : null}
+
+          {/* Refund success confirmation */}
+          {refundResult ? (
+            <section className="content-panel content-panel--narrow">
+              <div className="section-heading">
+                <p className="section-heading__eyebrow">Refund issued</p>
+                <h2>Payment refunded successfully</h2>
+              </div>
+              <div className="detail-summary-grid">
+                <div className="field-card">
+                  <span>Refund ID</span>
+                  <strong>{refundResult.refundId}</strong>
+                </div>
+                <div className="field-card">
+                  <span>Amount</span>
+                  <strong>{(refundResult.amount / 100).toFixed(2)} {refundResult.currency.toUpperCase()}</strong>
+                </div>
+                <div className="field-card">
+                  <span>Status</span>
+                  <strong>{refundResult.status}</strong>
+                </div>
+              </div>
+            </section>
+          ) : null}
         </>
       ) : null}
     </div>
