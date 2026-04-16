@@ -9,8 +9,6 @@ import type {
 type VariantFormState = {
   title: string
   description: string
-  startDate: string
-  endDate: string
   deliveryMode: DeliveryMode
   locationText: string
   capacity: string
@@ -22,8 +20,6 @@ function toFormState(variant: CourseVariant): VariantFormState {
   return {
     title: variant.title,
     description: variant.description ?? '',
-    startDate: variant.startDate,
-    endDate: variant.endDate,
     deliveryMode: variant.deliveryMode,
     locationText: variant.locationText ?? '',
     capacity: variant.capacity?.toString() ?? '',
@@ -35,8 +31,6 @@ function toFormState(variant: CourseVariant): VariantFormState {
 const defaultFormState: VariantFormState = {
   title: '',
   description: '',
-  startDate: '',
-  endDate: '',
   deliveryMode: 'online',
   locationText: '',
   capacity: '',
@@ -48,8 +42,6 @@ function toPayload(state: VariantFormState): CourseVariantCreatePayload {
   return {
     title: state.title.trim(),
     description: state.description.trim() || null,
-    startDate: state.startDate,
-    endDate: state.endDate,
     deliveryMode: state.deliveryMode,
     locationText: state.locationText.trim() || null,
     capacity: state.capacity ? Number(state.capacity) : null,
@@ -165,7 +157,7 @@ export function VariantEditorCard({
         <div>
           <strong>{variant.title}</strong>
           <span className="variant-editor-card__meta">
-            {variant.startDate} – {variant.endDate} · {variant.deliveryMode}
+            {variant.deliveryMode}
             {variant.locationText ? ` · ${variant.locationText}` : ''}
           </span>
         </div>
@@ -239,28 +231,6 @@ function VariantFormFields({ draft, updateField, disabled }: VariantFormFieldsPr
           value={draft.description}
         />
       </label>
-      <div className="field-grid field-grid--course-dates">
-        <label className="session-form__field">
-          <span>Start date</span>
-          <input
-            disabled={disabled}
-            onChange={(event) => updateField('startDate', event.target.value)}
-            type="date"
-            value={draft.startDate}
-            required
-          />
-        </label>
-        <label className="session-form__field">
-          <span>End date</span>
-          <input
-            disabled={disabled}
-            onChange={(event) => updateField('endDate', event.target.value)}
-            type="date"
-            value={draft.endDate}
-            required
-          />
-        </label>
-      </div>
       <label className="session-form__field">
         <span>Delivery mode</span>
         <select
@@ -294,12 +264,12 @@ function VariantFormFields({ draft, updateField, disabled }: VariantFormFieldsPr
           />
         </label>
         <label className="session-form__field">
-          <span>Price (reserved — not yet active)</span>
+          <span>Price (in cents)</span>
           <input
-            disabled
+            disabled={disabled}
             min={0}
             onChange={(event) => updateField('price', event.target.value)}
-            placeholder="Reserved for future use"
+            placeholder="e.g. 5000 for $50.00"
             type="number"
             value={draft.price}
           />

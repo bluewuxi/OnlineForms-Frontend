@@ -104,16 +104,10 @@ export function BrandingPage() {
     },
   })
 
-  const [currencyDraft, setCurrencyDraft] = useState('')
-  const [currencyDirty, setCurrencyDirty] = useState(false)
-  const effectiveCurrencyDraft = currencyDirty
-    ? currencyDraft
-    : currentBranding?.currency || ''
-
   const brandingMutation = useMutation<
     BrandingUpdateResponse,
     ApiClientError | Error,
-    { logoAssetId?: string | null; description?: string | null; currency?: string | null }
+    { logoAssetId?: string | null; description?: string | null }
   >({
     mutationFn: async (payload) => {
       if (!session) {
@@ -127,8 +121,6 @@ export function BrandingPage() {
       setBrandingResult(result)
       setDescriptionDraft(result.description || '')
       setDescriptionDirty(false)
-      setCurrencyDraft(result.currency || '')
-      setCurrencyDirty(false)
       brandingQuery.refetch()
     },
   })
@@ -179,10 +171,6 @@ export function BrandingPage() {
             <span>Description status</span>
             <strong>{effectiveDescriptionDraft.trim() ? 'Configured' : 'Missing'}</strong>
           </div>
-          <div className="field-card">
-            <span>Payment currency</span>
-            <strong>{currentBranding?.currency?.toUpperCase() || 'Not set'}</strong>
-          </div>
         </div>
         <div className="button-row">
           <StatusChip tone={currentBranding?.logoAssetId ? 'info' : 'warning'}>
@@ -210,59 +198,6 @@ export function BrandingPage() {
             <strong>You have read-only access to this tenant.</strong>
             <span>Contact an Org Admin to make changes.</span>
           </div>
-        </section>
-      ) : null}
-
-      {canWrite ? (
-        <section className="content-panel">
-          <SectionHeader
-            eyebrow="Payment settings"
-            title="Payment currency"
-            description="Set the currency used for paid course enrollments. Must be a 3-letter ISO 4217 code (e.g. AUD, USD, GBP). Leave blank to disable paid enrollments."
-          />
-          <form
-            className="session-form"
-            onSubmit={(event) => {
-              event.preventDefault()
-              brandingMutation.mutate({
-                currency: effectiveCurrencyDraft.trim().toLowerCase() || null,
-              })
-            }}
-          >
-            <label className="session-form__field">
-              <span>Currency code</span>
-              <select
-                value={effectiveCurrencyDraft.toUpperCase()}
-                onChange={(e) => {
-                  setCurrencyDirty(true)
-                  setCurrencyDraft(e.target.value.toLowerCase())
-                }}
-              >
-                <option value="">Not set (free courses only)</option>
-                <option value="AUD">AUD — Australian Dollar</option>
-                <option value="USD">USD — US Dollar</option>
-                <option value="GBP">GBP — British Pound</option>
-                <option value="NZD">NZD — New Zealand Dollar</option>
-                <option value="CAD">CAD — Canadian Dollar</option>
-                <option value="EUR">EUR — Euro</option>
-                <option value="SGD">SGD — Singapore Dollar</option>
-              </select>
-            </label>
-            <div className="session-form__actions">
-              <button
-                className="button button--primary"
-                disabled={brandingMutation.isPending}
-                type="submit"
-              >
-                {brandingMutation.isPending ? 'Saving...' : 'Save currency'}
-              </button>
-              {brandingMutation.isError ? (
-                <p className="session-form__error">
-                  Failed to save currency setting.
-                </p>
-              ) : null}
-            </div>
-          </form>
         </section>
       ) : null}
 

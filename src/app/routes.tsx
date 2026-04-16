@@ -14,6 +14,7 @@ import { FormDesignerPage } from '../pages/org/FormDesignerPage'
 import { FormTemplatesPage } from '../pages/org/FormTemplatesPage'
 import { FormTemplateEditorPage } from '../pages/org/FormTemplateEditorPage'
 import { OrgSettingsPage } from '../pages/org/OrgSettingsPage'
+import { PaymentSettingsPage } from '../pages/org/PaymentSettingsPage'
 import { AcceptInvitePage } from '../pages/org/AcceptInvitePage'
 import { TeamPage } from '../pages/org/TeamPage'
 import { InternalHomePage } from '../pages/internal/InternalHomePage'
@@ -158,6 +159,10 @@ export const appRoutes: RouteObject[] = [
               {
                 path: 'branding',
                 element: <BrandingPage />,
+              },
+              {
+                path: 'payment-settings',
+                element: <PaymentSettingsPage />,
               },
               {
                 path: 'courses/:courseId/form',

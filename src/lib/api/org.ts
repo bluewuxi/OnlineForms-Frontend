@@ -44,6 +44,8 @@ import type {
   FormTemplate,
   FormTemplateCreatePayload,
   FormTemplateUpdatePayload,
+  PaymentSettings,
+  PaymentSettingsUpdatePayload,
 } from './types'
 
 type BackendPage = {
@@ -630,6 +632,31 @@ export function getBranding(session: OrgSessionHeaders) {
   return apiRequest<BackendItemEnvelope<BrandingSettings>>({
     path: '/org/branding',
     session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function getPaymentSettings(session: OrgSessionHeaders) {
+  return apiRequest<BackendItemEnvelope<PaymentSettings>>({
+    path: '/org/payment-settings',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function updatePaymentSettings(
+  session: OrgSessionHeaders,
+  payload: PaymentSettingsUpdatePayload,
+) {
+  return apiRequest<BackendItemEnvelope<PaymentSettings>>({
+    path: '/org/payment-settings',
+    method: 'PATCH',
+    session,
+    body: payload,
   }).then((response) => ({
     ...response,
     data: response.data.data,
