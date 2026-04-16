@@ -411,7 +411,7 @@ export function FormPreview({
           <PaymentStep
             amount={paymentIntent.amount}
             currency={paymentIntent.currency}
-            disabled={phase === 'enrolling' || enrollmentMutation.isPending}
+            disabled={enrollmentMutation.isPending}
             onSuccess={handlePaymentSuccess}
             onError={handlePaymentError}
           />
