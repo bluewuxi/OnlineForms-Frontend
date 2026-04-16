@@ -22,6 +22,7 @@ import type {
   OrgCourseUpsertPayload,
   OrgSessionHeaders,
   PricingMode,
+  RefundResponse,
   Submission,
   SubmissionStatus,
   SubmissionStatusUpdatePayload,
@@ -1025,6 +1026,17 @@ export function deleteFormTemplate(session: OrgSessionHeaders, templateId: strin
   return apiRequest<BackendItemEnvelope<{ deleted: boolean; templateId: string }>>({
     path: `/org/form-templates/${templateId}`,
     method: 'DELETE',
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function refundSubmission(session: OrgSessionHeaders, submissionId: string) {
+  return apiRequest<BackendItemEnvelope<RefundResponse>>({
+    path: `/org/submissions/${submissionId}/refund`,
+    method: 'POST',
     session,
   }).then((response) => ({
     ...response,

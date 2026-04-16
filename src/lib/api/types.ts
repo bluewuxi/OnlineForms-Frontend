@@ -260,10 +260,27 @@ export type EnrollmentPayload = {
     timezone?: string
   }
   variantId?: string | null
+  /** Required when the selected variant has a price. */
+  paymentIntentId?: string | null
   /** FS-04: Cloudflare Turnstile token for server-side CAPTCHA verification. */
   _captchaToken?: string
   /** FS-03: Honeypot flag — true if the hidden honeypot field was filled (bot indicator). */
   _hp?: boolean
+}
+
+export type PaymentIntentResponse = {
+  clientSecret: string
+  paymentIntentId: string
+  paymentId: string
+  amount: number    // minor units (cents)
+  currency: string  // ISO 4217 lowercase
+}
+
+export type RefundResponse = {
+  refundId: string
+  amount: number
+  currency: string
+  status: 'refunded'
 }
 
 export type EnrollmentResponse = {
@@ -346,6 +363,7 @@ export type BrandingUpdatePayload = {
   logoAssetId?: string | null
   description?: string | null
   homePageContent?: string | null
+  currency?: string | null
 }
 
 export type BrandingSettings = {
@@ -353,6 +371,7 @@ export type BrandingSettings = {
   displayName?: string
   description?: string | null
   homePageContent?: string | null
+  currency?: string | null
   logoAssetId: string | null
   logoUrl?: string | null
   updatedAt?: string

@@ -4,6 +4,20 @@ type VariantSelectorProps = {
   variants: CourseVariant[]
   selectedVariantId: string | null
   onSelect: (variantId: string) => void
+  /** ISO 4217 currency code (lowercase) for displaying prices. */
+  currency?: string | null
+}
+
+function formatPrice(amount: number, currency?: string | null): string {
+  if (!currency) return `${(amount / 100).toFixed(2)}`
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(amount / 100)
+  } catch {
+    return `${(amount / 100).toFixed(2)} ${currency.toUpperCase()}`
+  }
 }
 
 function formatDate(value?: string | null) {
@@ -12,7 +26,7 @@ function formatDate(value?: string | null) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
 }
 
-export function VariantSelector({ variants, selectedVariantId, onSelect }: VariantSelectorProps) {
+export function VariantSelector({ variants, selectedVariantId, onSelect, currency }: VariantSelectorProps) {
   if (variants.length === 0) return null
 
   return (
@@ -41,7 +55,18 @@ export function VariantSelector({ variants, selectedVariantId, onSelect }: Varia
               >
                 <div className="variant-selector__card-header">
                   <strong className="variant-selector__title">{variant.title}</strong>
-                  {isSelected ? <span className="variant-selector__badge">Selected</span> : null}
+                  <div className="variant-selector__badges">
+                    {typeof variant.price === 'number' && variant.price > 0 ? (
+                      <span className="variant-selector__price-badge">
+                        {formatPrice(variant.price, currency)}
+                      </span>
+                    ) : (
+                      <span className="variant-selector__price-badge variant-selector__price-badge--free">
+                        Free
+                      </span>
+                    )}
+                    {isSelected ? <span className="variant-selector__badge">Selected</span> : null}
+                  </div>
                 </div>
                 <div className="variant-selector__meta">
                   <span>{formatDate(variant.startDate)} – {formatDate(variant.endDate)}</span>

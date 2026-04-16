@@ -7,6 +7,7 @@ import type {
   CursorPage,
   EnrollmentPayload,
   EnrollmentResponse,
+  PaymentIntentResponse,
   AuthRoleOption,
   FormSchema,
   TenantDirectoryItem,
@@ -372,5 +373,26 @@ export function getPublicAuthOptions() {
     data: {
       roles: (response.data.data.roles || []).map(mapAuthRoleOption),
     },
+  }))
+}
+
+type PaymentIntentPayload = {
+  variantId: string
+  formVersion: number
+  answers: Record<string, unknown>
+}
+
+export function createPaymentIntent(
+  tenantCode: string,
+  courseId: string,
+  payload: PaymentIntentPayload,
+) {
+  return apiRequest<BackendItemEnvelope<PaymentIntentResponse>>({
+    path: `/public/${tenantCode}/courses/${courseId}/payment-intent`,
+    method: 'POST',
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
   }))
 }

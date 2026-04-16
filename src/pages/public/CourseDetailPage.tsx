@@ -59,6 +59,11 @@ export function CourseDetailPage() {
     ? variants.find((v) => v.id === selectedVariantId) ?? null
     : null
 
+  // Derive price and currency for the payment flow.
+  // Price comes from the selected variant; currency is not exposed on the public
+  // course endpoint so we pass undefined — the PaymentIntent response carries it.
+  const selectedVariantPrice = selectedVariant?.price ?? null
+
   return (
     <div className="page-stack">
       {courseQuery.isLoading ? (
@@ -180,6 +185,7 @@ export function CourseDetailPage() {
             tenantCode={tenantCode}
             variantId={selectedVariantId}
             variantRequired={hasVariants}
+            variantPrice={selectedVariantPrice}
           />
         </>
       ) : null}
