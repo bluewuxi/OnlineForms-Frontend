@@ -20,12 +20,6 @@ function formatPrice(amount: number, currency?: string | null): string {
   }
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return 'Not specified'
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString()
-}
-
 export function VariantSelector({ variants, selectedVariantId, onSelect, currency }: VariantSelectorProps) {
   if (variants.length === 0) return null
 
@@ -69,7 +63,6 @@ export function VariantSelector({ variants, selectedVariantId, onSelect, currenc
                   </div>
                 </div>
                 <div className="variant-selector__meta">
-                  <span>{formatDate(variant.startDate)} – {formatDate(variant.endDate)}</span>
                   <span>{variant.deliveryMode}</span>
                   {variant.locationText ? <span>{variant.locationText}</span> : null}
                   {variant.capacity ? <span>Capacity: {variant.capacity}</span> : null}

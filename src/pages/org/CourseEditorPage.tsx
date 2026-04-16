@@ -395,7 +395,7 @@ function CourseEditorForm({
               value={draft.pricingMode}
             >
               <option value="free">Free</option>
-              <option value="paid_placeholder">Paid placeholder</option>
+              <option value="paid">Paid</option>
             </select>
           </label>
           <label className="session-form__field session-form__field--wide">

@@ -31,7 +31,7 @@ export type OrgSessionHeaders = {
 }
 
 export type DeliveryMode = 'online' | 'onsite' | 'hybrid'
-export type PricingMode = 'free' | 'paid_placeholder'
+export type PricingMode = 'free' | 'paid'
 export type CourseStatus = 'draft' | 'published' | 'archived'
 
 export type ApiRequestOptions = {
@@ -81,8 +81,6 @@ export type CourseVariant = {
   tenantId?: string
   title: string
   description?: string | null
-  startDate: string
-  endDate: string
   deliveryMode: DeliveryMode
   locationText?: string | null
   capacity?: number | null
@@ -95,8 +93,6 @@ export type CourseVariant = {
 export type CourseVariantCreatePayload = {
   title: string
   description?: string | null
-  startDate: string
-  endDate: string
   deliveryMode: DeliveryMode
   locationText?: string | null
   capacity?: number | null
@@ -363,7 +359,6 @@ export type BrandingUpdatePayload = {
   logoAssetId?: string | null
   description?: string | null
   homePageContent?: string | null
-  currency?: string | null
 }
 
 export type BrandingSettings = {
@@ -371,13 +366,22 @@ export type BrandingSettings = {
   displayName?: string
   description?: string | null
   homePageContent?: string | null
-  currency?: string | null
   logoAssetId: string | null
   logoUrl?: string | null
   updatedAt?: string
 }
 
 export type BrandingUpdateResponse = BrandingSettings
+
+export type PaymentSettings = {
+  currency?: string | null
+  invoiceBusinessName?: string | null
+}
+
+export type PaymentSettingsUpdatePayload = {
+  currency?: string | null
+  invoiceBusinessName?: string | null
+}
 
 export type TenantDirectoryItem = {
   tenantId: string

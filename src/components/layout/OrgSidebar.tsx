@@ -11,6 +11,7 @@ const navItems = [
   { to: '/org/submissions', label: 'Submissions' },
   { to: '/org/team', label: 'Users' },
   { to: '/org/branding', label: 'Branding' },
+  { to: '/org/payment-settings', label: 'Payment Settings' },
   { to: '/org/audit', label: 'Audit' },
   { to: '/org/settings', label: 'Settings' },
 ]
