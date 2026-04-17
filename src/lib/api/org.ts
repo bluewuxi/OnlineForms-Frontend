@@ -46,6 +46,8 @@ import type {
   FormTemplateUpdatePayload,
   PaymentSettings,
   PaymentSettingsUpdatePayload,
+  InternalTenantPaymentSettings,
+  InternalTenantPaymentSettingsUpdatePayload,
 } from './types'
 
 type BackendPage = {
@@ -706,6 +708,35 @@ export function getInternalTenant(
   }).then((response) => ({
     ...response,
     data: mapInternalTenantProfile(response.data.data),
+  }))
+}
+
+export function getInternalTenantPaymentSettings(
+  session: OrgSessionHeaders,
+  tenantId: string,
+) {
+  return apiRequest<{ data: InternalTenantPaymentSettings }>({
+    path: `/internal/tenants/${tenantId}/payment-settings`,
+    session,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
+  }))
+}
+
+export function updateInternalTenantPaymentSettings(
+  session: OrgSessionHeaders,
+  tenantId: string,
+  payload: InternalTenantPaymentSettingsUpdatePayload,
+) {
+  return apiRequest<{ data: InternalTenantPaymentSettings }>({
+    path: `/internal/tenants/${tenantId}/payment-settings`,
+    method: 'PATCH',
+    session,
+    body: payload,
+  }).then((response) => ({
+    ...response,
+    data: response.data.data,
   }))
 }
 

@@ -11,10 +11,14 @@ import { PageHero } from '../../components/layout/PageHero'
 import { SectionHeader } from '../../components/layout/SectionHeader'
 import { useOrgSession } from '../../features/org-session/useOrgSession'
 import {
+  ApiClientError,
   createInternalTenant,
   getInternalTenant,
+  getInternalTenantPaymentSettings,
   listInternalTenants,
   updateInternalTenant,
+  updateInternalTenantPaymentSettings,
+  type InternalTenantPaymentSettings,
   type InternalTenantProfile,
 } from '../../lib/api'
 
@@ -57,6 +61,9 @@ export function InternalTenantsPage() {
   const [draftsByTenantId, setDraftsByTenantId] = useState<Record<string, TenantFormState>>({})
   const [createDraft, setCreateDraft] = useState<TenantCreateFormState>(emptyCreateState)
   const [saveMessage, setSaveMessage] = useState<string>('')
+  const [stripeAccountIdDraft, setStripeAccountIdDraft] = useState('')
+  const [applicationFeePercentDraft, setApplicationFeePercentDraft] = useState('')
+  const [paymentSettingsDirty, setPaymentSettingsDirty] = useState(false)
   const deferredSearch = useDeferredValue(searchInput)
 
   const tenantsQuery = useQuery({
@@ -174,6 +181,44 @@ export function InternalTenantsPage() {
     },
   })
 
+  const paymentSettingsQuery = useQuery({
+    queryKey: ['internal-tenant-payment-settings', effectiveSelectedTenantId],
+    queryFn: async () => {
+      if (!session || !effectiveSelectedTenantId) throw new Error('Missing tenant context.')
+      const response = await getInternalTenantPaymentSettings(session, effectiveSelectedTenantId)
+      return response.data
+    },
+    enabled: Boolean(session) && panelMode === 'edit' && Boolean(effectiveSelectedTenantId),
+  })
+
+  const currentPaymentSettings: InternalTenantPaymentSettings = paymentSettingsQuery.data ?? {}
+  const effectiveStripeAccountId = paymentSettingsDirty
+    ? stripeAccountIdDraft
+    : currentPaymentSettings.stripeAccountId || ''
+  const effectiveApplicationFeePercent = paymentSettingsDirty
+    ? applicationFeePercentDraft
+    : currentPaymentSettings.applicationFeePercent != null
+      ? String(currentPaymentSettings.applicationFeePercent)
+      : ''
+
+  const paymentSettingsMutation = useMutation<
+    InternalTenantPaymentSettings,
+    ApiClientError | Error,
+    { stripeAccountId: string | null; applicationFeePercent: number | null }
+  >({
+    mutationFn: async (payload) => {
+      if (!session || !effectiveSelectedTenantId) throw new Error('Missing tenant context.')
+      const response = await updateInternalTenantPaymentSettings(session, effectiveSelectedTenantId, payload)
+      return response.data
+    },
+    onSuccess: (result) => {
+      setStripeAccountIdDraft(result.stripeAccountId || '')
+      setApplicationFeePercentDraft(result.applicationFeePercent != null ? String(result.applicationFeePercent) : '')
+      setPaymentSettingsDirty(false)
+      queryClient.invalidateQueries({ queryKey: ['internal-tenant-payment-settings', effectiveSelectedTenantId] })
+    },
+  })
+
   const activeTenantCount = (tenantsQuery.data || []).filter((tenant) => tenant.isActive).length
 
   return (
@@ -271,6 +316,9 @@ export function InternalTenantsPage() {
                               setMobileMode('workspace')
                               setSelectedTenantId(tenant.tenantId)
                               setSaveMessage('')
+                              setPaymentSettingsDirty(false)
+                              setStripeAccountIdDraft('')
+                              setApplicationFeePercentDraft('')
                             }}
                             type="button"
                           >
@@ -530,6 +578,74 @@ export function InternalTenantsPage() {
                             <p className="session-form__error">
                               Failed to save tenant profile.
                             </p>
+                          ) : null}
+                        </div>
+                      </form>
+                      <form
+                        className="session-form"
+                        onSubmit={(event) => {
+                          event.preventDefault()
+                          const feeRaw = effectiveApplicationFeePercent.trim()
+                          const feeNum = feeRaw === '' ? null : Number(feeRaw)
+                          paymentSettingsMutation.mutate({
+                            stripeAccountId: effectiveStripeAccountId.trim() || null,
+                            applicationFeePercent: feeNum,
+                          })
+                        }}
+                      >
+                        <FormSection
+                          eyebrow="Stripe Connect"
+                          title="Payment settings"
+                          description="Configure the connected Stripe account and platform application fee for this tenant. Only internal users can modify these."
+                        >
+                          <label className="session-form__field">
+                            <span>Stripe Account ID</span>
+                            <input
+                              type="text"
+                              value={effectiveStripeAccountId}
+                              onChange={(e) => {
+                                setPaymentSettingsDirty(true)
+                                setStripeAccountIdDraft(e.target.value)
+                              }}
+                              placeholder="acct_1ABC..."
+                            />
+                          </label>
+                          <label className="session-form__field">
+                            <span>Application fee (%)</span>
+                            <input
+                              type="number"
+                              min={0}
+                              max={100}
+                              step={0.01}
+                              value={effectiveApplicationFeePercent}
+                              onChange={(e) => {
+                                setPaymentSettingsDirty(true)
+                                setApplicationFeePercentDraft(e.target.value)
+                              }}
+                              placeholder="e.g. 10"
+                            />
+                          </label>
+                          {currentPaymentSettings.currency ? (
+                            <p className="session-form__hint">
+                              Currency: <strong>{currentPaymentSettings.currency.toUpperCase()}</strong>
+                              {' '}(set by org admin in payment settings)
+                            </p>
+                          ) : (
+                            <p className="session-form__hint">
+                              Currency not yet configured by org admin.
+                            </p>
+                          )}
+                        </FormSection>
+                        <div className="session-form__actions">
+                          <button
+                            className="button button--primary"
+                            disabled={paymentSettingsMutation.isPending}
+                            type="submit"
+                          >
+                            {paymentSettingsMutation.isPending ? 'Saving...' : 'Save payment settings'}
+                          </button>
+                          {paymentSettingsMutation.isError ? (
+                            <p className="session-form__error">Failed to save payment settings.</p>
                           ) : null}
                         </div>
                       </form>
