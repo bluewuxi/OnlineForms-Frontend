@@ -450,6 +450,17 @@ export type InternalTenantUpdatePayload = {
   homePageContent?: string | null
 }
 
+export type InternalTenantPaymentSettings = {
+  currency?: string | null
+  stripeAccountId?: string | null
+  applicationFeePercent?: number | null
+}
+
+export type InternalTenantPaymentSettingsUpdatePayload = {
+  stripeAccountId?: string | null
+  applicationFeePercent?: number | null
+}
+
 export type InternalTenantCreatePayload = {
   tenantCode: string
   displayName: string
