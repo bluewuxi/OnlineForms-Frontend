@@ -1575,6 +1575,26 @@ textarea:focus-visible {
   word-break: break-all;
 }
 
+.theme-color-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.theme-color-row input[type='color'] {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.15rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.theme-color-row input[type='text'] {
+  flex: 1;
+}
+
 .designer-field-list {
   display: grid;
   gap: 1rem;

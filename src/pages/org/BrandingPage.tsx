@@ -17,6 +17,7 @@ import {
   type BrandingSettings,
   type BrandingUpdateResponse,
   type OrgAsset,
+  type TenantTheme,
   type UploadTicketResponse,
 } from '../../lib/api'
 
@@ -53,6 +54,8 @@ export function BrandingPage() {
   const [uploadedAsset, setUploadedAsset] = useState<OrgAsset | null>(null)
   const [descriptionDraft, setDescriptionDraft] = useState('')
   const [descriptionDirty, setDescriptionDirty] = useState(false)
+  const [themeDraft, setThemeDraft] = useState<TenantTheme>({})
+  const [themeDirty, setThemeDirty] = useState(false)
   const [brandingResult, setBrandingResult] =
     useState<BrandingUpdateResponse | null>(null)
 
@@ -76,6 +79,8 @@ export function BrandingPage() {
   const effectiveDescriptionDraft = descriptionDirty
     ? descriptionDraft
     : currentBranding?.description || ''
+
+  const effectiveTheme = themeDirty ? themeDraft : (currentBranding?.theme ?? {})
 
   const uploadMutation = useMutation<
     OrgAsset,
@@ -107,7 +112,7 @@ export function BrandingPage() {
   const brandingMutation = useMutation<
     BrandingUpdateResponse,
     ApiClientError | Error,
-    { logoAssetId?: string | null; description?: string | null }
+    { logoAssetId?: string | null; description?: string | null; theme?: TenantTheme }
   >({
     mutationFn: async (payload) => {
       if (!session) {
@@ -121,6 +126,7 @@ export function BrandingPage() {
       setBrandingResult(result)
       setDescriptionDraft(result.description || '')
       setDescriptionDirty(false)
+      setThemeDirty(false)
       brandingQuery.refetch()
     },
   })
@@ -239,6 +245,107 @@ export function BrandingPage() {
                   Failed to save tenant description.
                 </p>
               ) : null}
+            </div>
+          </form>
+        </section>
+      ) : null}
+
+      {canWrite ? (
+        <section className="content-panel">
+          <SectionHeader
+            eyebrow="Visual theme"
+            title="Tenant color scheme and typography"
+            description="Override the default platform colors and font for this tenant's public and org portal pages. Leave fields blank to use the platform default."
+          />
+          <form
+            className="session-form"
+            onSubmit={(event) => {
+              event.preventDefault()
+              brandingMutation.mutate({ theme: themeDraft })
+            }}
+          >
+            <div className="detail-summary-grid">
+              {(
+                [
+                  ['accentColor', 'Accent / primary color', '#6c47ff'],
+                  ['accentStrongColor', 'Accent strong (hover / active)', '#5235cc'],
+                  ['ctaColor', 'Call-to-action button color', '#ff6b35'],
+                  ['bgColor', 'Page background color', '#f8f7ff'],
+                  ['textColor', 'Body text color', '#1a1a2e'],
+                ] as const
+              ).map(([field, label, platformDefault]) => (
+                <label key={field} className="session-form__field">
+                  <span>{label}</span>
+                  <div className="theme-color-row">
+                    <input
+                      type="color"
+                      value={effectiveTheme[field] ?? platformDefault}
+                      onChange={(e) => {
+                        setThemeDirty(true)
+                        setThemeDraft((prev) => ({ ...prev, [field]: e.target.value }))
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="e.g. #6c47ff — blank to use default"
+                      value={effectiveTheme[field] ?? ''}
+                      onChange={(e) => {
+                        setThemeDirty(true)
+                        setThemeDraft((prev) => ({
+                          ...prev,
+                          [field]: e.target.value.trim() || null,
+                        }))
+                      }}
+                    />
+                  </div>
+                </label>
+              ))}
+              <label className="session-form__field">
+                <span>Font family</span>
+                <input
+                  type="text"
+                  placeholder="e.g. Georgia, serif — blank to use default"
+                  value={effectiveTheme.fontFamily ?? ''}
+                  maxLength={100}
+                  onChange={(e) => {
+                    setThemeDirty(true)
+                    setThemeDraft((prev) => ({
+                      ...prev,
+                      fontFamily: e.target.value.trim() || null,
+                    }))
+                  }}
+                />
+                <p className="content-panel__body-copy">
+                  Use a CSS font-family stack with system fonts or generic families (e.g. <code>Georgia, serif</code>). Custom web fonts must already be available in the browser.
+                </p>
+              </label>
+            </div>
+            <div className="session-form__actions">
+              <button
+                className="button button--primary"
+                disabled={brandingMutation.isPending || !themeDirty}
+                type="submit"
+              >
+                {brandingMutation.isPending ? 'Saving theme...' : 'Save theme'}
+              </button>
+              <button
+                className="button button--ghost"
+                type="button"
+                disabled={brandingMutation.isPending}
+                onClick={() => {
+                  setThemeDirty(true)
+                  setThemeDraft({
+                    accentColor: null,
+                    accentStrongColor: null,
+                    ctaColor: null,
+                    bgColor: null,
+                    textColor: null,
+                    fontFamily: null,
+                  })
+                }}
+              >
+                Reset to platform defaults
+              </button>
             </div>
           </form>
         </section>
