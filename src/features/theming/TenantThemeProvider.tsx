@@ -9,6 +9,13 @@ function hexToRgb(hex: string): string {
   return `${r}, ${g}, ${b}`
 }
 
+function darkenHex(hex: string, factor = 0.85): string {
+  const r = Math.round(parseInt(hex.slice(1, 3), 16) * factor)
+  const g = Math.round(parseInt(hex.slice(3, 5), 16) * factor)
+  const b = Math.round(parseInt(hex.slice(5, 7), 16) * factor)
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
 function buildThemeCSS(theme: TenantTheme): string {
   const vars: string[] = []
 
@@ -29,6 +36,7 @@ function buildThemeCSS(theme: TenantTheme): string {
 
   if (theme.ctaColor) {
     vars.push(`  --color-cta: ${theme.ctaColor};`)
+    vars.push(`  --color-cta-strong: ${darkenHex(theme.ctaColor)};`)
   }
 
   if (theme.bgColor) {

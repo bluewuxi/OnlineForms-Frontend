@@ -19,6 +19,7 @@
   --color-accent: #6c47ff;
   --color-accent-strong: #5235cc;
   --color-cta: #ff6b35;
+  --color-cta-strong: #e05a27;
   --color-success-bg: rgba(22, 163, 74, 0.12);
   --color-success-text: #15803d;
   --color-warning-bg: rgba(234, 179, 8, 0.15);
@@ -619,15 +620,15 @@ textarea:focus-visible {
 
 .button--primary,
 .search-panel button {
-  background: var(--color-accent);
+  background: var(--color-cta);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(108, 71, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
 }
 
 .button--primary:hover,
 .search-panel button:hover {
-  background: var(--color-accent-strong);
-  box-shadow: 0 6px 20px rgba(108, 71, 255, 0.45);
+  background: var(--color-cta-strong);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
 }
 
 .button--primary:active,
