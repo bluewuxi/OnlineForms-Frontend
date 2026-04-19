@@ -355,10 +355,20 @@ export type OrgAsset = {
   url?: string
 }
 
+export type TenantTheme = {
+  accentColor?: string | null
+  accentStrongColor?: string | null
+  ctaColor?: string | null
+  bgColor?: string | null
+  textColor?: string | null
+  fontFamily?: string | null
+}
+
 export type BrandingUpdatePayload = {
   logoAssetId?: string | null
   description?: string | null
   homePageContent?: string | null
+  theme?: TenantTheme
 }
 
 export type BrandingSettings = {
@@ -368,6 +378,7 @@ export type BrandingSettings = {
   homePageContent?: string | null
   logoAssetId: string | null
   logoUrl?: string | null
+  theme?: TenantTheme | null
   updatedAt?: string
 }
 
@@ -408,6 +419,7 @@ export type TenantHome = {
   branding?: {
     logoAssetId?: string | null
     logoUrl?: string | null
+    theme?: TenantTheme | null
   }
   links: {
     home?: string
