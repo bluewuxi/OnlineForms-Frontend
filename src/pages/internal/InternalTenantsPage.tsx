@@ -499,6 +499,7 @@ export function InternalTenantsPage() {
                       />
                     ) : null}
                     {editFormState ? (
+                      <>
                       <form
                         className="session-form"
                         onSubmit={(event) => {
@@ -649,6 +650,7 @@ export function InternalTenantsPage() {
                           ) : null}
                         </div>
                       </form>
+                      </>
                     ) : null}
                   </>
                 ) : (
