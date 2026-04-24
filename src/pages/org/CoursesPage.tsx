@@ -139,7 +139,7 @@ export function CoursesPage() {
                     <div key={course.id} className="org-course-card">
                       <div className="org-course-card__header">
                         <div className="org-course-card__title-row">
-                          <strong className="org-course-card__title">{course.title}</strong>
+                          <Link className="org-course-card__title" to={`/org/courses/${course.id}`}>{course.title}</Link>
                           <StatusChip tone={courseStatusTone(course.status)}>
                             {course.status}
                           </StatusChip>
@@ -163,22 +163,10 @@ export function CoursesPage() {
                           {course.activeFormVersion
                             ? `Version ${course.activeFormVersion}`
                             : 'No form yet'}
+                          <Link className="org-course-card__meta-edit" to={`/org/courses/${course.id}/form`}>
+                            Edit
+                          </Link>
                         </span>
-                      </div>
-
-                      <div className="org-course-card__actions">
-                        <Link
-                          className="button button--outline"
-                          to={`/org/courses/${course.id}`}
-                        >
-                          Open details
-                        </Link>
-                        <Link
-                          className="button button--ghost-teal"
-                          to={`/org/courses/${course.id}/form`}
-                        >
-                          Form designer
-                        </Link>
                       </div>
                     </div>
                   ))}

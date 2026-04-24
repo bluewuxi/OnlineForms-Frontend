@@ -126,7 +126,7 @@ textarea:focus-visible {
 }
 
 .app-frame__body {
-  width: min(1120px, calc(100% - 2rem));
+  width: min(1440px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 2rem 0 4rem;
 }
@@ -146,7 +146,7 @@ textarea:focus-visible {
 }
 
 .site-header__inner {
-  width: min(1120px, calc(100% - 2rem));
+  width: min(1440px, calc(100% - 2rem));
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -274,6 +274,7 @@ textarea:focus-visible {
 /* === HERO & CARDS === */
 .page-stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -319,6 +320,14 @@ textarea:focus-visible {
   font-size: clamp(1.6rem, 3vw, 2.25rem);
   line-height: 1.15;
   letter-spacing: -0.025em;
+}
+
+.page-hero--public .page-hero__content {
+  max-width: none;
+}
+
+.page-hero--public .page-hero__content > p {
+  max-width: none;
 }
 
 .page-hero--public h1 {
@@ -556,6 +565,16 @@ textarea:focus-visible {
   letter-spacing: -0.03em;
 }
 
+.course-card h2 a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.course-card h2 a:hover {
+  color: var(--color-accent-strong);
+  text-decoration: underline;
+}
+
 .destination-card p,
 .state-card p,
 .course-card p,
@@ -694,6 +713,7 @@ textarea:focus-visible {
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr) auto;
+  align-items: end;
   padding: 1rem;
 }
 
@@ -1100,6 +1120,34 @@ textarea:focus-visible {
   margin-top: 0.4rem;
 }
 
+.branding-tenant-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.detail-summary-grid--three-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.branding-tenant-row--wide {
+  grid-column: span 2;
+}
+
+.branding-tenant-info {
+  flex: 1;
+}
+
+
+.branding-logo-asset-id {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
 /* === STATUS === */
 .status-pill {
   display: inline-flex;
@@ -1328,8 +1376,7 @@ textarea:focus-visible {
   box-shadow: var(--shadow-drawer);
 }
 
-.content-panel--narrow,
-.state-card {
+.content-panel--narrow {
   max-width: 48rem;
 }
 
@@ -1509,6 +1556,29 @@ textarea:focus-visible {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.invite-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.data-table__role-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.data-table__role-cell select {
+  flex: 1;
+  border: 1px solid rgba(19, 34, 56, 0.14);
+  border-radius: var(--radius-control);
+  background: #fff;
+  padding: 0.3rem 0.6rem;
+  font: inherit;
+  font-size: 0.88rem;
+  color: inherit;
 }
 
 .table-subtext {
@@ -1826,7 +1896,7 @@ textarea:focus-visible {
 
 .portal-shell__body {
   flex: 1;
-  width: min(1000px, calc(100% - 2rem));
+  width: min(1280px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 2rem 0 4rem;
 }
@@ -1915,9 +1985,16 @@ textarea:focus-visible {
 
 .org-course-card__title {
   font-size: 1rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--color-text);
+  color: var(--color-accent);
   line-height: 1.35;
+  text-decoration: none;
+}
+
+.org-course-card__title:hover {
+  color: var(--color-accent-strong);
+  text-decoration: underline;
 }
 
 .org-course-card__summary {
@@ -1952,6 +2029,16 @@ textarea:focus-visible {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.org-course-card__meta-edit {
+  margin-left: auto;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.org-course-card__meta-edit:hover {
+  text-decoration: underline;
 }
 
 .org-course-card__actions {
@@ -2691,7 +2778,7 @@ textarea:focus-visible {
 }
 
 .public-site-footer__inner {
-  width: min(1120px, calc(100% - 2rem));
+  width: min(1440px, calc(100% - 2rem));
   margin: 0 auto;
   padding: var(--space-4) 0 var(--space-3);
 }
@@ -2748,13 +2835,32 @@ textarea:focus-visible {
   box-shadow: 0 8px 32px rgba(108, 71, 255, 0.30);
 }
 
+.page-hero--org .page-hero__content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1.25rem;
+  align-items: center;
+  max-width: none;
+}
+
+.page-hero--org .page-hero__badge {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 .page-hero--org h1 {
+  grid-column: 2;
+  grid-row: 1;
   color: #fff;
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  margin: 0;
 }
 
 .page-hero--org .page-hero__content > p {
+  grid-column: 1 / -1;
+  grid-row: 2;
   color: rgba(255, 255, 255, 0.78);
+  max-width: none;
 }
 
 /* Circular workspace badge for org hero */
@@ -2812,6 +2918,12 @@ textarea:focus-visible {
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.org-workspace-nav__item-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .org-workspace-nav__item-icon {
