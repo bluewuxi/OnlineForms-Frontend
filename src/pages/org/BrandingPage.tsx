@@ -21,6 +21,48 @@ import {
   type UploadTicketResponse,
 } from '../../lib/api'
 
+const FONT_OPTIONS = [
+  { label: 'Platform default', value: '' },
+  { label: 'System UI', value: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
+  { label: 'Georgia', value: "Georgia, 'Times New Roman', serif" },
+  { label: 'Arial', value: 'Arial, Helvetica, sans-serif' },
+  { label: 'Verdana', value: 'Verdana, Geneva, sans-serif' },
+  { label: 'Trebuchet MS', value: "'Trebuchet MS', Helvetica, sans-serif" },
+  { label: 'Tahoma', value: 'Tahoma, Geneva, sans-serif' },
+  { label: 'Palatino', value: "'Palatino Linotype', Palatino, serif" },
+  { label: 'Courier New', value: "'Courier New', Courier, monospace" },
+]
+
+const CUSTOM_FONT_SENTINEL = '__custom__'
+
+const COLOR_SCHEMES = [
+  {
+    label: 'Platform Default',
+    value: 'default',
+    colors: { accentColor: '#6c47ff', accentStrongColor: '#5235cc', ctaColor: '#ff6b35', bgColor: '#f8f7ff', textColor: '#1a1a2e' },
+  },
+  {
+    label: 'Ocean',
+    value: 'ocean',
+    colors: { accentColor: '#0ea5e9', accentStrongColor: '#0369a1', ctaColor: '#f59e0b', bgColor: '#f0f9ff', textColor: '#0f172a' },
+  },
+  {
+    label: 'Forest',
+    value: 'forest',
+    colors: { accentColor: '#16a34a', accentStrongColor: '#15803d', ctaColor: '#f97316', bgColor: '#f0fdf4', textColor: '#1a2e1a' },
+  },
+  {
+    label: 'Crimson',
+    value: 'crimson',
+    colors: { accentColor: '#dc2626', accentStrongColor: '#b91c1c', ctaColor: '#2563eb', bgColor: '#fff5f5', textColor: '#1c1414' },
+  },
+  {
+    label: 'Slate',
+    value: 'slate',
+    colors: { accentColor: '#475569', accentStrongColor: '#334155', ctaColor: '#0ea5e9', bgColor: '#f8fafc', textColor: '#0f172a' },
+  },
+]
+
 async function uploadAssetBinary(ticket: UploadTicketResponse, file: File) {
   let response: Response
 
@@ -164,20 +206,29 @@ export function BrandingPage() {
           title="Tenant identity currently in use"
           description="Logo and description changes here flow through to the public tenant page."
         />
-        <div className="detail-summary-grid">
-          <div className="field-card">
-            <span>Tenant</span>
-            <strong>{currentBranding?.displayName || session?.tenantId || 'Unknown'}</strong>
-          </div>
-          <div className="field-card">
-            <span>Logo asset ID</span>
-            <strong>{currentBranding?.logoAssetId || 'None'}</strong>
+        <div className="detail-summary-grid detail-summary-grid--three-col">
+          <div className="branding-tenant-row branding-tenant-row--wide">
+            {currentBranding?.logoUrl ? (
+              <img
+                alt={`${currentBranding.displayName || 'Tenant'} logo`}
+                className="tenant-logo tenant-logo--inline"
+                src={currentBranding.logoUrl}
+              />
+            ) : null}
+            <div className="field-card branding-tenant-info">
+              <span>Tenant</span>
+              <strong>{currentBranding?.displayName || session?.tenantId || 'Unknown'}</strong>
+            </div>
           </div>
           <div className="field-card">
             <span>Description status</span>
             <strong>{effectiveDescriptionDraft.trim() ? 'Configured' : 'Missing'}</strong>
           </div>
         </div>
+        <p className="branding-logo-asset-id">
+          <span>Logo asset ID</span>
+          <strong>{currentBranding?.logoAssetId || 'None'}</strong>
+        </p>
         <div className="button-row">
           <StatusChip tone={currentBranding?.logoAssetId ? 'info' : 'warning'}>
             {currentBranding?.logoAssetId ? 'logo ready' : 'logo missing'}
@@ -186,16 +237,6 @@ export function BrandingPage() {
             {effectiveDescriptionDraft.trim() ? 'description ready' : 'description needed'}
           </StatusChip>
         </div>
-        {currentBranding?.logoUrl ? (
-          <div className="branding-preview">
-            <span>Current public logo</span>
-            <img
-              alt={`${currentBranding.displayName || 'Tenant'} current logo`}
-              className="tenant-logo"
-              src={currentBranding.logoUrl}
-            />
-          </div>
-        ) : null}
       </section>
 
       {!canWrite ? (
@@ -261,9 +302,35 @@ export function BrandingPage() {
             className="session-form"
             onSubmit={(event) => {
               event.preventDefault()
-              brandingMutation.mutate({ theme: themeDraft })
+              const themeToSave = { ...themeDraft }
+              const pendingFont = themeToSave.fontFamily
+              const fontIsCustomOrUntouched =
+                pendingFont === undefined ||
+                (pendingFont != null && pendingFont !== '' && !FONT_OPTIONS.some(o => o.value === pendingFont))
+              if (fontIsCustomOrUntouched) {
+                themeToSave.fontFamily = currentBranding?.theme?.fontFamily ?? null
+              }
+              brandingMutation.mutate({ theme: themeToSave })
             }}
           >
+            <label className="session-form__field">
+              <span>Colour scheme</span>
+              <select
+                value=""
+                onChange={(e) => {
+                  const scheme = COLOR_SCHEMES.find(s => s.value === e.target.value)
+                  if (!scheme) return
+                  setThemeDirty(true)
+                  setThemeDraft((prev) => ({ ...prev, ...scheme.colors }))
+                }}
+              >
+                <option value="">Apply a preset…</option>
+                {COLOR_SCHEMES.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </label>
+
             <div className="detail-summary-grid">
               {(
                 [
@@ -302,22 +369,30 @@ export function BrandingPage() {
               ))}
               <label className="session-form__field">
                 <span>Font family</span>
-                <input
-                  type="text"
-                  placeholder="e.g. Georgia, serif — blank to use default"
-                  value={effectiveTheme.fontFamily ?? ''}
-                  maxLength={100}
-                  onChange={(e) => {
-                    setThemeDirty(true)
-                    setThemeDraft((prev) => ({
-                      ...prev,
-                      fontFamily: e.target.value.trim() || null,
-                    }))
-                  }}
-                />
-                <p className="content-panel__body-copy">
-                  Use a CSS font-family stack with system fonts or generic families (e.g. <code>Georgia, serif</code>). Custom web fonts must already be available in the browser.
-                </p>
+                {(() => {
+                  const currentFont = effectiveTheme.fontFamily ?? ''
+                  const isCustom = currentFont !== '' && !FONT_OPTIONS.some(o => o.value === currentFont)
+                  return (
+                    <select
+                      value={isCustom ? CUSTOM_FONT_SENTINEL : currentFont}
+                      onChange={(e) => {
+                        if (e.target.value === CUSTOM_FONT_SENTINEL) return
+                        setThemeDirty(true)
+                        setThemeDraft((prev) => ({
+                          ...prev,
+                          fontFamily: e.target.value || null,
+                        }))
+                      }}
+                    >
+                      {FONT_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                      {isCustom && (
+                        <option value={CUSTOM_FONT_SENTINEL}>Custom value</option>
+                      )}
+                    </select>
+                  )
+                })()}
               </label>
             </div>
             <div className="session-form__actions">

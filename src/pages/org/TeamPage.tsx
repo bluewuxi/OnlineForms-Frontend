@@ -15,6 +15,7 @@ import {
   listOrgMembers,
   removeOrgMember,
   revokeOrgInvite,
+  updateOrgMemberRole,
   type OrgInvite,
   type OrgMember,
   type OrgRole,
@@ -85,6 +86,7 @@ export function TeamPage() {
   const [pendingRemoveUserId, setPendingRemoveUserId] = useState<string | null>(null)
   const [pendingRevokeInviteId, setPendingRevokeInviteId] = useState<string | null>(null)
   const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null)
+  const [pendingRoleChange, setPendingRoleChange] = useState<Record<string, OrgRole>>({})
 
   const membersQuery = useQuery({
     queryKey: ['org-members', session?.tenantId],
@@ -140,6 +142,18 @@ export function TeamPage() {
     },
     onSuccess: () => {
       setPendingRemoveUserId(null)
+      void queryClient.invalidateQueries({ queryKey: ['org-members', session?.tenantId] })
+    },
+  })
+
+  const changeRoleMutation = useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: OrgRole }) => {
+      if (!session) throw new Error('Missing org session.')
+      await updateOrgMemberRole(session, userId, role)
+      return userId
+    },
+    onSuccess: (userId) => {
+      setPendingRoleChange((prev) => { const next = { ...prev }; delete next[userId]; return next })
       void queryClient.invalidateQueries({ queryKey: ['org-members', session?.tenantId] })
     },
   })
@@ -223,7 +237,6 @@ export function TeamPage() {
                 <thead>
                   <tr>
                     <th scope="col">Email</th>
-                    <th scope="col">User ID</th>
                     <th scope="col">Role</th>
                     <th scope="col">Status</th>
                     <th scope="col">Joined</th>
@@ -236,8 +249,39 @@ export function TeamPage() {
                     return (
                       <tr key={member.userId}>
                         <td>{member.email ?? '—'}</td>
-                        <td>{member.userId}</td>
-                        <td>{ROLE_LABELS[member.role]}</td>
+                        <td>
+                          {isAdmin ? (
+                            <span className="data-table__role-cell">
+                              <select
+                                value={pendingRoleChange[member.userId] ?? member.role}
+                                onChange={(e) => {
+                                  const next = e.target.value as OrgRole
+                                  setPendingRoleChange((prev) =>
+                                    next === member.role
+                                      ? { ...prev, [member.userId]: undefined as unknown as OrgRole }
+                                      : { ...prev, [member.userId]: next }
+                                  )
+                                }}
+                              >
+                                {ROLE_OPTIONS.map((o) => (
+                                  <option key={o.value} value={o.value}>{o.label}</option>
+                                ))}
+                              </select>
+                              {pendingRoleChange[member.userId] && pendingRoleChange[member.userId] !== member.role ? (
+                                <button
+                                  className="button button--primary button--small"
+                                  type="button"
+                                  disabled={changeRoleMutation.isPending}
+                                  onClick={() => changeRoleMutation.mutate({ userId: member.userId, role: pendingRoleChange[member.userId] })}
+                                >
+                                  {changeRoleMutation.isPending ? 'Saving…' : 'Save'}
+                                </button>
+                              ) : null}
+                            </span>
+                          ) : (
+                            ROLE_LABELS[member.role]
+                          )}
+                        </td>
                         <td>
                           <StatusChip tone={memberStatusTone(member.status)}>
                             {member.status}
@@ -293,42 +337,44 @@ export function TeamPage() {
 
       {/* Invite form */}
       {canWrite ? (
-        <section className="content-panel content-panel--narrow">
+        <section className="content-panel">
           <SectionHeader
             eyebrow="Invite"
             title="Invite a team member"
             description="Sent invites are valid for 7 days. The recipient must register or sign in to accept."
           />
           <form className="session-form" onSubmit={handleInviteSubmit}>
-            <label className="session-form__field">
-              <span>Email address</span>
-              <input
-                type="email"
-                value={inviteForm.email}
-                onChange={(event) => {
-                  setFormError(null)
-                  setInviteForm((current) => ({ ...current, email: event.target.value }))
-                }}
-                placeholder="member@example.com"
-                autoComplete="off"
-              />
-            </label>
-            <label className="session-form__field">
-              <span>Role</span>
-              <select
-                value={inviteForm.role}
-                onChange={(event) => {
-                  setFormError(null)
-                  setInviteForm((current) => ({ ...current, role: event.target.value as OrgRole }))
-                }}
-              >
-                {ROLE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="invite-form__row">
+              <label className="session-form__field">
+                <span>Email address</span>
+                <input
+                  type="email"
+                  value={inviteForm.email}
+                  onChange={(event) => {
+                    setFormError(null)
+                    setInviteForm((current) => ({ ...current, email: event.target.value }))
+                  }}
+                  placeholder="member@example.com"
+                  autoComplete="off"
+                />
+              </label>
+              <label className="session-form__field">
+                <span>Role</span>
+                <select
+                  value={inviteForm.role}
+                  onChange={(event) => {
+                    setFormError(null)
+                    setInviteForm((current) => ({ ...current, role: event.target.value as OrgRole }))
+                  }}
+                >
+                  {ROLE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             {ROLE_OPTIONS.find((o) => o.value === inviteForm.role) ? (
               <p className="content-panel__body-copy">
                 {ROLE_OPTIONS.find((o) => o.value === inviteForm.role)!.description}

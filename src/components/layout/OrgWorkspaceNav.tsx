@@ -36,16 +36,18 @@ export function OrgWorkspaceNav({
           const body = (
             <>
               <div className="org-workspace-nav__item-top">
-                {item.icon ? (
-                  <span className="org-workspace-nav__item-icon" aria-hidden="true">
-                    {item.icon}
-                  </span>
-                ) : null}
+                <div className="org-workspace-nav__item-title">
+                  {item.icon ? (
+                    <span className="org-workspace-nav__item-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                  ) : null}
+                  <strong>{item.label}</strong>
+                </div>
                 {isCurrent ? (
                   <span className="org-workspace-nav__active-badge">Active</span>
                 ) : null}
               </div>
-              <strong>{item.label}</strong>
               <p>{item.description}</p>
             </>
           )

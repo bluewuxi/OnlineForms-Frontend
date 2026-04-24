@@ -5,7 +5,7 @@ import { EmptyState } from '../../components/feedback/EmptyState'
 import { ErrorState } from '../../components/feedback/ErrorState'
 import { LoadingState } from '../../components/feedback/LoadingState'
 import { PageHero } from '../../components/layout/PageHero'
-import { listPublicCourses, type CourseListItem } from '../../lib/api'
+import { getPublicTenantHome, listPublicCourses, type CourseListItem } from '../../lib/api'
 import { normalizeTenantCode } from '../../lib/routing/tenantCode'
 
 const pageSize = 9
@@ -50,6 +50,15 @@ export function CourseCatalogPage() {
   const [statusInput, setStatusInput] = useState(initialStatusFilter)
   const cursor = searchParams.get('cursor') ?? undefined
   const statusFilter = initialStatusFilter
+
+  const tenantQuery = useQuery({
+    queryKey: ['tenant-home', tenantCode],
+    queryFn: async () => {
+      const response = await getPublicTenantHome(tenantCode)
+      return response.data
+    },
+    enabled: Boolean(tenantCode),
+  })
 
   const courseQuery = useQuery({
     queryKey: ['public-courses', tenantCode, initialQuery, cursor],
@@ -96,10 +105,10 @@ export function CourseCatalogPage() {
   return (
     <div className="page-stack">
       <PageHero
-        badge="Browse Training"
+        badge="Course Catalog"
         badgeOutlined
         variant="public"
-        title="Discover Your Next Skills Journey"
+        title={tenantQuery.data?.displayName ?? 'Course Catalog'}
         description="Explore our wide range of professional development courses. Find the perfect training to advance your career and start your enrolment today."
       />
 
@@ -171,7 +180,11 @@ export function CourseCatalogPage() {
             <section className="course-grid" aria-label="Available courses">
               {courses.map((course) => (
                 <article key={course.id} className="course-card">
-                  <h2>{course.title}</h2>
+                  <h2>
+                    <Link to={course.links?.detail || `/${tenantCode}/courses/${course.id}`}>
+                      {course.title}
+                    </Link>
+                  </h2>
                   <p>{course.summary || 'Course summary coming soon.'}</p>
                   <div className="course-card__meta">
                     {course.deliveryMode ? (
@@ -208,12 +221,6 @@ export function CourseCatalogPage() {
                     >
                       {normalizeStatusLabel(course.enrollmentStatus)}
                     </span>
-                    <Link
-                      className="button button--outline"
-                      to={course.links?.detail || `/${tenantCode}/courses/${course.id}`}
-                    >
-                      Review course
-                    </Link>
                   </div>
                 </article>
               ))}
