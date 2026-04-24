@@ -255,7 +255,7 @@ describe('App routing', () => {
         await screen.findByRole('heading', { name: /branding and public identity/i }),
       ).toBeInTheDocument()
       expect(
-        await screen.findByRole('img', { name: /standard school current logo/i }),
+        await screen.findByRole('img', { name: /standard school logo/i }),
       ).toHaveAttribute('src', 'https://assets.example.com/ast_logo_1.svg')
       expect(
         await screen.findByRole('textbox', { name: /tenant description/i }),
@@ -286,7 +286,7 @@ describe('App routing', () => {
     renderRoute('/t/acme-training/courses')
 
     expect(
-      await screen.findByRole('heading', { name: /discover your next skills journey/i }),
+      await screen.findByRole('heading', { name: /course catalog/i }),
     ).toBeInTheDocument()
   })
 
